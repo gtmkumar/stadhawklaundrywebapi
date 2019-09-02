@@ -40,7 +40,8 @@ namespace StadhawkLaundry.API.Controllers
         private readonly IEmailSender _emailSender;
         private readonly AppSettings _appSettings;
         private readonly IUnitOfWork _unit;
-        public AuthenticateController(IOptions<AppSettings> appSettings,IUnitOfWork unit, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IEmailSender emailSender, ISmsHandler<SmsResponseModel> smsHandler) {
+        public AuthenticateController(IOptions<AppSettings> appSettings, IUnitOfWork unit, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IEmailSender emailSender, ISmsHandler<SmsResponseModel> smsHandler)
+        {
             _unit = unit;
             _appSettings = appSettings.Value;
             _userManager = userManager;
@@ -153,60 +154,42 @@ namespace StadhawkLaundry.API.Controllers
 
             var dd = User.Identity.Name;
 
-            //var model = new CustomerResponseViewModel();
+            var model = new UserResponseViewModel();
 
             var response = new SingleResponse<UserResponseViewModel>();
-            try
+            if (ModelState.IsValid)
             {
-                if (ModelState.IsValid)
+                if (!(await _unit.IUser.Exists(u => u.PhoneNumber == model.MobileNo)).UserObject)
                 {
-                    if (!(await _unit.IUser.Exists(u => u.PhoneNumber == value.MobileNo)).UserObject)
+                    ModelState.AddModelError("PEmail", "Phone No. Not register");
+                    response.Message = "Phone no. does not register";
+                    response.Status = true;
+                }
+                else
+                {
+                    var data = await _userManager.FindByEmailAsync("");
+                    string strPhone = ("91" + value.MobileNo);
+                    data.FCMToken = value.FcmToken;
+                    data.DeviceId = value.DeviceId;
+                    data.DeviceType = value.DeviceType;
+                    data.ModifiedDate = DateTime.Now;
+
+                    response.Message = "user registered.";
+                    response.Status = true;
+                    var otpresposedata = await _smsHandler.VerifyOtpAsync(mobile: strPhone, OTP: value.OTP);
+                    if (otpresposedata.type == "success")
                     {
-                        ModelState.AddModelError("PEmail", "Phone No. Not register");
-                        response.Message = "Phone no. does not register";
-                        response.Status = true;
-                    }
-                    else
-                    {
-                        var data = AutoMapper.Mapper.Map<ApplicationUser>(value);
-                        data = (await _unit.IUser.GetDataFromPhoneNo(phoneNo: value.MobileNo)).UserObject;
-                        //if (userId > 0 && data.UserId != userId)
-                        //{
-                        //    await _unit.IUser.UpdateGuestUserCartToRegistor(userId, data.MobileNo);
-                        //}
-                        string strPhone = ("91" + value.MobileNo);
-                        data.Fcmtoken = value.FcmToken;
-                        data.DeviceId = value.DeviceId;
-                        data.DeviceType = value.DeviceType;
-                        data.ModifyDate = DateTime.Now;
-                        var otp = new PushNotification<OTPSendViewModel>();
-                        OTPSendViewModel otpresposedata = await otp.VerifyOtpAsync(mobile: strPhone, OTP: value.OTP);
-                        ApiResultCode result = null;
-                        if (otpresposedata.type == "success")
+                        try
                         {
-                            try
-                            {
-                                _unit.Customer.Update(data);
-                                result = await _unit.CompleteAsync();
-                            }
-                            catch (Exception ex)
-                            {
-                                response.Status = false;
-                                response.Message = "There was an internal error, please contact to technical support.";
-                                ErrorTrace.Logger(LogArea.ApplicationTier, ex);
-                                return response.ToHttpResponse();
-                            }
-                            model.CustomerName = data.CustomerName;
-                            model.EmailId = data.EmailId;
-                            model.MobileNo = data.MobileNo;
+                            await _userManager.UpdateAsync(data);
+                            model.Name = data.FullName;
+                            model.EmailId = data.Email;
+                            model.MobileNo = data.PhoneNumber;
                             if (!string.IsNullOrEmpty(data.CustomerImage))
                             {
-                                model.CustomerImageProfileImage = data.CustomerImage;
+                                model.userImageProfileImage = data.CustomerImage;
                             }
-
-                            LoginResponse userdetails = (await _unit.Customer.GetUserDetailsbyCredentials(value.MobileNo)).UserObject;
-
-                            if (userdetails != null)
+                            if (data != null)
                             {
                                 JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
                                 byte[] key = Encoding.ASCII.GetBytes(_appSettings.Secret);
@@ -214,8 +197,8 @@ namespace StadhawkLaundry.API.Controllers
                                 {
                                     Subject = new ClaimsIdentity(new Claim[]
                                     {
-                                        new Claim(ClaimTypes.Name, userdetails.CustomerId.ToString()),
-                                        new Claim(ClaimTypes.MobilePhone, data.MobileNo.ToString())
+                                        new Claim(ClaimTypes.Name, data.Id.ToString()),
+                                        new Claim(ClaimTypes.MobilePhone, data.PhoneNumber.ToString())
                                     }),
                                     Expires = DateTime.UtcNow.AddDays(180),
                                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
@@ -233,34 +216,24 @@ namespace StadhawkLaundry.API.Controllers
                             }
                             else
                             {
-                                value.OTP = null;
-                                return Ok(value);
+                                response.Message = "Worng OTP";
+                                response.Status = false;
+                                response.ErrorTypeCode = (int)ErrorMessage.WorngOTP;
+                                return response.ToHttpResponse();
                             }
                         }
-                        else
+                        catch (Exception ex)
                         {
-                            response.Message = "Worng OTP";
                             response.Status = false;
-                            response.ErrorTypeCode = (int)ErrorMessage.WorngOTP;
+                            response.Message = "There was an internal error, please contact to technical support.";
+                            ErrorTrace.Logger(LogArea.ApplicationTier, ex);
                             return response.ToHttpResponse();
                         }
                     }
-                    value.OTP = null;
-                    return Ok(value);
                 }
-                value.OTP = null;
-                return Ok(value);
-            }
-            catch (Exception ex)
-            {
-                response.Status = false;
-                response.Message = "There was an internal error, please contact to technical support.";
-                Logger?.LogCritical("There was an error on '{0}' invocation: {1}", nameof(Post), ex);
-                ErrorTrace.Logger(LogArea.ApplicationTier, ex);
             }
             return response.ToHttpResponse();
         }
-
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> Login(string returnUrl = null)
@@ -268,7 +241,8 @@ namespace StadhawkLaundry.API.Controllers
             // Clear the existing external cookie to ensure a clean login process
             var response = new SingleResponse<ReturnUrlResponseViewModel>();
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
-            var returnurl = new ReturnUrlResponseViewModel {
+            var returnurl = new ReturnUrlResponseViewModel
+            {
                 ReturnUrl = returnUrl
             };
             response.Data = returnurl;

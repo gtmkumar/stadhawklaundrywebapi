@@ -31,6 +31,7 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
 
         public Task<ApiResult<LoginResponseViewModel>> GetDataFromPhoneNo(string phoneNo)
         {
+
             throw new NotImplementedException();
         }
 

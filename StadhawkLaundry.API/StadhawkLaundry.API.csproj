@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Controllers\AssignRolesController.cs" />
+    <Compile Remove="Migrations\20190826165022_Extend_IdentityUser.cs" />
+    <Compile Remove="Migrations\20190826165022_Extend_IdentityUser.Designer.cs" />
+    <Compile Remove="Migrations\20190826170050_Extend_IdentityUser.cs" />
+    <Compile Remove="Migrations\20190826170050_Extend_IdentityUser.Designer.cs" />
+    <Compile Remove="Migrations\20190826171255_Extend_IdentityUser.cs" />
+    <Compile Remove="Migrations\20190826171255_Extend_IdentityUser.Designer.cs" />
+    <Compile Remove="Migrations\20190827081001_Extend_IdentityUser.cs" />
+    <Compile Remove="Migrations\20190827081001_Extend_IdentityUser.Designer.cs" />
+    <Compile Remove="Migrations\20190827091736_Extend_IdentityUser.cs" />
+    <Compile Remove="Migrations\20190827091736_Extend_IdentityUser.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="6.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ImageWriter\ImageWriter.csproj" />
+    <ProjectReference Include="..\Stadhawk.Laundry.Utility\Stadhawk.Laundry.Utility.csproj" />
+    <ProjectReference Include="..\StadhawkCoreApi\StadhawkCoreApi.csproj" />
+    <ProjectReference Include="..\StadhawkLaundry.DAL\StadhawkLaundry.BAL.csproj" />
+    <ProjectReference Include="..\StadhawkLaundry.DATAMODEL\StadhawkLaundry.DataModel.csproj" />
+    <ProjectReference Include="..\StadhawkLaundry.ViewModel\StadhawkLaundry.ViewModel.csproj" />
+  </ItemGroup>
+
+</Project>

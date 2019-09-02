@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:StadhwkLaundry.MoboApp.ViewModel"
+             x:Class="StadhwkLaundry.MoboApp.Views.Account.RegistorPage">
+
+    <ContentPage.BindingContext>
+        <vm:RegistorViewModel>
+        </vm:RegistorViewModel>
+    </ContentPage.BindingContext>
+    <ContentPage.Content>
+        <StackLayout VerticalOptions="CenterAndExpand" Padding="5">
+            
+            <Entry Placeholder="Email" Text="{Binding EmailId}"></Entry>
+            <Entry Placeholder="Phone No" Text="{Binding Contactno}"></Entry>
+            <Entry Placeholder="Password" IsPassword="True" Text="{Binding Password}"></Entry>
+            <Entry Placeholder="Confirm Password" IsPassword="True" Text="{Binding ConfirmPassword}"></Entry>
+            
+            <StackLayout Orientation="Horizontal">
+                <Label Text="Save Password"></Label>
+                <Switch IsToggled="False"></Switch>
+            </StackLayout>
+            <Button Text="Sign Up" Command="{Binding RegistorCommand}"></Button>
+            <Label Text="Already have account? Sign In" TextColor="Blue"></Label>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

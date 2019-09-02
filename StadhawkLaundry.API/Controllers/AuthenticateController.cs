@@ -1,0 +1,343 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using Stadhawk.Laundry.Utility.IHandler;
+using Stadhawk.Laundry.Utility.Model;
+using Stadhawk.Laundry.Utility.ResponseUtility;
+using StadhawkCoreApi.Logger;
+using StadhawkLaundry.API.Common;
+using StadhawkLaundry.API.Data;
+using StadhawkLaundry.API.Models;
+using StadhawkLaundry.BAL.Core;
+using StadhawkLaundry.ViewModel;
+using StadhawkLaundry.ViewModel.RequestModel;
+using StadhawkLaundry.ViewModel.ResponseModel;
+using Utility;
+
+namespace StadhawkLaundry.API.Controllers
+{
+    [Authorize]
+    [Route("api/[controller]")]
+    [ApiController]
+    public class AuthenticateController : ControllerBase
+    {
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly ISmsHandler<SmsResponseModel> _smsHandler;
+        private readonly IEmailSender _emailSender;
+        private readonly AppSettings _appSettings;
+        private readonly IUnitOfWork _unit;
+        public AuthenticateController(IOptions<AppSettings> appSettings,IUnitOfWork unit, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IEmailSender emailSender, ISmsHandler<SmsResponseModel> smsHandler) {
+            _unit = unit;
+            _appSettings = appSettings.Value;
+            _userManager = userManager;
+            _signInManager = signInManager;
+            _emailSender = emailSender;
+            _smsHandler = smsHandler;
+        }
+
+        [AllowAnonymous]
+        [HttpPost("otp_request")]
+        public async Task<IActionResult> PostAuthenticate([FromForm] OtpRequestViewModel model)
+        {
+            Random random = new Random();
+
+            var response = new SingleResponse<OtpRequestViewModel>();
+            string OTP = string.Empty;
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    if ((await _unit.IUser.Exists(t => t.PhoneNumber.Equals(model.MobileNo))).UserObject)
+                    {
+                        ModelState.AddModelError("PPhone", "Your Phone no. is not register with us");
+                        response.Message = "Your Phone no. is not register with us";
+                        response.Status = false;
+                        response.ErrorTypeCode = (int)ErrorMessage.PhoneOrEmailNotRegistor;
+                    }
+                    else
+                    {
+                        string strPhone = ("91" + model.MobileNo);
+                        var otpRequest = new OtpRequestViewModel
+                        {
+                            MobileNo = strPhone
+                        };
+                        var otpresposedata = await _smsHandler.SendOtpAsync(SmsVendorUrl: _appSettings.SmsHasKey, strHasKey: _appSettings.SmsHasKey, mobile: strPhone);
+                        if (otpresposedata.type == "success")
+                        {
+                            response.Message = "OTP Send on your registor no.";
+                            response.Status = true;
+                            response.Data = model;
+                            return response.ToHttpResponse();
+                        }
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Status = false;
+                response.Message = "There was an internal error, please contact to technical support.";
+                ErrorTrace.Logger(LogArea.ApplicationTier, ex);
+            }
+            return response.ToHttpResponse();
+        }
+
+        [AllowAnonymous]
+        [HttpPost("otp_resend")]
+        public async Task<IActionResult> PostOtpResend([FromForm] OtpRequestViewModel value)
+        {
+            Random random = new Random();
+
+            SingleResponse<OtpRequestViewModel> response = new SingleResponse<OtpRequestViewModel>();
+
+            string OTP = string.Empty;
+
+            try
+            {
+                if (ModelState.IsValid)
+                {
+
+                    if (!(await _unit.IUser.Exists(u => u.PhoneNumber == value.MobileNo)).UserObject)
+                    {
+                        ModelState.AddModelError("PPhone", "Your Phone no. is not register with us");
+                        response.Message = "Your Phone no. is not register with us";
+                        response.Status = false;
+                        response.ErrorTypeCode = (int)ErrorMessage.PhoneOrEmailNotRegistor;
+                    }
+                    else
+                    {
+                        string strPhone = ("91" + value.MobileNo);
+                        var otpresposedata = await _smsHandler.ResendOtpAsync(strPhone);
+                        if (otpresposedata.type == "success")
+                        {
+                            response.Message = "OTP Send on your registor no.";
+                            response.Status = true;
+                            response.Data = value;
+                            return response.ToHttpResponse();
+                        }
+
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Status = false;
+                response.Message = "There was an internal error, please contact to technical support.";
+                ErrorTrace.Logger(LogArea.ApplicationTier, ex);
+            }
+            return response.ToHttpResponse();
+        }
+
+        [AllowAnonymous]
+        [HttpPost("otp_verify")]
+        public async Task<IActionResult> PostUserVerification([FromForm] LoginRequestViewModel value)
+        {
+            int userId = 0;
+            string userIdStr = User.FindFirstValue(ClaimTypes.Name);
+            if (!string.IsNullOrWhiteSpace(userIdStr))
+                userId = Convert.ToInt32(userId);
+
+            var dd = User.Identity.Name;
+
+            //var model = new CustomerResponseViewModel();
+
+            var response = new SingleResponse<UserResponseViewModel>();
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    if (!(await _unit.IUser.Exists(u => u.PhoneNumber == value.MobileNo)).UserObject)
+                    {
+                        ModelState.AddModelError("PEmail", "Phone No. Not register");
+                        response.Message = "Phone no. does not register";
+                        response.Status = true;
+                    }
+                    else
+                    {
+                        var data = AutoMapper.Mapper.Map<ApplicationUser>(value);
+                        data = (await _unit.IUser.GetDataFromPhoneNo(phoneNo: value.MobileNo)).UserObject;
+                        //if (userId > 0 && data.UserId != userId)
+                        //{
+                        //    await _unit.IUser.UpdateGuestUserCartToRegistor(userId, data.MobileNo);
+                        //}
+                        string strPhone = ("91" + value.MobileNo);
+                        data.Fcmtoken = value.FcmToken;
+                        data.DeviceId = value.DeviceId;
+                        data.DeviceType = value.DeviceType;
+                        data.ModifyDate = DateTime.Now;
+                        var otp = new PushNotification<OTPSendViewModel>();
+                        OTPSendViewModel otpresposedata = await otp.VerifyOtpAsync(mobile: strPhone, OTP: value.OTP);
+                        ApiResultCode result = null;
+                        if (otpresposedata.type == "success")
+                        {
+                            try
+                            {
+                                _unit.Customer.Update(data);
+                                result = await _unit.CompleteAsync();
+                            }
+                            catch (Exception ex)
+                            {
+                                response.Status = false;
+                                response.Message = "There was an internal error, please contact to technical support.";
+                                ErrorTrace.Logger(LogArea.ApplicationTier, ex);
+                                return response.ToHttpResponse();
+                            }
+                            model.CustomerName = data.CustomerName;
+                            model.EmailId = data.EmailId;
+                            model.MobileNo = data.MobileNo;
+                            if (!string.IsNullOrEmpty(data.CustomerImage))
+                            {
+                                model.CustomerImageProfileImage = data.CustomerImage;
+                            }
+
+                            LoginResponse userdetails = (await _unit.Customer.GetUserDetailsbyCredentials(value.MobileNo)).UserObject;
+
+                            if (userdetails != null)
+                            {
+                                JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
+                                byte[] key = Encoding.ASCII.GetBytes(_appSettings.Secret);
+                                SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor
+                                {
+                                    Subject = new ClaimsIdentity(new Claim[]
+                                    {
+                                        new Claim(ClaimTypes.Name, userdetails.CustomerId.ToString()),
+                                        new Claim(ClaimTypes.MobilePhone, data.MobileNo.ToString())
+                                    }),
+                                    Expires = DateTime.UtcNow.AddDays(180),
+                                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
+                                        SecurityAlgorithms.HmacSha256Signature)
+                                };
+                                SecurityToken token = tokenHandler.CreateToken(tokenDescriptor);
+                                model.Token = tokenHandler.WriteToken(token);
+                                // remove password before returning
+                                value.OTP = null;
+                                response.Data = model;
+                                response.Message = "OTP verifed successfully";
+                                response.Status = true;
+                                return response.ToHttpResponse();
+
+                            }
+                            else
+                            {
+                                value.OTP = null;
+                                return Ok(value);
+                            }
+                        }
+                        else
+                        {
+                            response.Message = "Worng OTP";
+                            response.Status = false;
+                            response.ErrorTypeCode = (int)ErrorMessage.WorngOTP;
+                            return response.ToHttpResponse();
+                        }
+                    }
+                    value.OTP = null;
+                    return Ok(value);
+                }
+                value.OTP = null;
+                return Ok(value);
+            }
+            catch (Exception ex)
+            {
+                response.Status = false;
+                response.Message = "There was an internal error, please contact to technical support.";
+                Logger?.LogCritical("There was an error on '{0}' invocation: {1}", nameof(Post), ex);
+                ErrorTrace.Logger(LogArea.ApplicationTier, ex);
+            }
+            return response.ToHttpResponse();
+        }
+
+        [HttpGet]
+        [AllowAnonymous]
+        public async Task<IActionResult> Login(string returnUrl = null)
+        {
+            // Clear the existing external cookie to ensure a clean login process
+            var response = new SingleResponse<ReturnUrlResponseViewModel>();
+            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+            var returnurl = new ReturnUrlResponseViewModel {
+                ReturnUrl = returnUrl
+            };
+            response.Data = returnurl;
+            response.Status = true;
+            return response.ToHttpResponse();
+        }
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        [HttpPost("login")]
+        public async Task<IActionResult> Post([FromForm] LoginRequestViewModel value, string returnUrl = null)
+        {
+            var response = new SingleResponse<LoginResponseViewModel>();
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var loginResponseData = new LoginResponseViewModel();
+                    var loginstatus = (await _unit.IUser.AuthenticateUsers(value.UserId, EncryptionLibrary.EncryptText(value.Password))).UserObject;
+
+                    if (loginstatus)
+                    {
+                        var userdetails = (await _unit.IUser.GetUserDetailsbyCredentials(value.UserId)).UserObject;
+
+                        if (userdetails != null)
+                        {
+
+                            var tokenHandler = new JwtSecurityTokenHandler();
+                            var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
+                            var tokenDescriptor = new SecurityTokenDescriptor
+                            {
+                                Subject = new ClaimsIdentity(new Claim[]
+                                {
+                                        new Claim(ClaimTypes.Name, userdetails.UserId.ToString())
+                                }),
+                                Expires = DateTime.UtcNow.AddDays(1),
+                                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
+                                    SecurityAlgorithms.HmacSha256Signature)
+                            };
+                            var token = tokenHandler.CreateToken(tokenDescriptor);
+                            loginResponseData.Token = tokenHandler.WriteToken(token);
+                            loginResponseData.EmailId = userdetails.EmailId;
+                            response.Data = loginResponseData;
+                            response.Status = true;
+                            return response.ToHttpResponse();
+
+                        }
+                        else
+                        {
+                            response.Data = null;
+                            response.Message = "Not valid user";
+                            response.Status = true;
+                            return response.ToHttpResponse();
+                        }
+                    }
+                    else
+                    {
+                        response.Data = null;
+                        response.Message = "Not valid user";
+                        response.Status = true;
+                        return response.ToHttpResponse();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorTrace.Logger(LogArea.ApplicationTier, ex);
+                return response.ToHttpResponse();
+            }
+            return response.ToHttpResponse();
+        }
+    }
+}

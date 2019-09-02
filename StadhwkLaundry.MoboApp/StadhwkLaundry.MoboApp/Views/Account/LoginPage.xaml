@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:StadhwkLaundry.MoboApp.ViewModel"
+             x:Class="StadhwkLaundry.MoboApp.Views.Account.LoginPage">
+    <ContentPage.BindingContext>
+        <vm:LoginViewModel>
+        </vm:LoginViewModel>
+    </ContentPage.BindingContext>
+    <ContentPage.Content>
+        <StackLayout VerticalOptions="CenterAndExpand" Padding="5">
+            <Entry Placeholder="Email" Text="{Binding EmailId}"></Entry>
+            <Entry Placeholder="Password" IsPassword="True" Text="{Binding Password}"></Entry>
+            <Button Text="Login" Command="{Binding RegistorCommand}"></Button>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

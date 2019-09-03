@@ -11,7 +11,7 @@ namespace StadhawkLaundry.BAL.Core.IRepositories
     {
         Task<ApiResult<IEnumerable<TEntity>>> GetAll();
 
-        Task<ApiResult<TEntity>> GetByID(Guid Id);
+        Task<ApiResult<TEntity>> GetByID(dynamic Id);
         Task<ApiResult<IEnumerable<TEntity>>> Get<TEntity2>(Expression<Func<TEntity, bool>> predicate, Expression<Func<TEntity, TEntity2>> order);
         Task<ApiResult<IEnumerable<TEntity>>> Get(Expression<Func<TEntity, bool>> predicate);
 

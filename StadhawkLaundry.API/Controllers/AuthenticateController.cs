@@ -40,13 +40,11 @@ namespace StadhawkLaundry.API.Controllers
         private readonly IEmailSender _emailSender;
         private readonly AppSettings _appSettings;
         private readonly IUnitOfWork _unit;
-        public AuthenticateController(IOptions<AppSettings> appSettings, IUnitOfWork unit, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IEmailSender emailSender, ISmsHandler<SmsResponseModel> smsHandler)
+        public AuthenticateController(IOptions<AppSettings> appSettings, IUnitOfWork unit, UserManager<ApplicationUser> userManager, ISmsHandler<SmsResponseModel> smsHandler)
         {
             _unit = unit;
             _appSettings = appSettings.Value;
             _userManager = userManager;
-            _signInManager = signInManager;
-            _emailSender = emailSender;
             _smsHandler = smsHandler;
         }
 
@@ -76,7 +74,7 @@ namespace StadhawkLaundry.API.Controllers
                         {
                             MobileNo = strPhone
                         };
-                        var otpresposedata = await _smsHandler.SendOtpAsync(SmsVendorUrl: _appSettings.SmsHasKey, strHasKey: _appSettings.SmsHasKey, mobile: strPhone);
+                        var otpresposedata = await _smsHandler.SendOtpAsync(SmsVendorUrl: _appSettings.SmsVendorUrl, strHasKey: _appSettings.SmsHasKey, mobile: strPhone);
                         if (otpresposedata.type == "success")
                         {
                             response.Message = "OTP Send on your registor no.";
@@ -155,11 +153,10 @@ namespace StadhawkLaundry.API.Controllers
             var dd = User.Identity.Name;
 
             var model = new UserResponseViewModel();
-
             var response = new SingleResponse<UserResponseViewModel>();
             if (ModelState.IsValid)
             {
-                if (!(await _unit.IUser.Exists(u => u.PhoneNumber == model.MobileNo)).UserObject)
+                if (!(await _unit.IUser.Exists(u => u.PhoneNumber == value.MobileNo)).UserObject)
                 {
                     ModelState.AddModelError("PEmail", "Phone No. Not register");
                     response.Message = "Phone no. does not register";
@@ -167,12 +164,13 @@ namespace StadhawkLaundry.API.Controllers
                 }
                 else
                 {
-                    var data = await _userManager.FindByEmailAsync("");
+                    var data = (await _unit.IUser.GetByID("ad2cc221-9b4e-4b60-8310-98e9ab19bacb")).UserObject;
+                    var ddd = await _userManager.FindByEmailAsync(data.Email);
                     string strPhone = ("91" + value.MobileNo);
-                    data.FCMToken = value.FcmToken;
-                    data.DeviceId = value.DeviceId;
-                    data.DeviceType = value.DeviceType;
-                    data.ModifiedDate = DateTime.Now;
+                    ddd.FCMToken = value.FcmToken;
+                    ddd.DeviceId = value.DeviceId;
+                    ddd.DeviceType = value.DeviceType;
+                    ddd.ModifiedDate = DateTime.Now;
 
                     response.Message = "user registered.";
                     response.Status = true;
@@ -181,7 +179,7 @@ namespace StadhawkLaundry.API.Controllers
                     {
                         try
                         {
-                            await _userManager.UpdateAsync(data);
+                            await _userManager.UpdateAsync(ddd);
                             model.Name = data.FullName;
                             model.EmailId = data.Email;
                             model.MobileNo = data.PhoneNumber;
@@ -249,69 +247,69 @@ namespace StadhawkLaundry.API.Controllers
             response.Status = true;
             return response.ToHttpResponse();
         }
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
-        [HttpPost("login")]
-        public async Task<IActionResult> Post([FromForm] LoginRequestViewModel value, string returnUrl = null)
-        {
-            var response = new SingleResponse<LoginResponseViewModel>();
-            try
-            {
-                if (ModelState.IsValid)
-                {
-                    var loginResponseData = new LoginResponseViewModel();
-                    var loginstatus = (await _unit.IUser.AuthenticateUsers(value.UserId, EncryptionLibrary.EncryptText(value.Password))).UserObject;
+        //[AllowAnonymous]
+        //[ValidateAntiForgeryToken]
+        //[HttpPost("login")]
+        //public async Task<IActionResult> Post([FromForm] LoginRequestViewModel value, string returnUrl = null)
+        //{
+        //    var response = new SingleResponse<LoginResponseViewModel>();
+        //    try
+        //    {
+        //        if (ModelState.IsValid)
+        //        {
+        //            var loginResponseData = new LoginResponseViewModel();
+        //            var loginstatus = (await _unit.IUser.AuthenticateUsers(value.UserId, EncryptionLibrary.EncryptText(value.Password))).UserObject;
 
-                    if (loginstatus)
-                    {
-                        var userdetails = (await _unit.IUser.GetUserDetailsbyCredentials(value.UserId)).UserObject;
+        //            if (loginstatus)
+        //            {
+        //                var userdetails = (await _unit.IUser.GetUserDetailsbyCredentials(value.UserId)).UserObject;
 
-                        if (userdetails != null)
-                        {
+        //                if (userdetails != null)
+        //                {
 
-                            var tokenHandler = new JwtSecurityTokenHandler();
-                            var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
-                            var tokenDescriptor = new SecurityTokenDescriptor
-                            {
-                                Subject = new ClaimsIdentity(new Claim[]
-                                {
-                                        new Claim(ClaimTypes.Name, userdetails.UserId.ToString())
-                                }),
-                                Expires = DateTime.UtcNow.AddDays(1),
-                                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
-                                    SecurityAlgorithms.HmacSha256Signature)
-                            };
-                            var token = tokenHandler.CreateToken(tokenDescriptor);
-                            loginResponseData.Token = tokenHandler.WriteToken(token);
-                            loginResponseData.EmailId = userdetails.EmailId;
-                            response.Data = loginResponseData;
-                            response.Status = true;
-                            return response.ToHttpResponse();
+        //                    var tokenHandler = new JwtSecurityTokenHandler();
+        //                    var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
+        //                    var tokenDescriptor = new SecurityTokenDescriptor
+        //                    {
+        //                        Subject = new ClaimsIdentity(new Claim[]
+        //                        {
+        //                                new Claim(ClaimTypes.Name, userdetails.UserId.ToString())
+        //                        }),
+        //                        Expires = DateTime.UtcNow.AddDays(1),
+        //                        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
+        //                            SecurityAlgorithms.HmacSha256Signature)
+        //                    };
+        //                    var token = tokenHandler.CreateToken(tokenDescriptor);
+        //                    loginResponseData.Token = tokenHandler.WriteToken(token);
+        //                    loginResponseData.EmailId = userdetails.EmailId;
+        //                    response.Data = loginResponseData;
+        //                    response.Status = true;
+        //                    return response.ToHttpResponse();
 
-                        }
-                        else
-                        {
-                            response.Data = null;
-                            response.Message = "Not valid user";
-                            response.Status = true;
-                            return response.ToHttpResponse();
-                        }
-                    }
-                    else
-                    {
-                        response.Data = null;
-                        response.Message = "Not valid user";
-                        response.Status = true;
-                        return response.ToHttpResponse();
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                ErrorTrace.Logger(LogArea.ApplicationTier, ex);
-                return response.ToHttpResponse();
-            }
-            return response.ToHttpResponse();
-        }
+        //                }
+        //                else
+        //                {
+        //                    response.Data = null;
+        //                    response.Message = "Not valid user";
+        //                    response.Status = true;
+        //                    return response.ToHttpResponse();
+        //                }
+        //            }
+        //            else
+        //            {
+        //                response.Data = null;
+        //                response.Message = "Not valid user";
+        //                response.Status = true;
+        //                return response.ToHttpResponse();
+        //            }
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        ErrorTrace.Logger(LogArea.ApplicationTier, ex);
+        //        return response.ToHttpResponse();
+        //    }
+        //    return response.ToHttpResponse();
+        //}
     }
 }

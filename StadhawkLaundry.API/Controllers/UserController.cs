@@ -44,19 +44,6 @@ namespace StadhawkLaundry.API.Controllers
             _sms = sms;
             //_emailSender = emailSender;
         }
-        // GET: api/User
-        [HttpGet]
-        public async Task<IEnumerable<Users>> Get()
-        {
-            return null;
-            //return (await _unit.IUser.GetAll()).UserObject;
-        }
-        // GET: api/User/5
-        [HttpGet("edit/{id}")]
-        public async Task<Users> Get(Guid id)
-        {
-            return null;// (await _unit.IUser.GetByID(Id: id)).UserObject;
-        }
         // POST: api/User
         [HttpPost("registration")]
         [AllowAnonymous]
@@ -125,10 +112,6 @@ namespace StadhawkLaundry.API.Controllers
             }
             return response.ToHttpResponse();
         }
-
-        [AllowAnonymous]
-        [HttpPost("otp_request")]
-       
 
         [HttpDelete("{id}")]
         public async Task<HttpResponseMessage> Delete(Guid id)

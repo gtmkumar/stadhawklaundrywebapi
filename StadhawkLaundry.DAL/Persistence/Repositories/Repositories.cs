@@ -148,7 +148,7 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
             }
         }
 
-        public virtual async Task<ApiResult<TEntity>> GetByID(Guid Id)
+        public virtual async Task<ApiResult<TEntity>> GetByID(dynamic Id)
         {
             try
             {

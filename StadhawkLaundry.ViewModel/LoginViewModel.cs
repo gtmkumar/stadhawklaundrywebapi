@@ -9,8 +9,8 @@ namespace StadhawkLaundry.ViewModel
     {
         [Required(ErrorMessage = "Enter UserName")]
         public string UserId { get; set; }
-        [Required(ErrorMessage = "Enter Password")]
-        public string Password { get; set; }
+        //[Required(ErrorMessage = "Enter Password")]
+        //public string Password { get; set; }
         [Required(ErrorMessage = "Mobile No is requerd")]
         public string MobileNo { get; set; }
         public bool RememberMe { get; set; }

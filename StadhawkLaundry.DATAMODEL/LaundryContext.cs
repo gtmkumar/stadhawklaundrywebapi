@@ -40,6 +40,7 @@ namespace StadhawkLaundry.DataModel
         public virtual DbSet<TblSubcategory> TblSubcategory { get; set; }
         public virtual DbSet<TblUserAddress> TblUserAddress { get; set; }
         public virtual DbSet<Users> Users { get; set; }
+        public virtual DbSet<NavigatorView> NavigatorViews { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -552,6 +553,21 @@ namespace StadhawkLaundry.DataModel
                     .HasForeignKey(d => d.UserId)
                     .HasConstraintName("FK_Users_Users1");
             });
+
+            modelBuilder.Entity<NavigatorView>(entity =>
+            {
+                entity.Property(e => e.Display_Text)
+                .IsUnicode(false);
+                entity.Property(e => e.URL)
+                .IsUnicode(false);
+                entity.Property(e => e.Description)
+                    .IsUnicode(false);
+                entity.Property(e => e.icon)
+                    .IsUnicode(false);
+                entity.Property(e => e.Class)
+                    .IsUnicode(false);
+            });
+
         }
     }
 }

@@ -40,7 +40,8 @@ namespace StadhawkLaundry.DataModel
         public virtual DbSet<TblSubcategory> TblSubcategory { get; set; }
         public virtual DbSet<TblUserAddress> TblUserAddress { get; set; }
         public virtual DbSet<Users> Users { get; set; }
-
+        public virtual DbSet<UserAddressDataViewModel> AddressDataModels { get; set; }
+        public object UsersInRoles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

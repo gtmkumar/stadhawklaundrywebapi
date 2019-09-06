@@ -20,6 +20,8 @@ namespace StadhawkLaundry.BAL.Core
         IOrderRepository IOrder { get; }
         IMenuMasterServiceRepository IMenuMasterService { get; }
         IUserAddressRepository IUserAddress { get; }
+
+        //IServiceMasterRepository IServiceMaster { get; }
         Task<ApiResultCode> Complete();
     }
 }

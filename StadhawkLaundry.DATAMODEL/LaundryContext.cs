@@ -554,5 +554,22 @@ namespace StadhawkLaundry.DataModel
                     .HasConstraintName("FK_Users_Users1");
             });
         }
+        public DataSet ExecuteStoreProcedure(string procedureName, params SqlParameter[] parameters)
+        {
+            DataSet dataSet = new DataSet();
+            string conStr = Database.GetDbConnection().ConnectionString;
+            SqlConnection sqlConn = new SqlConnection(conStr);
+            SqlCommand cmdReport = new SqlCommand(procedureName, sqlConn);
+            SqlDataAdapter daReport = new SqlDataAdapter(cmdReport);
+            cmdReport.CommandTimeout = 1000;
+            using (cmdReport)
+            {
+                cmdReport.CommandType = CommandType.StoredProcedure;
+                cmdReport.Parameters.AddRange(parameters);
+                daReport.Fill(dataSet);
+            }
+
+            return dataSet;
+        }
     }
 }

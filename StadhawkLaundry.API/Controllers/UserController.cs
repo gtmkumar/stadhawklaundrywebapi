@@ -32,8 +32,6 @@ namespace StadhawkLaundry.API.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ISmsHandler<SmsResponseModel> _sms;
-        //private readonly IEmailSender _emailSender;
-        private readonly ILogger _logger;
         private readonly AppSettings _appSettings;
         private readonly IUnitOfWork _unit;
         public UserController(IUnitOfWork unit, IOptions<AppSettings> appSettings, UserManager<ApplicationUser> userManager, ISmsHandler<SmsResponseModel> sms)
@@ -42,9 +40,7 @@ namespace StadhawkLaundry.API.Controllers
             _appSettings = appSettings.Value;
             _userManager = userManager;
             _sms = sms;
-            //_emailSender = emailSender;
         }
-        // POST: api/User
         [HttpPost("registration")]
         [AllowAnonymous]
         public async Task<IActionResult> Post([FromForm] UsersViewModel users)
@@ -56,11 +52,10 @@ namespace StadhawkLaundry.API.Controllers
             if (ModelState.IsValid)
             {
                 bool isEdit = true;
-                Guid userGuid = Guid.Empty;
-                isEdit = !string.IsNullOrEmpty(users.Id) ? Guid.TryParse(users.Id, out userGuid) : false;
+                isEdit = userId > 0 ? true : false;
                 try
                 {
-                    if ((await _unit.IUser.Exists(t => t.PhoneNumber.Equals(users.ContactNo))).UserObject)
+                    if (!(await _unit.IUser.Exists(t => t.PhoneNumber.Equals(users.ContactNo))).UserObject)
                     {
                         ModelState.AddModelError("PPhone", "Your Phone no. is not register with us");
                         response.Message = "Your Phone no. is not register with us";
@@ -99,7 +94,7 @@ namespace StadhawkLaundry.API.Controllers
                         }
                         else
                         {
-                            tempUsers = (await _userManager.FindByIdAsync(Convert.ToString(userGuid)));
+                            tempUsers = (await _userManager.FindByIdAsync(Convert.ToString(userId)));
                             tempUsers.PhoneNumber = users.ContactNo;
                             tempUsers.UserName = users.EmailId;
                             tempUsers.ModifiedDate = DateTime.Now;

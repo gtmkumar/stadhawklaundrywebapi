@@ -76,6 +76,7 @@ namespace StadhawkLaundry.API
             services.AddSingleton<IConfiguration>(Configuration);
             services.AddTransient<IUnitOfWork, UnitOfWork>();
             services.AddTransient<IImageHandler, ImageHandler>();
+            services.AddScoped<IDirectionHandler, DirectionHandler>();
             services.AddTransient<ImageWriter.Interface.IImageWriter, ImageWriter.Classes.ImageWriter>();
             services.AddSingleton<ISmsHandler<SmsResponseModel>,SmsHandler<SmsResponseModel>>();
 

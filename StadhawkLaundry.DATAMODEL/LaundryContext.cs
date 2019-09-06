@@ -55,6 +55,16 @@ namespace StadhawkLaundry.DataModel
         public virtual DbSet<UsersMaster> UsersMaster { get; set; }
         public virtual DbSet<NavigatorView> NavigatorViews { get; set; }
 
+
+        /// <summary>
+        /// data model
+        /// </summary>
+        /// <param name="modelBuilder"></param>
+
+        public virtual DbSet<UserAddressDataViewModel> AddressDataModels { get; set; }
+
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasAnnotation("ProductVersion", "2.2.3-servicing-35854");
@@ -815,6 +825,40 @@ namespace StadhawkLaundry.DataModel
                 entity.Property(e => e.Class)
                     .IsUnicode(false);
             });
+        }
+
+        public DataSet ExecuteStoreProcedure(string procedureName, params SqlParameter[] parameters)
+        {
+            DataSet dataSet = new DataSet();
+            string conStr = Database.GetDbConnection().ConnectionString;
+            SqlConnection sqlConn = new SqlConnection(conStr);
+            SqlCommand cmdReport = new SqlCommand(procedureName, sqlConn);
+            SqlDataAdapter daReport = new SqlDataAdapter(cmdReport);
+            cmdReport.CommandTimeout = 1000;
+            using (cmdReport)
+            {
+                cmdReport.CommandType = CommandType.StoredProcedure;
+                cmdReport.Parameters.AddRange(parameters);
+                daReport.Fill(dataSet);
+            }
+
+            return dataSet;
+        }
+
+        public DataSet ExecuteStoreProcedure(string procedureName)
+        {
+            DataSet dataSet = new DataSet();
+            string conStr = Database.GetDbConnection().ConnectionString;
+            SqlConnection sqlConn = new SqlConnection(conStr);
+            SqlCommand cmdReport = new SqlCommand(procedureName, sqlConn);
+            SqlDataAdapter daReport = new SqlDataAdapter(cmdReport);
+            using (cmdReport)
+            {
+                cmdReport.CommandType = CommandType.StoredProcedure;
+                daReport.Fill(dataSet);
+            }
+
+            return dataSet;
         }
     }
 }

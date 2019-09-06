@@ -26,13 +26,13 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
         {
             _context = context;
         }
-        public async Task<ApiResult<bool>> SaveUserAddress(UserAddressRequestViewModel userAddress, string userId)
+        public async Task<ApiResult<bool>> SaveUserAddress(UserAddressRequestViewModel userAddress, int userId)
         {
             try
             {
                 userAddress.IsDefaultDeliveryLocation = true;
                 SqlParameter AddressId = new SqlParameter("@AddressId", System.Data.SqlDbType.Int) { Value = userAddress.AddressId.HasValue ? userAddress.AddressId.Value : (object)DBNull.Value };
-                SqlParameter Userid = new SqlParameter("@Userid", System.Data.SqlDbType.VarChar) { Value = !string.IsNullOrEmpty(userId) ? userId : (object)DBNull.Value };
+                SqlParameter Userid = new SqlParameter("@Userid", System.Data.SqlDbType.Int) { Value = userId > 0 ? userId : (object)DBNull.Value };
                 SqlParameter Longitude = new SqlParameter("@Longitude", System.Data.SqlDbType.Decimal) { Value = userAddress.Longitude };
                 SqlParameter Latitude = new SqlParameter("@Latitude", System.Data.SqlDbType.Decimal) { Value = userAddress.Latitude };
                 SqlParameter Address1 = new SqlParameter("@Address1", System.Data.SqlDbType.VarChar) { Value = userAddress.Address1 ?? (object)DBNull.Value };
@@ -54,21 +54,14 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
             return new ApiResult<bool>(new ApiResultCode(ApiResultType.Success), false);
         }
 
-        //public Task<ApiResult<bool>> UpdateUserAddress(UserAddressRequestViewModel userAddress, int? userId)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        public async Task<ApiResult<bool>> UpdateUserAddress(UserAddressRequestViewModel userAddress, string userId)
+        public async Task<ApiResult<bool>> UpdateUserAddress(UserAddressRequestViewModel userAddress, int userId)
         {
             try
             {
                 SqlParameter AddressId = new SqlParameter("@AddressId", System.Data.SqlDbType.Int) { Value = userAddress.AddressId.HasValue ? userAddress.AddressId.Value : (object)DBNull.Value };
-                //SqlParameter Userid = new SqlParameter("@Userid", System.Data.SqlDbType.Int) { Value = userId.HasValue ? userId.Value : (object)DBNull.Value };
-                SqlParameter Userid = new SqlParameter("@Userid", System.Data.SqlDbType.VarChar) { Value = !string.IsNullOrEmpty(userId) ? userId : (object)DBNull.Value };
+                SqlParameter Userid = new SqlParameter("@Userid", System.Data.SqlDbType.Int) { Value = userId > 0 ? userId : (object)DBNull.Value };
                 SqlParameter Address2 = new SqlParameter("@Address2", System.Data.SqlDbType.VarChar) { Value = userAddress.Address2 };
                 SqlParameter LandMark = new SqlParameter("@LandMark", System.Data.SqlDbType.VarChar) { Value = userAddress.LandMark ?? (object)DBNull.Value };
-                // var result = _context.ExecuteStoreProcedure("usp_UpdateUserAddress", AddressId, Userid, Address2, LandMark);
                 int result = await _context.Database.ExecuteSqlCommandAsync("usp_UpdateUserAddress {0},{1},{2},{3}", AddressId, Userid, Address2, LandMark);
                 ///  if (result >0)
                 return new ApiResult<bool>(new ApiResultCode(ApiResultType.Success), true);
@@ -78,20 +71,14 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
             catch (Exception ex)
             {
                 ErrorTrace.Logger(LogArea.ApplicationTier, ex);
-                return new ApiResult<bool>(new ApiResultCode(ApiResultType.Success), false);
+                return new ApiResult<bool>(new ApiResultCode(ApiResultType.Error), false);
             }
         }
 
-        //public Task<ApiResult<IEnumerable<UserAddressResponseViewModel>>> UserAddress(int? UserId, int? addressId = null)
-        //{
-        //    throw new NotImplementedException();
-        //}
-
-        public async Task<ApiResult<IEnumerable<UserAddressResponseViewModel>>> UserAddress(string UserId, int? addressId = null)
+        public async Task<ApiResult<IEnumerable<UserAddressResponseViewModel>>> UserAddress(int userId, int? addressId = null)
         {
             List<UserAddressResponseViewModel> models = new List<UserAddressResponseViewModel>();
-            //SqlParameter CustomerId = new SqlParameter("@User_id", System.Data.SqlDbType.Int) { Value = UserId };
-            SqlParameter Userid = new SqlParameter("@Userid", System.Data.SqlDbType.VarChar) { Value = !string.IsNullOrEmpty(UserId) ? UserId : (object)DBNull.Value };
+            SqlParameter Userid = new SqlParameter("@Userid", System.Data.SqlDbType.Int) { Value = userId > 0 ? userId : (object)DBNull.Value };
             SqlParameter addressIdParam = new SqlParameter("@Address_id", System.Data.SqlDbType.Int) { Value = addressId.HasValue ? addressId.Value : (object)DBNull.Value };
             try
             {

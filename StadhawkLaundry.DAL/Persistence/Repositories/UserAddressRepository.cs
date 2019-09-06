@@ -108,6 +108,24 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
             return new ApiResult<IEnumerable<UserAddressResponseViewModel>>(new ApiResultCode(ApiResultType.Error), models);
         }
 
+        public async Task<ApiResult<bool>> DeleteAddress(int? userID, int addressId)
+        {
+            try
+            {
+                SqlParameter CustomerId = new SqlParameter("@Address_Id", System.Data.SqlDbType.Int) { Value = userID.HasValue ? userID.Value : (object)DBNull.Value };
+                SqlParameter AddressId = new SqlParameter("@Customer_Id", System.Data.SqlDbType.Int) { Value = addressId };
+                var result = await _context.Database.ExecuteSqlCommandAsync("[usp_DeleteAddress] {0},{1}", AddressId, CustomerId);
+                if (result > 0)
+                    return new ApiResult<bool>(new ApiResultCode(ApiResultType.Success), true);
+            }
+            catch (Exception ex)
+            {
+                ErrorTrace.Logger(LogArea.ApplicationTier, ex);
+                return new ApiResult<bool>(new ApiResultCode(ApiResultType.ExceptionDuringOpration), false);
+            }
+            return new ApiResult<bool>(new ApiResultCode(ApiResultType.Error), false);
+        }
+
     }
 }
 

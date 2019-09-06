@@ -31,10 +31,10 @@ using Utility;
 
 namespace StadhawkLaundry.API.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
-    public class UserAddressController : Controller
+    public class UserAddressController : ControllerBase
     {
         private readonly IDirectionHandler _direction;
         private readonly IUnitOfWork _unit;
@@ -47,10 +47,11 @@ namespace StadhawkLaundry.API.Controllers
         [HttpPost("addupdateaddress")]
         public async Task<IActionResult> Post([FromForm] UserAddressRequestViewModel value)
         {
-            int userId = 0;
-            var userStrId = this.User.FindFirstValue(ClaimTypes.Name);
-            if (!string.IsNullOrWhiteSpace(userStrId))
-                userId = Convert.ToInt32(userStrId);
+            int? userId = 0;
+            var struserId = this.User.FindFirstValue(ClaimTypes.Name);
+            if (!string.IsNullOrWhiteSpace(struserId))
+                userId = Convert.ToInt32(struserId);
+
 
             var response = new ListResponse<UserAddressResponseViewModel>();
             try
@@ -58,15 +59,15 @@ namespace StadhawkLaundry.API.Controllers
                 var result = new ApiResult<bool>();
                 if (value.AddressId != null && value.AddressId > 0)
                 {
-                    result = await _unit.IUserAddress.UpdateUserAddress(userAddress: value, userId: userId);
-                    response.Data = (await _unit.IUserAddress.UserAddress(userId: userId, addressId: value.AddressId)).UserObject;
+                    result = await _unit.IUserAddress.UpdateUserAddress(userAddress: value, userId: userId.Value);
+                    response.Data = (await _unit.IUserAddress.UserAddress(userId: userId.Value, addressId: value.AddressId)).UserObject;
                     response.Message = "Success";
                     response.Status = true;
                     return response.ToHttpResponse();
                 }
                 else
                 {
-                    result = await _unit.IUserAddress.SaveUserAddress(userAddress: value, userId: userId);
+                    result = await _unit.IUserAddress.SaveUserAddress(userAddress: value, userId: userId.Value);
                     if (result.HasSuccess)
                     {
                         response.Data = null;
@@ -158,6 +159,25 @@ namespace StadhawkLaundry.API.Controllers
             response.Message = "Success";
             response.Status = true;
             response.Data = await _direction.GetGoogleDirectionResponseAsync(sLatitude, sLongitude, dLatitude, dLongitude);
+            return response.ToHttpResponse();
+        }
+
+        [HttpPost("deleteaddress")]
+        public async Task<IActionResult> DeleteAddress([FromForm] int addressId)
+        {
+            int? userId = 0;
+            string mobileNo = string.Empty;
+            var struserId = this.User.FindFirstValue(ClaimTypes.Name);
+            if (!string.IsNullOrWhiteSpace(struserId))
+                userId = Convert.ToInt32(userId);
+
+            var response = new Response();
+            var result = await _unit.IUserAddress.DeleteAddress(userId, addressId);
+            if (result.HasSuccess)
+            {
+                response.Message = "Success";
+                response.Status = true;
+            }
             return response.ToHttpResponse();
         }
     }

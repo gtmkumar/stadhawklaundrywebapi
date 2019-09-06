@@ -191,7 +191,7 @@ namespace StadhawkLaundry.API.Controllers
                                 {
                                     Subject = new ClaimsIdentity(new Claim[]
                                     {
-                                        new Claim(ClaimTypes.Name, resultdata.Id.ToString()),
+                                        new Claim(ClaimTypes.Name, Id.ToString()),
                                         new Claim(ClaimTypes.MobilePhone, resultdata.PhoneNumber.ToString())
                                     }),
                                     Expires = DateTime.UtcNow.AddDays(180),

@@ -15,5 +15,6 @@ namespace StadhawkLaundry.BAL.Core.IRepositories
         Task<ApiResult<IEnumerable<UserAddressResponseViewModel>>> UserAddress(int userId, int? addressId = null);
         Task<ApiResult<bool>> SaveUserAddress(UserAddressRequestViewModel userAddress, int userId);
         Task<ApiResult<bool>> UpdateUserAddress(UserAddressRequestViewModel userAddress, int userId);
+        Task<ApiResult<bool>> DeleteAddress(int? userID, int addressId);
     }
 }

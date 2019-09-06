@@ -173,10 +173,7 @@ namespace StadhawkLaundry.API.Controllers
                 return response;
             }
         }
-        /// <summary>
-        /// get meal pass detail by customer id
-        /// </summary>
-        /// <returns></returns>
+
         [HttpGet("getservicemaster")]
         public async Task<IActionResult> Get()
         {

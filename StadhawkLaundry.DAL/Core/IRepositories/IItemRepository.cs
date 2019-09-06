@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace StadhawkLaundry.BAL.Core.IRepositories
 {
-    public interface IItemRepository : IRepository<TblItem>
+    public interface IItemRepository : IRepository<TblItemMaster>
     {
-       Task<ApiResult<ItemViewModel>> GetItemById(string Id);
+       Task<ApiResult<ItemViewModel>> GetItemById(int Id);
        Task<ApiResult<IEnumerable<ItemViewModel>>> GetALLltem();
     }
 }

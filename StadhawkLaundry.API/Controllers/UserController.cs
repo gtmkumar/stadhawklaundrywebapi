@@ -32,8 +32,6 @@ namespace StadhawkLaundry.API.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ISmsHandler<SmsResponseModel> _sms;
-        //private readonly IEmailSender _emailSender;
-        private readonly ILogger _logger;
         private readonly AppSettings _appSettings;
         private readonly IUnitOfWork _unit;
         public UserController(IUnitOfWork unit, IOptions<AppSettings> appSettings, UserManager<ApplicationUser> userManager, ISmsHandler<SmsResponseModel> sms)
@@ -42,24 +40,28 @@ namespace StadhawkLaundry.API.Controllers
             _appSettings = appSettings.Value;
             _userManager = userManager;
             _sms = sms;
-            //_emailSender = emailSender;
         }
-        // POST: api/User
         [HttpPost("registration")]
         [AllowAnonymous]
         public async Task<IActionResult> Post([FromForm] UsersViewModel users)
         {
             var response = new Response();
-
-            var userId = this.User.FindFirstValue(ClaimTypes.Name);
+            int userId = 0;
+            string strUserId = this.User.FindFirstValue(ClaimTypes.Name);
 
             if (ModelState.IsValid)
             {
                 bool isEdit = true;
-                Guid userGuid = Guid.Empty;
-                isEdit = !string.IsNullOrEmpty(users.Id) ? Guid.TryParse(users.Id, out userGuid) : false;
+                isEdit = userId > 0 ? true : false;
                 try
                 {
+                    if (!(await _unit.IUser.Exists(t => t.PhoneNumber.Equals(users.ContactNo))).UserObject)
+                    {
+                        ModelState.AddModelError("PPhone", "Your Phone no. is not register with us");
+                        response.Message = "Your Phone no. is not register with us";
+                        response.Status = false;
+                        response.ErrorTypeCode = (int)ErrorMessage.PhoneOrEmailNotRegistor;
+                    }
                     if ((await _unit.IUser.Exists(t => t.Email.Equals(users.EmailId))).UserObject)
                     {
                         response.Message = "Email already in use.";
@@ -69,17 +71,18 @@ namespace StadhawkLaundry.API.Controllers
                     else
                     {
                         var tempUsers = AutoMapper.Mapper.Map<ApplicationUser>(users);
-                        AspNetUserRoles userInRole = new AspNetUserRoles();
+                        ApplicationRole userInRole = new ApplicationRole();
                         if (!isEdit)
                         {
                             tempUsers.CreatedDate = DateTime.Now;
                             tempUsers.CreatedBy = tempUsers.Id;
                             tempUsers.Status = true;
+                            tempUsers.UserName = users.EmailId;
                             var result = await _userManager.CreateAsync(tempUsers);
                             await _userManager.AddToRoleAsync(tempUsers, "USER");
                             if (result.Succeeded)
                             {
-                                string strPhone = ("91" + users.Contactno);
+                                string strPhone = ("91" + users.ContactNo);
                                 response.Message = "user registered.";
                                 response.Status = true;
                                 var otpresposedata = await _sms.SendOtpAsync(SmsVendorUrl: _appSettings.SmsVendorUrl, strHasKey: _appSettings.SmsHasKey, mobile: strPhone);
@@ -91,8 +94,8 @@ namespace StadhawkLaundry.API.Controllers
                         }
                         else
                         {
-                            tempUsers = (await _userManager.FindByIdAsync(Convert.ToString(userGuid)));
-                            tempUsers.PhoneNumber = users.Contactno;
+                            tempUsers = (await _userManager.FindByIdAsync(Convert.ToString(userId)));
+                            tempUsers.PhoneNumber = users.ContactNo;
                             tempUsers.UserName = users.EmailId;
                             tempUsers.ModifiedDate = DateTime.Now;
                             tempUsers.ModifiedBy = userId;
@@ -114,7 +117,7 @@ namespace StadhawkLaundry.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<HttpResponseMessage> Delete(Guid id)
+        public async Task<HttpResponseMessage> Delete(int id)
         {
             await _unit.IUser.Remove(id);
             var result = await _unit.Complete();

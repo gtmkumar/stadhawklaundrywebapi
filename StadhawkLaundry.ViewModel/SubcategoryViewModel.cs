@@ -7,9 +7,9 @@ namespace StadhawkLaundry.ViewModel
 {
     public class SubcategoryViewModel
     {
-        public Guid? ServiceId { get; set; }
+        public int ServiceId { get; set; }
         public string SubcategoryId { get; set; }
-        public Guid? CategoryId { get; set; }
+        public int CategoryId { get; set; }
         [Required(ErrorMessage = "Subcategory Name is Required")]
         public string Name { get; set; }
         public string Category { get; set; }

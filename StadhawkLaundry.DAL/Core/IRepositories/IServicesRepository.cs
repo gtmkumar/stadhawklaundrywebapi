@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace StadhawkLaundry.BAL.Core.IRepositories
 {
-    public interface IServicesRepository: IRepository<TblService>
+    public interface IServicesRepository: IRepository<TblServiceMaster>
     {
         Task<ApiResult<IEnumerable<ServiceLabelMasterResponseViewModel>>> GetServiceMaster(int customerId);
     }

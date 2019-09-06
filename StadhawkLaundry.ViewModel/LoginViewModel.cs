@@ -7,17 +7,15 @@ namespace StadhawkLaundry.ViewModel
 {
     public class LoginRequestViewModel
     {
-        [Required(ErrorMessage = "Enter UserName")]
-        public string UserId { get; set; }
-        //[Required(ErrorMessage = "Enter Password")]
-        //public string Password { get; set; }
         [Required(ErrorMessage = "Mobile No is requerd")]
         public string MobileNo { get; set; }
-        public bool RememberMe { get; set; }
+        [Required(ErrorMessage = "OTP is requerd")]
         public string OTP { get; set; }
-        public string EmailId { get; set; }
+        [Required(ErrorMessage = "Fcm tocken is requerd")]
         public string FcmToken { get; set; }
-        public string DeviceType { get; set; }
+        [Required(ErrorMessage = "Device id is requerd")]
         public string DeviceId { get; set; }
+        [Required(ErrorMessage = "Device type is requerd")]
+        public string DeviceType { get; set; }
     }
 }

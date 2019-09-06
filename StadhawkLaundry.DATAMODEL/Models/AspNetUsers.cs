@@ -11,11 +11,9 @@ namespace StadhawkLaundry.DataModel.Models
             AspNetUserLogins = new HashSet<AspNetUserLogins>();
             AspNetUserRoles = new HashSet<AspNetUserRoles>();
             AspNetUserTokens = new HashSet<AspNetUserTokens>();
-            TblUserAddress = new HashSet<TblUserAddress>();
-            Users = new HashSet<Users>();
         }
 
-        public string Id { get; set; }
+        public int Id { get; set; }
         public string UserName { get; set; }
         public string NormalizedUserName { get; set; }
         public string Email { get; set; }
@@ -38,17 +36,17 @@ namespace StadhawkLaundry.DataModel.Models
         public bool? IsGuestUser { get; set; }
         public string CustomerImage { get; set; }
         public DateTime? CreatedDate { get; set; }
-        public string CreatedBy { get; set; }
+        public int CreatedBy { get; set; }
         public DateTime? ModifiedDate { get; set; }
-        public string ModifiedBy { get; set; }
+        public int ModifiedBy { get; set; }
         public bool? IsDeleted { get; set; }
         public bool? Status { get; set; }
+        public int UserType { get; set; }
 
+        public virtual UsersMaster UsersMaster { get; set; }
         public virtual ICollection<AspNetUserClaims> AspNetUserClaims { get; set; }
         public virtual ICollection<AspNetUserLogins> AspNetUserLogins { get; set; }
         public virtual ICollection<AspNetUserRoles> AspNetUserRoles { get; set; }
         public virtual ICollection<AspNetUserTokens> AspNetUserTokens { get; set; }
-        public virtual ICollection<TblUserAddress> TblUserAddress { get; set; }
-        public virtual ICollection<Users> Users { get; set; }
     }
 }

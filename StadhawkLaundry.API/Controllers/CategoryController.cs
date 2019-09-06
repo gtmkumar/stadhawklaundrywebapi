@@ -33,17 +33,17 @@ namespace StadhawkLaundry.API.Controllers
         }
 
         [HttpGet("categorybyserviceid/{id}")]
-        public async Task<IEnumerable<CategoryViewModel>> GetCategoryByServiceId(Guid Id)
+        public async Task<IEnumerable<CategoryViewModel>> GetCategoryByServiceId(int Id)
         {
-            return (await _unit.ICategory.GetSelectedDataAsync(t => t.ServiceId == Id, d => new CategoryViewModel { CategoryId = d.Id.ToString(), Name = d.Name })).UserObject;
+            return (await _unit.ICategory.GetSelectedDataAsync(t => t.Id == Id, d => new CategoryViewModel { CategoryId = d.Id, Name = d.CategoryName })).UserObject;
         }
         // GET: api/Category/5
         [HttpGet("edit/{id}")]
-        public async Task<CategoryViewModel> Get(Guid id)
+        public async Task<CategoryViewModel> Get(int id)
         {
             var result = (await _unit.ICategory.GetByID(Id: id)).UserObject;
             var data = AutoMapper.Mapper.Map<CategoryViewModel>(result);
-            data.CategoryId = result.Id.ToString();
+            data.CategoryId = result.Id;
             return data;
         }
         [HttpPost("add")]
@@ -55,8 +55,8 @@ namespace StadhawkLaundry.API.Controllers
                 {
                     bool isEdit = true;
                     Guid CategoryGuid = Guid.Empty;
-                    isEdit = !string.IsNullOrEmpty(value.CategoryId) ? Guid.TryParse(value.CategoryId, out CategoryGuid) : false;
-                    if ((await _unit.ICategory.Exists(t => t.Name == value.Name && t.ServiceId == value.ServiceId)).UserObject)
+                    isEdit = value.CategoryId > 0 ? true : false;
+                    if ((await _unit.ICategory.Exists(t => t.CategoryName == value.Name && t.Id == value.ServiceId)).UserObject)
                     {
                         var response = new HttpResponseMessage()
                         {
@@ -66,10 +66,10 @@ namespace StadhawkLaundry.API.Controllers
                     }
                     else
                     {
-                        var data = AutoMapper.Mapper.Map<TblCategory>(value);
+                        var data = AutoMapper.Mapper.Map<TblCategoryMaster>(value);
                         if (!isEdit)
                         {
-                            data.Id = string.IsNullOrEmpty(value.CategoryId) ? Guid.NewGuid() : CategoryGuid;
+                            data.Id = value.CategoryId;
                             data.CreatedDate = DateTime.Now;
                             data.IsDeleted = false;
                             await _unit.ICategory.Add(data);
@@ -86,8 +86,8 @@ namespace StadhawkLaundry.API.Controllers
                         else
                         {
                             data = (await _unit.ICategory.GetByID(Id: CategoryGuid)).UserObject;
-                            data.Name = value.Name;
-                            data.ServiceId = value.ServiceId;
+                            data.CategoryName = value.Name;
+                            data.Id = value.ServiceId;
                             data.ModifiedDate = DateTime.Now;
                             data.ModifiedBy = null;
                             _unit.ICategory.Update(data);
@@ -130,7 +130,7 @@ namespace StadhawkLaundry.API.Controllers
 
         // DELETE: api/ApiWithActions/5
         [HttpDelete("delete/{id}")]
-        public async Task<HttpResponseMessage> Delete(Guid id)
+        public async Task<HttpResponseMessage> Delete(int id)
         {
             if (id != null)
             {

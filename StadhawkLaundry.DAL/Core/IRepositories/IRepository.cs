@@ -24,12 +24,13 @@ namespace StadhawkLaundry.BAL.Core.IRepositories
         ApiResultCode Update(TEntity entity);
         ApiResultCode UpdateAll(IEnumerable<TEntity> entities);
         Task<ApiResultCode> AddAll(IEnumerable<TEntity> entities);
-        Task<ApiResultCode> Remove(Guid Id);
+        Task<ApiResultCode> Remove(dynamic Id);
         Task<ApiResultCode> RemoveRange(IEnumerable<TEntity> entities);
         Task<ApiResult<bool>> Exists(Expression<Func<TEntity, bool>> predicate);
         Task<ApiResult<int>> Count(Expression<Func<TEntity, bool>> predicate);
 
         Task<ApiResult<IEnumerable<TEntity>>> GetPagedRecords(Expression<Func<TEntity, bool>> predicate, Expression<Func<TEntity, string>> orderBy, int pageNo, int pageSize);
+        Task<ApiResult<TType>> GetSelectedAsync<TType>(Expression<Func<TEntity, bool>> predicate, Expression<Func<TEntity, TType>> select);
         //Task<ApiResult<IEnumerable<TEntity>>> ExecWithStoreProcedure(string query, params object[] parameters);
     }
 }

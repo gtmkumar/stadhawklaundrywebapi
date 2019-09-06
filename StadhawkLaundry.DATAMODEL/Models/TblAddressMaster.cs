@@ -18,7 +18,7 @@ namespace StadhawkLaundry.DataModel.Models
         public string LandMark { get; set; }
         public DateTime? CreatedDate { get; set; }
         public DateTime? ModifiedDate { get; set; }
-        public int? IsDelete { get; set; }
+        public bool? IsDelete { get; set; }
 
         public virtual ICollection<TblUserAddress> TblUserAddress { get; set; }
     }

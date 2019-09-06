@@ -32,15 +32,15 @@ namespace StadhawkLaundry.API.Controllers
 
         // GET: api/Item/5
         [HttpGet("edit/{id}")]
-        public async Task<ItemViewModel> Get(string id)
+        public async Task<ItemViewModel> Get(int id)
         {
             return (await _unit.IItem.GetItemById(Id: id)).UserObject;
         }
 
         [HttpGet("itembysubcategoryid/{id}")]
-        public async Task<IEnumerable<ItemViewModel>> GetItemsBySubcategoryId(Guid Id)
+        public async Task<IEnumerable<ItemViewModel>> GetItemsBySubcategoryId(int Id)
         {
-            var result = (await _unit.IItem.GetSelectedDataAsync(t => t.ServiceId == Id, d => new ItemViewModel { ItemId = d.Id.ToString(), Name = d.Name,Price=Convert.ToDecimal(d.Id) })).UserObject;
+            var result = (await _unit.IItem.GetSelectedDataAsync(t => t.Id == Id, d => new ItemViewModel { ItemId = d.Id, Name = d.ItemName,Price=Convert.ToDecimal(d.Id) })).UserObject;
             return result;
 
         }
@@ -55,8 +55,8 @@ namespace StadhawkLaundry.API.Controllers
                 {
                     bool isEdit = true;
                     Guid ItemGuid = Guid.Empty;
-                    isEdit = !string.IsNullOrEmpty(value.ItemId) ? Guid.TryParse(value.ItemId, out ItemGuid) : false;
-                    ApiResult<bool> isExist = await _unit.IItem.Exists(t => t.Name == value.Name && value.SubcategoryId == value.SubcategoryId);
+                    isEdit = value.ItemId > 0 ? true : false;
+                    ApiResult<bool> isExist = await _unit.IItem.Exists(t => t.ItemName == value.Name && value.SubcategoryId == value.SubcategoryId);
                     if (isExist.UserObject)
                     {
                         HttpResponseMessage response = new HttpResponseMessage()
@@ -67,10 +67,10 @@ namespace StadhawkLaundry.API.Controllers
                     }
                     else
                     {
-                        TblItem data = AutoMapper.Mapper.Map<TblItem>(value);
+                        TblItemMaster data = AutoMapper.Mapper.Map<TblItemMaster>(value);
                         if (!isEdit)
                         {
-                            data.Id = string.IsNullOrEmpty(value.ItemId) ? Guid.NewGuid() : ItemGuid;
+                            data.Id = value.ItemId;
                             data.CreatedDate = DateTime.Now;
                             data.IsDeleted = false;
                             await _unit.IItem.Add(data);
@@ -87,7 +87,7 @@ namespace StadhawkLaundry.API.Controllers
                         else
                         {
                             data = (await _unit.IItem.GetByID(Id: ItemGuid)).UserObject;
-                            data.Name = value.Name;
+                            data.ItemName = value.Name;
                             data.ModifiedDate = DateTime.Now;
                             data.ModifiedBy = null;
                             _unit.IItem.Update(data);

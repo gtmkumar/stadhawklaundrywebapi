@@ -8,16 +8,10 @@ namespace StadhawkLaundry.ViewModel
     public class UsersViewModel
     {
         public string Id { get; set; }
-
-        [Required]
-        public string UserName { get; set; }
         public string FullName { get; set; }
-        [Required]
         public string EmailId { get; set; }
-        [Required]
-        public string Contactno { get; set; }
-        [Required]
-        public string Password { get; set; }
+        [Required(ErrorMessage = "Contact no is required")]
+        public string ContactNo { get; set; }
         public bool Status { get; set; }
     }
 }

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace StadhawkLaundry.BAL.Core.IRepositories
 {
-    public interface IServicesRepository: IRepository<TblService>
+    public interface IServicesRepository: IRepository<TblServiceMaster>
     {
     }
 }

@@ -48,7 +48,7 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
             }
         }
 
-        public virtual async Task<ApiResultCode> Remove(Guid Id)
+        public virtual async Task<ApiResultCode> Remove(dynamic Id)
         {
             try
             {
@@ -282,6 +282,24 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
             {
                 ErrorTrace.Logger(LogArea.BusinessTier, ex);
                 return new ApiResult<IEnumerable<TEntity>>(new ApiResultCode(ApiResultType.ExceptionDuringOpration, 3, "No data in given request"));
+            }
+        }
+
+        public async Task<ApiResult<TType>> GetSelectedAsync<TType>(Expression<Func<TEntity, bool>> predicate, Expression<Func<TEntity, TType>> select)
+        {
+            try
+            {
+                var result = await Context.Set<TEntity>().Where(predicate).Select(select).FirstOrDefaultAsync();
+
+                if (result == null)
+                    return new ApiResult<TType>(new ApiResultCode(ApiResultType.Error, 0, "No data in given request"));
+
+                return new ApiResult<TType>(new ApiResultCode(ApiResultType.Success), result);
+            }
+            catch (Exception ex)
+            {
+                ErrorTrace.Logger(LogArea.BusinessTier, ex);
+                return new ApiResult<TType>(new ApiResultCode(ApiResultType.ExceptionDuringOpration, 3, "No data in given request"));
             }
         }
 

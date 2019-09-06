@@ -32,18 +32,18 @@ namespace StadhawkLaundry.API.Controllers
 
         // GET: api/Service
         [HttpGet("services")]
-        public async Task<IEnumerable<TblService>> GetAsync()
+        public async Task<IEnumerable<TblServiceMaster>> GetAsync()
         {
             return (await _unit.IService.GetAll()).UserObject;
         }
 
         // GET: api/Service/5
         [HttpGet("edit/{id}")]
-        public async Task<ServicesViewModel> Get(Guid id)
+        public async Task<ServicesViewModel> Get(int id)
         {
             var result = (await _unit.IService.GetByID(Id: id)).UserObject;
             var data = AutoMapper.Mapper.Map<ServicesViewModel>(result);
-            data.ServiceId = result.Id.ToString();
+            data.ServiceId = result.Id;
             return data;
         }
 
@@ -56,8 +56,8 @@ namespace StadhawkLaundry.API.Controllers
                 {
                     bool isEdit = true;
                     Guid ServiceGuid = Guid.Empty;
-                    isEdit = !string.IsNullOrEmpty(value.ServiceId) ? Guid.TryParse(value.ServiceId, out ServiceGuid) : false;
-                    if ((await _unit.IService.Exists(t => t.Name == value.Name)).UserObject)
+                    isEdit = value.ServiceId > 0 ? true : false;
+                    if ((await _unit.IService.Exists(t => t.ServiceName == value.Name)).UserObject)
                     {
                         var response = new HttpResponseMessage()
                         {
@@ -67,12 +67,12 @@ namespace StadhawkLaundry.API.Controllers
                     }
                     else
                     {
-                        var data = AutoMapper.Mapper.Map<TblService>(value);
+                        var data = AutoMapper.Mapper.Map<TblServiceMaster>(value);
                         if (!isEdit)
                         {
                             await _imageHandler.UploadImage(value.ServiceImage);
 
-                            data.Id = string.IsNullOrEmpty(value.ServiceId) ? Guid.NewGuid() : ServiceGuid;
+                            data.Id = value.ServiceId;
                             data.CreatedDate = DateTime.Now;
                             data.ServiceImage = value.ServiceImage.FileName;
                             data.IsDeleted = false;
@@ -90,7 +90,7 @@ namespace StadhawkLaundry.API.Controllers
                         else
                         {
                             data = (await _unit.IService.GetByID(Id: ServiceGuid)).UserObject;
-                            data.Name = value.Name;
+                            data.ServiceName = value.Name;
                             data.ModifiedDate = DateTime.Now;
                             data.ModifiedBy = null;
                             _unit.IService.Update(data);

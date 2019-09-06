@@ -23,25 +23,37 @@ namespace StadhawkLaundry.DataModel
         public virtual DbSet<AspNetUserRoles> AspNetUserRoles { get; set; }
         public virtual DbSet<AspNetUserTokens> AspNetUserTokens { get; set; }
         public virtual DbSet<AspNetUsers> AspNetUsers { get; set; }
-        public virtual DbSet<MenuMaster> MenuMaster { get; set; }
+        public virtual DbSet<TblAccessRight> TblAccessRight { get; set; }
         public virtual DbSet<TblAddressMaster> TblAddressMaster { get; set; }
         public virtual DbSet<TblAddressTypeMaster> TblAddressTypeMaster { get; set; }
-        public virtual DbSet<TblCategory> TblCategory { get; set; }
+        public virtual DbSet<TblBanner> TblBanner { get; set; }
+        public virtual DbSet<TblBannerCategoryMaster> TblBannerCategoryMaster { get; set; }
+        public virtual DbSet<TblCategoryMaster> TblCategoryMaster { get; set; }
+        public virtual DbSet<TblCityMaster> TblCityMaster { get; set; }
+        public virtual DbSet<TblEntityMaster> TblEntityMaster { get; set; }
         public virtual DbSet<TblImage> TblImage { get; set; }
-        public virtual DbSet<TblItem> TblItem { get; set; }
-        public virtual DbSet<TblItemPrinceMappingByStore> TblItemPrinceMappingByStore { get; set; }
+        public virtual DbSet<TblItemMaster> TblItemMaster { get; set; }
+        public virtual DbSet<TblNavigator> TblNavigator { get; set; }
         public virtual DbSet<TblOrder> TblOrder { get; set; }
-        public virtual DbSet<TblOrderDetail> TblOrderDetail { get; set; }
+        public virtual DbSet<TblOrderItems> TblOrderItems { get; set; }
         public virtual DbSet<TblOrderStatus> TblOrderStatus { get; set; }
         public virtual DbSet<TblPayment> TblPayment { get; set; }
         public virtual DbSet<TblPaymentStatus> TblPaymentStatus { get; set; }
-        public virtual DbSet<TblService> TblService { get; set; }
+        public virtual DbSet<TblPrivilegeBase> TblPrivilegeBase { get; set; }
+        public virtual DbSet<TblServiceLabelMaster> TblServiceLabelMaster { get; set; }
+        public virtual DbSet<TblServiceMaster> TblServiceMaster { get; set; }
+        public virtual DbSet<TblStateMaster> TblStateMaster { get; set; }
+        public virtual DbSet<TblStatusMaster> TblStatusMaster { get; set; }
         public virtual DbSet<TblStore> TblStore { get; set; }
-        public virtual DbSet<TblSubcategory> TblSubcategory { get; set; }
+        public virtual DbSet<TblStoreEmployees> TblStoreEmployees { get; set; }
+        public virtual DbSet<TblStoreItems> TblStoreItems { get; set; }
+        public virtual DbSet<TblStorePackagesAndCategoryMapping> TblStorePackagesAndCategoryMapping { get; set; }
+        public virtual DbSet<TblStorePckages> TblStorePckages { get; set; }
+        public virtual DbSet<TblSubServiceMaster> TblSubServiceMaster { get; set; }
+        public virtual DbSet<TblUnitMaster> TblUnitMaster { get; set; }
         public virtual DbSet<TblUserAddress> TblUserAddress { get; set; }
-        public virtual DbSet<Users> Users { get; set; }
+        public virtual DbSet<UsersMaster> UsersMaster { get; set; }
         public virtual DbSet<NavigatorView> NavigatorViews { get; set; }
-
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -50,8 +62,6 @@ namespace StadhawkLaundry.DataModel
             modelBuilder.Entity<AspNetRoleClaims>(entity =>
             {
                 entity.HasIndex(e => e.RoleId);
-
-                entity.Property(e => e.RoleId).IsRequired();
 
                 entity.HasOne(d => d.Role)
                     .WithMany(p => p.AspNetRoleClaims)
@@ -65,8 +75,6 @@ namespace StadhawkLaundry.DataModel
                     .IsUnique()
                     .HasFilter("([NormalizedName] IS NOT NULL)");
 
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
                 entity.Property(e => e.Name).HasMaxLength(256);
 
                 entity.Property(e => e.NormalizedName).HasMaxLength(256);
@@ -75,8 +83,6 @@ namespace StadhawkLaundry.DataModel
             modelBuilder.Entity<AspNetUserClaims>(entity =>
             {
                 entity.HasIndex(e => e.UserId);
-
-                entity.Property(e => e.UserId).IsRequired();
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.AspNetUserClaims)
@@ -88,8 +94,6 @@ namespace StadhawkLaundry.DataModel
                 entity.HasKey(e => new { e.LoginProvider, e.ProviderKey });
 
                 entity.HasIndex(e => e.UserId);
-
-                entity.Property(e => e.UserId).IsRequired();
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.AspNetUserLogins)
@@ -130,74 +134,34 @@ namespace StadhawkLaundry.DataModel
                     .IsUnique()
                     .HasFilter("([NormalizedUserName] IS NOT NULL)");
 
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
-                entity.Property(e => e.CreatedBy).HasMaxLength(100);
-
-                entity.Property(e => e.DeviceType).HasMaxLength(1);
-
-                entity.Property(e => e.Dob).HasColumnName("DOB");
+                entity.Property(e => e.Dob)
+                    .HasColumnName("DOB")
+                    .HasColumnType("datetime");
 
                 entity.Property(e => e.Email).HasMaxLength(256);
 
                 entity.Property(e => e.Fcmtoken).HasColumnName("FCMToken");
 
-                entity.Property(e => e.FullName).HasMaxLength(50);
-
-                entity.Property(e => e.ModifiedBy).HasMaxLength(100);
+                entity.Property(e => e.FullName).HasMaxLength(250);
 
                 entity.Property(e => e.NormalizedEmail).HasMaxLength(256);
 
                 entity.Property(e => e.NormalizedUserName).HasMaxLength(256);
 
+                entity.Property(e => e.PhoneNumber).HasMaxLength(20);
+
                 entity.Property(e => e.UserName).HasMaxLength(256);
             });
 
-            modelBuilder.Entity<MenuMaster>(entity =>
+            modelBuilder.Entity<TblAccessRight>(entity =>
             {
-                entity.HasKey(e => new { e.MenuIdentity, e.MenuId, e.MenuName });
+                entity.HasKey(e => e.AccessId);
 
-                entity.Property(e => e.MenuIdentity).ValueGeneratedOnAdd();
+                entity.ToTable("tblAccessRight");
 
-                entity.Property(e => e.MenuId)
-                    .HasColumnName("MenuID")
-                    .HasMaxLength(30)
-                    .IsUnicode(false);
+                entity.Property(e => e.AccessId).HasColumnName("AccessID");
 
-                entity.Property(e => e.MenuName)
-                    .HasMaxLength(30)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
-
-                entity.Property(e => e.MenuFileName)
-                    .IsRequired()
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.MenuUrl)
-                    .IsRequired()
-                    .HasColumnName("MenuURL")
-                    .HasMaxLength(500)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.ParentMenuId)
-                    .IsRequired()
-                    .HasColumnName("Parent_MenuID")
-                    .HasMaxLength(30)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.UseYn)
-                    .HasColumnName("USE_YN")
-                    .HasMaxLength(1)
-                    .IsUnicode(false)
-                    .HasDefaultValueSql("('Y')");
-
-                entity.Property(e => e.UserRoll)
-                    .IsRequired()
-                    .HasColumnName("User_Roll")
-                    .HasMaxLength(256)
-                    .IsUnicode(false);
+                entity.Property(e => e.Name).HasMaxLength(50);
             });
 
             modelBuilder.Entity<TblAddressMaster>(entity =>
@@ -224,9 +188,9 @@ namespace StadhawkLaundry.DataModel
                     .HasMaxLength(150)
                     .IsUnicode(false);
 
-                entity.Property(e => e.Latitude).HasColumnType("decimal(9, 6)");
+                entity.Property(e => e.Latitude).HasColumnType("decimal(18, 12)");
 
-                entity.Property(e => e.Longitude).HasColumnType("decimal(9, 6)");
+                entity.Property(e => e.Longitude).HasColumnType("decimal(18, 12)");
 
                 entity.Property(e => e.ModifiedDate)
                     .HasColumnType("datetime")
@@ -246,22 +210,97 @@ namespace StadhawkLaundry.DataModel
                     .IsUnicode(false);
             });
 
-            modelBuilder.Entity<TblCategory>(entity =>
+            modelBuilder.Entity<TblBanner>(entity =>
             {
-                entity.ToTable("tblCategory");
+                entity.ToTable("tblBanner");
 
-                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.Description).HasMaxLength(200);
+
+                entity.Property(e => e.Image).HasMaxLength(250);
+
+                entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.Name).HasMaxLength(100);
+
+                entity.HasOne(d => d.BannerCategory)
+                    .WithMany(p => p.TblBanner)
+                    .HasForeignKey(d => d.BannerCategoryId)
+                    .HasConstraintName("FK_tblBanner_tblBannerCategoryMaster");
+
+                entity.HasOne(d => d.Store)
+                    .WithMany(p => p.TblBanner)
+                    .HasForeignKey(d => d.StoreId)
+                    .HasConstraintName("FK_tblBanner_tblStore");
+            });
+
+            modelBuilder.Entity<TblBannerCategoryMaster>(entity =>
+            {
+                entity.ToTable("tblBannerCategoryMaster");
 
                 entity.Property(e => e.CreatedDate).HasColumnType("datetime");
 
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
 
-                entity.Property(e => e.Name).HasMaxLength(200);
+                entity.Property(e => e.Name).HasMaxLength(100);
+            });
 
-                entity.HasOne(d => d.Service)
-                    .WithMany(p => p.TblCategory)
-                    .HasForeignKey(d => d.ServiceId)
-                    .HasConstraintName("FK__tblCatego__Servi__1DB06A4F");
+            modelBuilder.Entity<TblCategoryMaster>(entity =>
+            {
+                entity.ToTable("tblCategoryMaster");
+
+                entity.Property(e => e.CategoryName).HasMaxLength(50);
+
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.Description).HasMaxLength(200);
+
+                entity.Property(e => e.Image).HasMaxLength(250);
+
+                entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            });
+
+            modelBuilder.Entity<TblCityMaster>(entity =>
+            {
+                entity.ToTable("tblCityMaster");
+
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.DistrictName)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+
+                entity.HasOne(d => d.State)
+                    .WithMany(p => p.TblCityMaster)
+                    .HasForeignKey(d => d.StateId)
+                    .HasConstraintName("FK_tblDistrictMaster_tblStateMaster");
+            });
+
+            modelBuilder.Entity<TblEntityMaster>(entity =>
+            {
+                entity.HasKey(e => e.EntityId);
+
+                entity.ToTable("tblEntityMaster");
+
+                entity.Property(e => e.EntityId).HasColumnName("Entity_ID");
+
+                entity.Property(e => e.EntityDescription)
+                    .HasColumnName("Entity_Description")
+                    .IsUnicode(false);
+
+                entity.Property(e => e.EntityName)
+                    .HasColumnName("Entity_Name")
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.InsertDate)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.LastUpdateDate).HasColumnType("datetime");
             });
 
             modelBuilder.Entity<TblImage>(entity =>
@@ -273,119 +312,149 @@ namespace StadhawkLaundry.DataModel
                 entity.Property(e => e.CreatedDate).HasColumnType("datetime");
 
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
-
-                entity.Property(e => e.Name).HasMaxLength(200);
             });
 
-            modelBuilder.Entity<TblItem>(entity =>
+            modelBuilder.Entity<TblItemMaster>(entity =>
             {
-                entity.ToTable("tblItem");
-
-                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.ToTable("tblItemMaster");
 
                 entity.Property(e => e.CreatedDate).HasColumnType("datetime");
 
-                entity.Property(e => e.Image).HasMaxLength(255);
+                entity.Property(e => e.Description).HasMaxLength(200);
+
+                entity.Property(e => e.Image).HasMaxLength(250);
+
+                entity.Property(e => e.ItemName).HasMaxLength(100);
 
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
 
-                entity.Property(e => e.Name).HasMaxLength(200);
-
-                entity.HasOne(d => d.Service)
-                    .WithMany(p => p.TblItem)
-                    .HasForeignKey(d => d.ServiceId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__tblItem__Service__534D60F1");
+                entity.HasOne(d => d.Category)
+                    .WithMany(p => p.TblItemMaster)
+                    .HasForeignKey(d => d.CategoryId)
+                    .HasConstraintName("FK_tblItemMaster_tblCategoryMaster");
             });
 
-            modelBuilder.Entity<TblItemPrinceMappingByStore>(entity =>
+            modelBuilder.Entity<TblNavigator>(entity =>
             {
-                entity.ToTable("tblItemPrinceMappingByStore");
+                entity.HasKey(e => e.NavigatorId);
 
-                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.ToTable("tblNavigator");
 
-                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+                entity.Property(e => e.NavigatorId).HasColumnName("Navigator_Id");
 
-                entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+                entity.Property(e => e.Class)
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
 
-                entity.Property(e => e.Price).HasColumnType("decimal(18, 3)");
+                entity.Property(e => e.DefaultOrder).HasColumnName("Default_Order");
 
-                entity.HasOne(d => d.Item)
-                    .WithMany(p => p.TblItemPrinceMappingByStore)
-                    .HasForeignKey(d => d.ItemId)
-                    .HasConstraintName("FK__tblItemPr__ItemI__0E6E26BF");
+                entity.Property(e => e.Description)
+                    .HasMaxLength(200)
+                    .IsUnicode(false);
 
-                entity.HasOne(d => d.Store)
-                    .WithMany(p => p.TblItemPrinceMappingByStore)
-                    .HasForeignKey(d => d.StoreId)
-                    .HasConstraintName("FK__tblItemPr__Store__0F624AF8");
+                entity.Property(e => e.DisplayText)
+                    .IsRequired()
+                    .HasColumnName("Display_Text")
+                    .HasMaxLength(150)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Icon)
+                    .HasColumnName("icon")
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.InsertDate).HasColumnType("datetime");
+
+                entity.Property(e => e.Ishide).HasColumnName("ishide");
+
+                entity.Property(e => e.LastUpdateDate).HasColumnType("datetime");
+
+                entity.Property(e => e.NavLevel).HasColumnName("Nav_Level");
+
+                entity.Property(e => e.ParantId).HasColumnName("Parant_Id");
+
+                entity.Property(e => e.PrivilegeId).HasColumnName("Privilege_Id");
+
+                entity.Property(e => e.Url)
+                    .HasColumnName("URL")
+                    .HasMaxLength(500)
+                    .IsUnicode(false);
             });
 
             modelBuilder.Entity<TblOrder>(entity =>
             {
                 entity.ToTable("tblOrder");
 
-                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.Property(e => e.Cgst)
+                    .HasColumnName("CGST")
+                    .HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.CouponDiscount).HasColumnType("decimal(18, 2)");
 
                 entity.Property(e => e.CreatedDate).HasColumnType("datetime");
 
+                entity.Property(e => e.CustomerNotes).HasMaxLength(250);
+
+                entity.Property(e => e.DeliverNotes).HasMaxLength(250);
+
+                entity.Property(e => e.DeliveryDate).HasColumnType("datetime");
+
+                entity.Property(e => e.GrandTotal).HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.Gst).HasColumnName("GST");
+
+                entity.Property(e => e.Igst)
+                    .HasColumnName("IGST")
+                    .HasColumnType("decimal(18, 2)");
+
+                entity.Property(e => e.InvoiceNo).HasMaxLength(100);
+
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
 
-                entity.Property(e => e.OrderCity)
-                    .HasMaxLength(200)
-                    .IsUnicode(false);
+                entity.Property(e => e.OnServiceNotes).HasMaxLength(250);
+
+                entity.Property(e => e.OrderAmount).HasColumnType("decimal(18, 3)");
 
                 entity.Property(e => e.OrderDate).HasColumnType("datetime");
 
-                entity.Property(e => e.OrderEmail).HasMaxLength(200);
+                entity.Property(e => e.PackageDiscount).HasColumnType("decimal(18, 2)");
 
-                entity.Property(e => e.OrderPhone)
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
+                entity.Property(e => e.PickupDate).HasColumnType("datetime");
 
-                entity.Property(e => e.OrderShipName)
-                    .HasMaxLength(200)
-                    .IsUnicode(false);
+                entity.Property(e => e.Sgst)
+                    .HasColumnName("SGST")
+                    .HasColumnType("decimal(18, 2)");
 
-                entity.Property(e => e.OrderSiping).HasColumnType("decimal(18, 3)");
+                entity.Property(e => e.ShippingCharge).HasColumnType("decimal(18, 2)");
 
-                entity.Property(e => e.OrderState)
-                    .HasMaxLength(200)
-                    .IsUnicode(false);
+                entity.Property(e => e.TotalDiscount).HasColumnType("decimal(18, 2)");
 
-                entity.Property(e => e.OrderTrakingNo).HasMaxLength(200);
+                entity.Property(e => e.TotalIbags).HasColumnName("TotalIBags");
 
-                entity.Property(e => e.OrderZip)
-                    .HasColumnName("OrderZIP")
-                    .HasMaxLength(20)
-                    .IsUnicode(false);
-
-                entity.Property(e => e.OrdrGst)
-                    .HasColumnName("OrdrGST")
-                    .HasColumnType("decimal(2, 2)");
-
-                entity.Property(e => e.OrdrShipAddress).IsUnicode(false);
-
-                entity.Property(e => e.OrdrShipAddress2).IsUnicode(false);
-
-                entity.Property(e => e.TotalAmount).HasColumnType("decimal(18, 3)");
+                entity.Property(e => e.TotalItemKg)
+                    .HasColumnName("TotalItemKG")
+                    .HasColumnType("decimal(18, 2)");
             });
 
-            modelBuilder.Entity<TblOrderDetail>(entity =>
+            modelBuilder.Entity<TblOrderItems>(entity =>
             {
-                entity.ToTable("tblOrderDetail");
-
-                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.ToTable("tblOrderItems");
 
                 entity.Property(e => e.CreatedDate).HasColumnType("datetime");
 
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
 
-                entity.Property(e => e.Name)
-                    .HasMaxLength(200)
-                    .IsUnicode(false);
+                entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
 
-                entity.Property(e => e.Price).HasColumnType("decimal(18, 3)");
+                entity.HasOne(d => d.Order)
+                    .WithMany(p => p.TblOrderItems)
+                    .HasForeignKey(d => d.OrderId)
+                    .HasConstraintName("FK_tblOrderItems_tblOrder");
+
+                entity.HasOne(d => d.StoreItem)
+                    .WithMany(p => p.TblOrderItems)
+                    .HasForeignKey(d => d.StoreItemId)
+                    .HasConstraintName("FK_tblOrderItems_tblStoreItems");
             });
 
             modelBuilder.Entity<TblOrderStatus>(entity =>
@@ -433,73 +502,256 @@ namespace StadhawkLaundry.DataModel
                     .IsUnicode(false);
             });
 
-            modelBuilder.Entity<TblService>(entity =>
+            modelBuilder.Entity<TblPrivilegeBase>(entity =>
             {
-                entity.ToTable("tblService");
+                entity.HasKey(e => e.PrivilegeId);
 
-                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.ToTable("tblPrivilegeBase");
+
+                entity.Property(e => e.PrivilegeId).ValueGeneratedNever();
+
+                entity.Property(e => e.EntityId).HasColumnName("Entity_ID");
+
+                entity.Property(e => e.InsertDate).HasColumnType("datetime");
+
+                entity.Property(e => e.LastUpdateDate).HasColumnType("datetime");
+
+                entity.Property(e => e.PrivilegeName)
+                    .HasColumnName("Privilege_Name")
+                    .HasMaxLength(100);
+            });
+
+            modelBuilder.Entity<TblServiceLabelMaster>(entity =>
+            {
+                entity.ToTable("tblServiceLabelMaster");
 
                 entity.Property(e => e.CreatedDate).HasColumnType("datetime");
 
+                entity.Property(e => e.LabelName).HasMaxLength(50);
+
+                entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+            });
+
+            modelBuilder.Entity<TblServiceMaster>(entity =>
+            {
+                entity.ToTable("tblServiceMaster");
+
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.Description).HasMaxLength(200);
+
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
 
-                entity.Property(e => e.Name).HasMaxLength(200);
+                entity.Property(e => e.ServiceImage).HasMaxLength(250);
 
-                entity.Property(e => e.ServiceImage).HasMaxLength(400);
+                entity.Property(e => e.ServiceName).HasMaxLength(50);
+            });
+
+            modelBuilder.Entity<TblStateMaster>(entity =>
+            {
+                entity.ToTable("tblStateMaster");
+
+                entity.Property(e => e.Country)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                entity.Property(e => e.CreateDate).HasColumnType("datetime");
+
+                entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.StateName)
+                    .IsRequired()
+                    .HasMaxLength(100);
+            });
+
+            modelBuilder.Entity<TblStatusMaster>(entity =>
+            {
+                entity.ToTable("tblStatusMaster");
+
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.Description).HasMaxLength(250);
+
+                entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.StatusName)
+                    .IsRequired()
+                    .HasMaxLength(100);
             });
 
             modelBuilder.Entity<TblStore>(entity =>
             {
                 entity.ToTable("tblStore");
 
-                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.Property(e => e.AddressLine1).HasMaxLength(200);
 
-                entity.Property(e => e.CityName)
-                    .HasMaxLength(200)
-                    .IsUnicode(false);
+                entity.Property(e => e.AddressLine2).HasMaxLength(200);
+
+                entity.Property(e => e.CityName).HasMaxLength(100);
 
                 entity.Property(e => e.CreatedDate).HasColumnType("datetime");
 
-                entity.Property(e => e.Image).HasMaxLength(255);
+                entity.Property(e => e.EmailId).HasMaxLength(100);
 
-                entity.Property(e => e.Latitude).HasColumnType("decimal(30, 20)");
+                entity.Property(e => e.Gstno)
+                    .HasColumnName("GSTNo")
+                    .HasMaxLength(20);
 
-                entity.Property(e => e.LocationName)
-                    .HasMaxLength(200)
-                    .IsUnicode(false);
+                entity.Property(e => e.Image).HasMaxLength(250);
 
-                entity.Property(e => e.Longitude).HasColumnType("decimal(30, 20)");
+                entity.Property(e => e.Latitude).HasColumnType("decimal(9, 6)");
+
+                entity.Property(e => e.Longitude).HasColumnType("decimal(9, 6)");
+
+                entity.Property(e => e.MobileNo)
+                    .IsRequired()
+                    .HasMaxLength(10);
 
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
 
-                entity.Property(e => e.Name)
-                    .HasMaxLength(200)
-                    .IsUnicode(false);
+                entity.Property(e => e.PhoneNo).HasMaxLength(20);
 
-                entity.Property(e => e.PinCode)
-                    .HasMaxLength(10)
-                    .IsUnicode(false);
+                entity.Property(e => e.StoreCode)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.StoreName)
+                    .IsRequired()
+                    .HasMaxLength(150);
+
+                entity.Property(e => e.ZipCode).HasMaxLength(10);
+
+                entity.HasOne(d => d.District)
+                    .WithMany(p => p.TblStore)
+                    .HasForeignKey(d => d.DistrictId)
+                    .HasConstraintName("FK_tblStoreDetail_tblDistrictMaster");
             });
 
-            modelBuilder.Entity<TblSubcategory>(entity =>
+            modelBuilder.Entity<TblStoreEmployees>(entity =>
             {
-                entity.ToTable("tblSubcategory");
-
-                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.ToTable("tblStoreEmployees");
 
                 entity.Property(e => e.CreatedDate).HasColumnType("datetime");
 
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
 
-                entity.Property(e => e.Name).HasMaxLength(200);
+                entity.HasOne(d => d.Store)
+                    .WithMany(p => p.TblStoreEmployees)
+                    .HasForeignKey(d => d.StoreId)
+                    .HasConstraintName("FK_tblStoreEmployees_tblStore");
+            });
 
-                entity.Property(e => e.Price).HasColumnType("decimal(18, 9)");
+            modelBuilder.Entity<TblStoreItems>(entity =>
+            {
+                entity.ToTable("tblStoreItems");
+
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
+
+                entity.HasOne(d => d.Item)
+                    .WithMany(p => p.TblStoreItems)
+                    .HasForeignKey(d => d.ItemId)
+                    .HasConstraintName("FK_tblStoreItems_tblItemMaster");
+
+                entity.HasOne(d => d.Service)
+                    .WithMany(p => p.TblStoreItems)
+                    .HasForeignKey(d => d.ServiceId)
+                    .HasConstraintName("FK_tblStoreItems_tblServiceMaster");
+
+                entity.HasOne(d => d.Store)
+                    .WithMany(p => p.TblStoreItems)
+                    .HasForeignKey(d => d.StoreId)
+                    .HasConstraintName("FK_tblStoreItems_tblStore");
+
+                entity.HasOne(d => d.SubService)
+                    .WithMany(p => p.TblStoreItems)
+                    .HasForeignKey(d => d.SubServiceId)
+                    .HasConstraintName("FK_tblStoreItems_tblSubServiceMaster");
+
+                entity.HasOne(d => d.Unit)
+                    .WithMany(p => p.TblStoreItems)
+                    .HasForeignKey(d => d.UnitId)
+                    .HasConstraintName("FK_tblStoreItems_tblUnitMaster");
+            });
+
+            modelBuilder.Entity<TblStorePackagesAndCategoryMapping>(entity =>
+            {
+                entity.ToTable("tblStorePackagesAndCategoryMapping");
+
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.Description).HasMaxLength(100);
+
+                entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
 
                 entity.HasOne(d => d.Category)
-                    .WithMany(p => p.TblSubcategory)
+                    .WithMany(p => p.TblStorePackagesAndCategoryMapping)
                     .HasForeignKey(d => d.CategoryId)
+                    .HasConstraintName("FK_tblStoresPackageAndCategoryMapping_tblCategoryMaster");
+
+                entity.HasOne(d => d.Package)
+                    .WithMany(p => p.TblStorePackagesAndCategoryMapping)
+                    .HasForeignKey(d => d.PackageId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__tblSubcat__Categ__1EA48E88");
+                    .HasConstraintName("FK_tblStorePackagesAndCategoryMapping_tblStorePckages");
+
+                entity.HasOne(d => d.Store)
+                    .WithMany(p => p.TblStorePackagesAndCategoryMapping)
+                    .HasForeignKey(d => d.StoreId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tblStorePackagesAndCategoryMapping_tblStore");
+            });
+
+            modelBuilder.Entity<TblStorePckages>(entity =>
+            {
+                entity.ToTable("tblStorePckages");
+
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.PackageName).HasMaxLength(100);
+
+                entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
+
+                entity.HasOne(d => d.Store)
+                    .WithMany(p => p.TblStorePckages)
+                    .HasForeignKey(d => d.StoreId)
+                    .HasConstraintName("FK_tblStorePckages_tblStore");
+            });
+
+            modelBuilder.Entity<TblSubServiceMaster>(entity =>
+            {
+                entity.ToTable("tblSubServiceMaster");
+
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.SubServiceName).HasMaxLength(100);
+
+                entity.HasOne(d => d.Service)
+                    .WithMany(p => p.TblSubServiceMaster)
+                    .HasForeignKey(d => d.ServiceId)
+                    .HasConstraintName("FK_tblSubServiceId_tblServiceMaster");
+            });
+
+            modelBuilder.Entity<TblUnitMaster>(entity =>
+            {
+                entity.ToTable("tblUnitMaster");
+
+                entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.Description).HasMaxLength(50);
+
+                entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
+
+                entity.Property(e => e.UnitName).HasMaxLength(50);
             });
 
             modelBuilder.Entity<TblUserAddress>(entity =>
@@ -531,31 +783,27 @@ namespace StadhawkLaundry.DataModel
                     .WithMany(p => p.TblUserAddress)
                     .HasForeignKey(d => d.AddressTypeId)
                     .HasConstraintName("FK_tblUserAddress_tblAddressTypeMaster");
-
-                entity.HasOne(d => d.User)
-                    .WithMany(p => p.TblUserAddress)
-                    .HasForeignKey(d => d.UserId)
-                    .HasConstraintName("FK_tblUserAddress_AspNetUsers1");
             });
 
-            modelBuilder.Entity<Users>(entity =>
+            modelBuilder.Entity<UsersMaster>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedNever();
+                entity.HasKey(e => e.UserId);
+
+                entity.Property(e => e.UserId).ValueGeneratedNever();
 
                 entity.Property(e => e.CreatedDate).HasColumnType("datetime");
 
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
 
-                entity.Property(e => e.UserId).HasMaxLength(450);
-
                 entity.HasOne(d => d.User)
-                    .WithMany(p => p.Users)
-                    .HasForeignKey(d => d.UserId)
-                    .HasConstraintName("FK_Users_Users1");
+                    .WithOne(p => p.UsersMaster)
+                    .HasForeignKey<UsersMaster>(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_UsersMaster_AspNetUsers");
             });
-
             modelBuilder.Entity<NavigatorView>(entity =>
             {
+                entity.HasKey(e => e.Navigator_Id);
                 entity.Property(e => e.Display_Text)
                 .IsUnicode(false);
                 entity.Property(e => e.URL)
@@ -567,7 +815,6 @@ namespace StadhawkLaundry.DataModel
                 entity.Property(e => e.Class)
                     .IsUnicode(false);
             });
-
         }
     }
 }

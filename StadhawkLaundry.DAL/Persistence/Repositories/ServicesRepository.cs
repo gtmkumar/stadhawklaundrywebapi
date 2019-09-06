@@ -7,7 +7,7 @@ using System.Text;
 
 namespace StadhawkLaundry.BAL.Persistence.Repositories
 {
-    public class ServicesRepository : Repository<TblService>, IServicesRepository
+    public class ServicesRepository : Repository<TblServiceMaster>, IServicesRepository
     {
         private LaundryContext _context;
         public ServicesRepository(LaundryContext context) : base(context)

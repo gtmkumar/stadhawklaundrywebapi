@@ -56,7 +56,7 @@ namespace StadhawkLaundry.API.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    if ((await _unit.IUser.Exists(t => t.PhoneNumber.Equals(model.MobileNo))).UserObject)
+                    if (!(await _unit.IUser.Exists(t => t.PhoneNumber.Equals(model.MobileNo))).UserObject)
                     {
                         ModelState.AddModelError("PPhone", "Your Phone no. is not register with us");
                         response.Message = "Your Phone no. is not register with us";
@@ -160,13 +160,13 @@ namespace StadhawkLaundry.API.Controllers
                 }
                 else
                 {
-                    var data = (await _unit.IUser.GetByID("ad2cc221-9b4e-4b60-8310-98e9ab19bacb")).UserObject;
-                    var ddd = await _userManager.FindByEmailAsync(data.Email);
+                    var Id = (await _unit.IUser.GetSelectedAsync(t => t.PhoneNumber.Equals(value.MobileNo), m=> m.Id)).UserObject;
+                    var resultdata = await _userManager.FindByIdAsync(Convert.ToString(Id));
                     string strPhone = ("91" + value.MobileNo);
-                    ddd.FCMToken = value.FcmToken;
-                    ddd.DeviceId = value.DeviceId;
-                    ddd.DeviceType = value.DeviceType;
-                    ddd.ModifiedDate = DateTime.Now;
+                    resultdata.FCMToken = value.FcmToken;
+                    resultdata.DeviceId = value.DeviceId;
+                    resultdata.DeviceType = value.DeviceType;
+                    resultdata.ModifiedDate = DateTime.Now;
 
                     response.Message = "user registered.";
                     response.Status = true;
@@ -175,15 +175,15 @@ namespace StadhawkLaundry.API.Controllers
                     {
                         try
                         {
-                            await _userManager.UpdateAsync(ddd);
-                            model.Name = data.FullName;
-                            model.EmailId = data.Email;
-                            model.MobileNo = data.PhoneNumber;
-                            if (!string.IsNullOrEmpty(data.CustomerImage))
+                            await _userManager.UpdateAsync(resultdata);
+                            model.Name = resultdata.FullName;
+                            model.EmailId = resultdata.Email;
+                            model.MobileNo = resultdata.PhoneNumber;
+                            if (!string.IsNullOrEmpty(resultdata.CustomerImage))
                             {
-                                model.userImageProfileImage = data.CustomerImage;
+                                model.userImageProfileImage = resultdata.CustomerImage;
                             }
-                            if (data != null)
+                            if (resultdata != null)
                             {
                                 JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
                                 byte[] key = Encoding.ASCII.GetBytes(_appSettings.Secret);
@@ -191,8 +191,8 @@ namespace StadhawkLaundry.API.Controllers
                                 {
                                     Subject = new ClaimsIdentity(new Claim[]
                                     {
-                                        new Claim(ClaimTypes.Name, data.Id.ToString()),
-                                        new Claim(ClaimTypes.MobilePhone, data.PhoneNumber.ToString())
+                                        new Claim(ClaimTypes.Name, resultdata.Id.ToString()),
+                                        new Claim(ClaimTypes.MobilePhone, resultdata.PhoneNumber.ToString())
                                     }),
                                     Expires = DateTime.UtcNow.AddDays(180),
                                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),

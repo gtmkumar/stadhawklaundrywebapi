@@ -16,6 +16,5 @@ namespace StadhawkLaundry.DataModel.Models
 
         public virtual TblAddressMaster Address { get; set; }
         public virtual TblAddressTypeMaster AddressType { get; set; }
-        public virtual AspNetUsers User { get; set; }
     }
 }

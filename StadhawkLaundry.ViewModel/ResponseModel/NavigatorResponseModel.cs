@@ -7,6 +7,13 @@ namespace StadhawkLaundry.ViewModel.ResponseModel
     public class NavigatorResponseModel
     {
         private List<Nav> _menu = new List<Nav>();
+        List<Nav> _SubMenu = new List<Nav>();
+
+        public List<Nav> SubMenu
+        {
+            get { return _SubMenu; }
+            set { _SubMenu = value; }
+        }
         public List<Nav> Menu
         {
             get { return _menu; }
@@ -20,7 +27,7 @@ namespace StadhawkLaundry.ViewModel.ResponseModel
             SubMenu = new List<Nav>();
         }
 
-        public Guid Id { get; set; }
+        public int Id { get; set; }
 
         public string URL { get; set; }
 
@@ -32,7 +39,7 @@ namespace StadhawkLaundry.ViewModel.ResponseModel
 
         public string Icon { get; set; }
 
-        public Guid ParentId { get; set; }
+        public int ParentId { get; set; }
 
         public List<Nav> SubMenu { get; set; }
         public Guid Privilege_Id { get; set; }

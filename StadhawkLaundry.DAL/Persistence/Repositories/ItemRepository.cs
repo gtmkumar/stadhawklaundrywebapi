@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace StadhawkLaundry.BAL.Persistence.Repositories
 {
-    public class ItemRepository : Repository<TblItem>, IItemRepository
+    public class ItemRepository : Repository<TblItemMaster>, IItemRepository
     {
         private readonly LaundryContext _context;
         public ItemRepository(LaundryContext context) : base(context)
@@ -21,21 +21,21 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
             _context = context;
         }
 
-        public async Task<ApiResult<ItemViewModel>> GetItemById(string Id)
+        public async Task<ApiResult<ItemViewModel>> GetItemById(int Id)
         {
             try
             {
-                var result = await (from itm in _context.TblItem
-                                    join subcat in _context.TblSubcategory on itm.ServiceId equals subcat.Id
-                                    join cat in _context.TblCategory on subcat.CategoryId equals cat.Id
-                                    join ser in _context.TblService on cat.ServiceId equals ser.Id
+                var result = await (from itm in _context.TblItemMaster
+                                    join subcat in _context.TblSubServiceMaster on itm.Id equals subcat.Id
+                                    join cat in _context.TblCategoryMaster on subcat.Id equals cat.Id
+                                    join ser in _context.TblServiceMaster on cat.Id equals ser.Id
                                     select new ItemViewModel
                                     {
-                                        Name = itm.Name,
+                                        Name = itm.ItemName,
                                         ServiceId = ser.Id,
                                         CategoryId = cat.Id,
-                                        SubcategoryId = itm.ServiceId,
-                                        ItemId = itm.Id.ToString(),
+                                        SubcategoryId = itm.Id,
+                                        ItemId = itm.Id,
                                         Price =Convert.ToDecimal(ser.Id),
                                     }
                                 ).Where(t => t.ItemId == Id).FirstOrDefaultAsync();
@@ -56,21 +56,21 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
         {
             try
             {
-                var result = await (from itm in _context.TblItem
-                                    join subcat in _context.TblSubcategory on itm.Id equals subcat.Id
-                                    join cat in _context.TblCategory on subcat.CategoryId equals cat.Id
-                                    join ser in _context.TblService on cat.ServiceId equals ser.Id
+                var result = await (from itm in _context.TblItemMaster
+                                    join subcat in _context.TblSubServiceMaster on itm.Id equals subcat.Id
+                                    join cat in _context.TblCategoryMaster on subcat.Id equals cat.Id
+                                    join ser in _context.TblServiceMaster on cat.Id equals ser.Id
                                     select new ItemViewModel
                                     {
-                                        Name = itm.Name,
+                                        Name = itm.ItemName,
                                         ServiceId = ser.Id,
                                         CategoryId = cat.Id,
-                                        SubcategoryId = itm.ServiceId,
-                                        ItemId = itm.Id.ToString(),
+                                        SubcategoryId = itm.Id,
+                                        ItemId = itm.Id,
                                         Price = Convert.ToDecimal(itm.Id),
-                                        ServiceName = ser.Name,
-                                        CategoryName = cat.Name,
-                                        SubcategoryName = subcat.Name
+                                        ServiceName = ser.ServiceName,
+                                        CategoryName = cat.CategoryName,
+                                        SubcategoryName = subcat.SubServiceName
                                     }
                                 ).ToListAsync();
 

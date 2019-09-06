@@ -8,7 +8,7 @@ namespace StadhawkLaundry.ViewModel
 {
     public class ServicesViewModel
     {
-        public string ServiceId { get; set; }
+        public int ServiceId { get; set; }
 
         [Required(ErrorMessage = "Service is requard")]
         public string Name { get; set; }

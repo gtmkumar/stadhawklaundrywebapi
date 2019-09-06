@@ -4,7 +4,11 @@ using System.Text;
 
 namespace IdentityAuth.Core
 {
-    class IdentityStatus
+    public enum IdentityStatus
     {
+        Successfull,
+        UserNotFound,
+        FatalException,
+        UserAlreadyExists,
     }
 }

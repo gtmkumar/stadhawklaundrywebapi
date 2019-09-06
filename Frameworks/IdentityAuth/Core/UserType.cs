@@ -1,10 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace IdentityAuth.Core
+﻿namespace IdentityAuth.Core
 {
-    class UserType
+    public enum UserType
     {
+        None = 0,
+        SuperAdmin,
+        Admin,
+        Employee,
+        Manager,
+        User
     }
 }

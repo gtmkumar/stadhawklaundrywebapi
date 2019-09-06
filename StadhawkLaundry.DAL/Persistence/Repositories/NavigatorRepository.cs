@@ -5,189 +5,140 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using StadhawkLaundry.DataModel.Models;
+using StadhawkLaundry.DataModel;
+using StadhawkCoreApi.Logger;
 
 namespace StadhawkLaundry.BAL.Persistence.Repositories
 {
-    public class NavigatorRepository : INavigatorRepository
+    public class NavigatorRepository : Repository<NavigatorView>, INavigatorRepository
     {
-        public ApiResult<string> GetDefaultUrl(Guid RoleID, int pathSelection)
+
+        private readonly LaundryContext _context;
+        public NavigatorRepository(LaundryContext context) : base(context)
         {
-            string DefultURL = "";
-            using (var context = new PersonalisationContext())
-            {
-
-                // var projectType = System.Configuration.ConfigurationManager.AppSettings["ProjectType"];
-                //  byte validProjectType = 0;
-                // byte.TryParse(projectType, out validProjectType);
-
-                var Result = context.NavigatorViews.FirstOrDefault(M => M.RoleId == RoleID && M.IsDefault == true && M.PortalType == pathSelection);
-                if (Result != null)
-                {
-                    DefultURL = Result.URL;
-                }
-            }
-            return new ApiResult<string>(new ApiResultCode(ApiResultType.Success), DefultURL);
+            _context = context;
         }
 
-        public ApiResult<NavigatorResponseModel> GetMenuNavigation(Guid RoleID, string employeeID, string empCode)
+        public ApiResult<NavigatorResponseModel> GetNavigation(int RoleID, string URL)
         {
-            using (var context = new PersonalisationContext())
+            #region Create Main Menu
+            NavigatorResponseModel objNavigator = new NavigatorResponseModel();
+            var Result = _context.NavigatorViews.Where(M => M.RoleId == RoleID && M.Parant_Id == null && M.IsDefault == false && M.ishide == false).OrderBy(M => M.Default_Order).ToList();
+            foreach (var R in Result)
             {
-                byte validProjectType = 0;
-                byte.TryParse(projectType, out validProjectType);
-                var result = context.NavigatorViews.Where(t => t.RoleId == RoleID && t.ishide == false && t.PortalType == validProjectType && t.Display_Text.Contains("dashboard")).OrderBy(m => m.Default_Order).ToList();
-                if (result == null)
+                Nav objnav = new Nav()
                 {
-                    return new ApiResult<NavigatorResponseModel>(new ApiResultCode(ApiResultType.Error, 0, "No menu found for your role id."));
-                }
-                NavigatorResponseModel objNavigator = new NavigatorResponseModel();
-                var submenu = result.Where(t => t.Parant_Id.HasValue).GroupBy(t => t.Parant_Id.Value);
+                    URL = R.URL,
+                    DisplayText = R.Display_Text,
+                    IsSubMenu = true,
+                    ClassName = string.IsNullOrEmpty(R.Class) ? "Bsddef" : R.Class,
+                    Icon = string.IsNullOrEmpty(R.icon) ? "img-Not-Found.png" : R.icon,
+                };
+                objNavigator.Menu.Add(objnav);
 
-                foreach (var item in result)
+            }
+            #endregion
+            #region Create Sub Menu
+            var Parant_id = (from parant in _context.NavigatorViews where parant.URL == URL && parant.Parant_Id != null select parant.Parant_Id).Take(1).ToList();  //context.NavigatorViews.Where(M => M.URL == URL).ToList();
+            if (Parant_id.Count > 0)
+            {
+                int Parantid = Parant_id[0].Value;
+                var Value = _context.NavigatorViews.Where(M => (M.RoleId > 0 || M.RoleId == RoleID) && (M.Parant_Id.Value == Parantid || M.Navigator_Id == Parantid) && M.ishide == false).OrderBy(M => M.Default_Order).ToList();
+                foreach (var v in Value)
                 {
-                    if (!item.Parant_Id.HasValue)
+                    Nav objnav = new Nav()
                     {
-                        Nav nav = new Nav();
+                        URL = v.URL,
+                        DisplayText = v.Display_Text,
+                        IsSubMenu = v.Parant_Id.HasValue,
+                        ClassName = string.IsNullOrEmpty(v.Class) ? "Bsddef" : v.Class,
+                        Icon = string.IsNullOrEmpty(v.icon) ? "img-Not-Found.png" : v.icon,
+                    };
+                    objNavigator.SubMenu.Add(objnav);
 
-                        nav.Id = item.Navigator_Id;
-                        nav.URL = item.URL;
-                        nav.ClassName = item.Class;
-                        nav.DisplayText = item.Display_Text;
-                        nav.IsSubMenu = false;
-                        if (submenu != null)
-                        {
-                            var _object = submenu.FirstOrDefault(t => t.Key == item.Navigator_Id);
-                            if (_object != null)
-                                foreach (var sub in _object)
-                                {
-                                    nav.SubMenu.Add(new Nav { Id = sub.Navigator_Id, URL = sub.URL, ClassName = sub.Class, DisplayText = sub.Display_Text, ParentId = sub.Parant_Id.Value });
-                                }
-                        }
-                        objNavigator.Menu.Add(nav);
-                    }
-                }
-                using (var M_context = new MIS_DbContext())
-                {
-
-                    var CurrentUserName = M_context.AspNetUsers.Where(x => x.Id.ToString().ToLower() == employeeID).Select(x => x.UserName).FirstOrDefault();
-
-                    var ManagerId = (from t in M_context.tblEmployeeMasters
-                                     join t2 in M_context.tblTeamTypes on t.Team_Id equals t2.Team_Id
-                                     where t.EmpId == new Guid(employeeID)
-                                     select new
-                                     {
-                                         ManagerId = t2.ReportinEmpId
-                                     }.ManagerId).FirstOrDefault();
-
-                    var navigatoreIds = (from t in M_context.tblPageRights
-                                         where t.EmployeeCode == CurrentUserName
-                                         select new
-                                         {
-                                             NavigatorId = t.NavigatorId,
-                                         }.NavigatorId).ToList();
-
-                    var mynewresult = context.tblNavigators.Where(t => navigatoreIds.Contains(t.Navigator_Id) && t.ishide == false && t.PortalType == validProjectType && navigatoreIds.Contains(t.Navigator_Id)).OrderBy(m => m.Default_Order).ToList();
-
-
-                    if (mynewresult.Count > 0)
-                    {
-                        var mynewsubmenu = mynewresult.Where(t => t.Parant_Id.HasValue && navigatoreIds.Contains(t.Navigator_Id)).GroupBy(t => t.Parant_Id.Value);
-
-                        foreach (var item in mynewresult)
-                        {
-                            if (!item.Parant_Id.HasValue)
-                            {
-                                var counter = objNavigator.Menu.Where(x => x.Id == item.Navigator_Id).Count();
-                                if (counter == 0)
-                                {
-
-                                    Nav nav = new Nav();
-
-                                    nav.Id = item.Navigator_Id;
-                                    nav.URL = item.URL;
-                                    nav.ClassName = item.Class;
-                                    nav.DisplayText = item.Display_Text;
-                                    nav.IsSubMenu = false;
-                                    if (mynewsubmenu != null)
-                                    {
-                                        var _object = mynewsubmenu.FirstOrDefault(t => t.Key == item.Navigator_Id);
-                                        if (_object != null)
-                                            foreach (var sub in _object)
-                                            {
-                                                nav.SubMenu.Add(new Nav { Id = sub.Navigator_Id, URL = sub.URL, ClassName = sub.Class, DisplayText = sub.Display_Text, ParentId = sub.Parant_Id.Value });
-                                            }
-                                    }
-
-                                    objNavigator.Menu.Add(nav);
-                                }
-                                else
-                                {
-                                    var selectsubmenu = objNavigator.Menu.Where(x => x.Id == item.Navigator_Id);
-                                    var idx = objNavigator.Menu.Where(x => x.Id == item.Navigator_Id);
-
-                                    var _object = mynewsubmenu.FirstOrDefault(t => t.Key == item.Navigator_Id);
-                                    if (_object != null)
-                                    {
-                                        for (int k = 0; k < objNavigator.Menu.Count; k++)
-                                        {
-                                            if (objNavigator.Menu[k].Id.ToString().ToLower() == item.Navigator_Id.ToString().ToLower())
-                                            {
-                                                foreach (var sub in _object)
-                                                {
-                                                    var Submenucounter = objNavigator.Menu[k].SubMenu.Where(x => x.Id.ToString().ToLower() == sub.Navigator_Id.ToString().ToLower()).Count();
-                                                    if (Submenucounter == 0)
-                                                    {
-                                                        objNavigator.Menu[k].SubMenu.Add(new Nav { Id = sub.Navigator_Id, URL = sub.URL, ClassName = sub.Class, DisplayText = sub.Display_Text, ParentId = sub.Parant_Id.Value });
-                                                    }
-                                                }
-                                            }
-
-                                        }
-
-                                    }
-                                }
-
-                            }
-                        }
-                    }
                 }
 
-
-                return new ApiResult<NavigatorModel>(new ApiResultCode(ApiResultType.Success), objNavigator);
             }
+            #endregion
+            return new ApiResult<NavigatorResponseModel>(new ApiResultCode(ApiResultType.Success), objNavigator);
         }
+        //public ApiResultCode AddMenuNavigation(string empCode, int EmpId, string roleId, int userId, bool isEdit)
+        //{
+        //    try
+        //    {
+        //            //update menu if role changed
+        //            if (isEdit)
+        //            {
+        //                var Role = context.tblEmployeeMasters.Where(m => m.EmpId == EmpId).Select(m => m.RoleName).FirstOrDefault();
+        //                if (Role != roleName)
+        //                {
+        //                    _context.tblEmployeeRightsDetails.RemoveRange(context.tblEmployeeRightsDetails.Where(m => m.EmployeeId == empCode));
+        //                    _context.tblPageRights.RemoveRange(context.tblPageRights.Where(m => m.EmployeeCode == empCode));
+        //                    _context.SaveChanges();
+        //                }
+        //                else
+        //                {
+        //                    return new ApiResultCode(ApiResultType.Success, 1, "Menu updation not needed.");
+        //                }
+        //            }
+        //            Guid roleId = context.AspNetRoles.Where(m => m.Name.Equals(roleName)).Select(m => m.Id).FirstOrDefault();
+        //            var navIdPM = context.NavigatorViews.Where(m => !m.ishide.Value && m.RoleId == roleId && m.PortalType == 2).Select(m => m.Navigator_Id).ToList();
+        //            var navIdHR = context.NavigatorViews.Where(m => !m.ishide.Value && m.RoleId == roleId && m.PortalType == 1).Select(m => m.Navigator_Id).ToList();
 
-        public ApiResult<bool> IsAuthorize(string strEmpCode, string URL)
-        {
-            using (var context = new MIS_DbContext())
-            {
-                bool res = false;
-                var Result = (from pr in context.tblPageRights
-                              join nv in context.tblNavigators on pr.NavigatorId equals nv.Navigator_Id
-                              where pr.EmployeeCode == strEmpCode && nv.URL == URL
-                              select nv
-                              ).ToList();
-                try
-                {
-                    res = context.tblDefaulUrl.Any(t => t.DefaultUrl == URL);
-                }
-                catch (Exception ex)
-                {
-                    throw;
-                }
+        //            tblEmployeeRightsDetail obj;
+        //            tblPageRights objHR;
+        //            foreach (var id in navIdPM)
+        //            {
+        //                obj = new tblEmployeeRightsDetail();
+        //                obj.ID = Guid.NewGuid();
+        //                obj.NavigatorId = id;
+        //                obj.EmployeeId = empCode;
+        //                obj.CreatedBy = userId;
+        //                obj.CreatedOn = DateTime.Now;
+        //                _context.tblEmployeeRightsDetails.Add(obj);
+        //            }
+        //            foreach (var id in navIdHR)
+        //            {
+        //                objHR = new tblPageRights();
+        //                objHR.EmployeeCode = empCode;
+        //                objHR.NavigatorId = id;
+        //                objHR.InsertedBy = new Guid(userId);
+        //                objHR.InsertDate = DateTime.Now;
+        //                objHR.Status = true;
+        //                _context.tblPageRights.Add(objHR);
+        //            }
+        //            _context.SaveChanges();
+                
+        //        return new ApiResultCode(ApiResultType.Success, 1, "Menu added successfully.");
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        ErrorTrace.Logger(LogArea.BusinessTier, ex);
+        //        return new ApiResultCode(ApiResultType.Error, 0, "Error in adding Menu.");
+        //    }
+        //}
 
-                if (Result != null)
-                {
-                    if (Result.Count() > 0 || res)
-                        return new ApiResult<bool>(new ApiResultCode(ApiResultType.Success), true);
-                    else
-                        return new ApiResult<bool>(new ApiResultCode(ApiResultType.Error), false);
-                }
-                else
-                {
-                    return new ApiResult<bool>(new ApiResultCode(ApiResultType.Error), false);
-                }
-            }
-        }
+        //public ApiResult<bool> IsAuthorize(string id, string URL)
+        //{
+        //    bool res = false;
+        //    var Result = (from pr in _context.tblPageRights
+        //                  join nv in _context.TblNavigator on pr.NavigatorId equals nv.NavigatorId
+        //                  where pr.EmployeeCode == strEmpCode && nv.URL == URL
+        //                  select nv
+        //                  ).ToList();
+           
+        //    if (Result != null)
+        //    {
+        //        if (Result.Count() > 0 || res)
+        //            return new ApiResult<bool>(new ApiResultCode(ApiResultType.Success), true);
+        //        else
+        //            return new ApiResult<bool>(new ApiResultCode(ApiResultType.Error), false);
+        //    }
+        //    else
+        //    {
+        //        return new ApiResult<bool>(new ApiResultCode(ApiResultType.Error), false);
+        //    }
+        //}
     }
 }

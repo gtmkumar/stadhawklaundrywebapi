@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace StadhawkLaundry.BAL.Core.IRepositories
 {
-    public interface ICategoryRepository : IRepository<TblCategory>
+    public interface ICategoryRepository : IRepository<TblCategoryMaster>
     {
         Task<ApiResult<IEnumerable<CategoryViewModel>>> GetCategoryWithServiceData();
     }

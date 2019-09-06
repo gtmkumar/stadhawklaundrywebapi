@@ -99,7 +99,7 @@ namespace StadhawkLaundry.API
 
             services.AddDbContextPool<ApplicationDbContext>(options =>  options.UseSqlServer(connection));
 
-            services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
+            services.AddIdentity<ApplicationUser, ApplicationRole>().AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 
             services.AddCors(options =>
             {

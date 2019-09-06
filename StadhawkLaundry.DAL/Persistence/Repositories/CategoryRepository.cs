@@ -13,7 +13,7 @@ using StadhawkLaundry.ViewModel;
 
 namespace StadhawkLaundry.BAL.Persistence.Repositories
 {
-    public class CategoryRepository : Repository<TblCategory>, ICategoryRepository
+    public class CategoryRepository : Repository<TblCategoryMaster>, ICategoryRepository
     {
         private readonly LaundryContext _context;
         public CategoryRepository(LaundryContext context) : base(context)
@@ -25,12 +25,12 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
         {
             try
             {
-                var result = await (_context.TblCategory.Join(_context.TblService, cat => cat.ServiceId, ser => ser.Id, (cat, ser) => new { cat, ser})
+                var result = await (_context.TblCategoryMaster.Join(_context.TblServiceMaster, cat => cat.Id, ser => ser.Id, (cat, ser) => new { cat, ser})
                 .Select(c => new CategoryViewModel
                 {
-                    Service = c.ser.Name,
-                    Name = c.cat.Name,
-                    CategoryId = c.cat.Id.ToString(),
+                    Service = c.ser.ServiceName,
+                    Name = c.cat.CategoryName,
+                    CategoryId = c.cat.Id,
                     ServiceId  = c.ser.Id
 
                 }).ToListAsync());

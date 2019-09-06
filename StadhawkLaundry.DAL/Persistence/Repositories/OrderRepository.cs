@@ -25,17 +25,17 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
         public async Task<ApiResult<OrderViewModel>> GetItemDetails()
         {
             OrderViewModel orderView = new OrderViewModel();
-            var services = await _context.TblService.ToListAsync();
-            var categories = await _context.TblCategory.ToListAsync();
-            var subcategories = await _context.TblSubcategory.ToListAsync();
-            var items = await _context.TblItem.ToListAsync();
+            var services = await _context.TblServiceMaster.ToListAsync();
+            var categories = await _context.TblCategoryMaster.ToListAsync();
+            var subcategories = await _context.TblSubServiceMaster.ToListAsync();
+            var items = await _context.TblItemMaster.ToListAsync();
 
             foreach (var item in services)
             {
                 orderView.Services.Add(new ServicesViewModel()
                 {
-                    ServiceId = item.Id.ToString(),
-                    Name = item.Name
+                    ServiceId = item.Id,
+                    Name = item.ServiceName
                 });
             }
 
@@ -43,8 +43,8 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
             {
                 orderView.Categories.Add(new CategoryViewModel()
                 {
-                    CategoryId = item.Id.ToString(),
-                    Name = item.Name
+                    CategoryId = item.Id,
+                    Name = item.CategoryName
                 });
             }
 
@@ -53,7 +53,7 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                 orderView.Subcategories.Add(new SubcategoryViewModel()
                 {
                     SubcategoryId = item.Id.ToString(),
-                    Name = item.Name
+                    Name = item.SubServiceName
                 });
             }
 
@@ -61,8 +61,8 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
             {
                 orderView.Items.Add(new ItemViewModel()
                 {
-                    ItemId = item.Id.ToString(),
-                    Name = item.Name
+                    ItemId = item.Id,
+                    Name = item.ItemName
                 });
             }
             return orderView == null

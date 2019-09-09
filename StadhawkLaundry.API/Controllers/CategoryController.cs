@@ -3,16 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Stadhawk.Laundry.Utility.ResponseUtility;
 using StadhawkCoreApi;
 using StadhawkCoreApi.Logger;
 using StadhawkLaundry.BAL.Core;
 using StadhawkLaundry.BAL.Core.IRepositories;
 using StadhawkLaundry.DataModel.Models;
 using StadhawkLaundry.ViewModel;
+using StadhawkLaundry.ViewModel.RequestModel;
+using StadhawkLaundry.ViewModel.ResponseModel;
+using Utility;
 
 namespace StadhawkLaundry.API.Controllers
 {
@@ -20,17 +25,12 @@ namespace StadhawkLaundry.API.Controllers
     [Route("api/[Controller]")]
     public class CategoryController : ControllerBase
     {
-            private readonly IUnitOfWork _unit;
-            public CategoryController(IUnitOfWork unit)
-            {
-                _unit = unit;
-            }
-        
-        [HttpGet("categories")]
-        public async Task<IEnumerable<CategoryViewModel>> Get()
+        private readonly IUnitOfWork _unit;
+        public CategoryController(IUnitOfWork unit)
         {
-            return (await _unit.ICategory.GetCategoryWithServiceData()).UserObject;
+            _unit = unit;
         }
+
 
         [HttpGet("categorybyserviceid/{id}")]
         public async Task<IEnumerable<CategoryViewModel>> GetCategoryByServiceId(int Id)
@@ -162,6 +162,60 @@ namespace StadhawkLaundry.API.Controllers
                     StatusCode = HttpStatusCode.BadRequest
                 };
                 return response;
+            }
+        }
+
+        [HttpGet("category")]
+        public async Task<IActionResult> GetCategory(CategoryFilterRequest filter)
+        {
+            int userId = 0;
+            var userstr = this.User.FindFirstValue(ClaimTypes.Name);
+            if (!string.IsNullOrWhiteSpace(userstr))
+                userId = Convert.ToInt32(userId);
+
+            var ownResponse = new ListResponse<CategoryResponseViewModel>();
+            var dataResult = await _unit.ICategory.GetCategoryWithServiceData(filter);
+
+            if (dataResult.HasSuccess)
+            {
+                ownResponse.Message = "Success";
+                ownResponse.Status = true;
+                ownResponse.Data = dataResult.UserObject;
+                return ownResponse.ToHttpResponse();
+            }
+            else
+            {
+                ownResponse.Message = "No data found";
+                ownResponse.Status = true;
+                ownResponse.Data = dataResult.UserObject;
+                return ownResponse.ToHttpResponse();
+            }
+        }
+
+        [HttpGet("getcategory")]
+        public async Task<IActionResult> GetCategoryByService([FromQuery] int serviceId)
+        {
+            int userId = 0;
+            var userstr = this.User.FindFirstValue(ClaimTypes.Name);
+
+            if (!string.IsNullOrWhiteSpace(userstr))
+                userId = Convert.ToInt32(userId);
+
+            var ownResponse = new ListResponse<CategoryResponseViewModel>();
+            var dataResult = await _unit.ICategory.GetCategoryByServiceId(serviceId);
+            if (dataResult.HasSuccess)
+            {
+                ownResponse.Message = "Success";
+                ownResponse.Status = true;
+                ownResponse.Data = dataResult.UserObject;
+                return ownResponse.ToHttpResponse();
+            }
+            else
+            {
+                ownResponse.Message = "No data found";
+                ownResponse.Status = true;
+                ownResponse.Data = dataResult.UserObject;
+                return ownResponse.ToHttpResponse();
             }
         }
     }

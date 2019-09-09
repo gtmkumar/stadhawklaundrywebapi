@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace StadhawkLaundry.BAL.Core.IRepositories
 {
-    public interface IBannerRepository : IRepository<TblService>
+    public interface IBannerRepository : IRepository<TblServiceMaster>
     {
         Task<ApiResult<IEnumerable<BannerResponseViewModel>>> GetBanner(int storeId);
     }

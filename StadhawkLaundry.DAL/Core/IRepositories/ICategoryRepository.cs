@@ -1,6 +1,8 @@
 ﻿using StadhawkCoreApi;
 using StadhawkLaundry.DataModel.Models;
 using StadhawkLaundry.ViewModel;
+using StadhawkLaundry.ViewModel.RequestModel;
+using StadhawkLaundry.ViewModel.ResponseModel;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -10,6 +12,7 @@ namespace StadhawkLaundry.BAL.Core.IRepositories
 {
     public interface ICategoryRepository : IRepository<TblCategoryMaster>
     {
-        Task<ApiResult<IEnumerable<CategoryViewModel>>> GetCategoryWithServiceData();
+        Task<ApiResult<IEnumerable<CategoryResponseViewModel>>> GetCategoryWithServiceData(CategoryFilterRequest filter);
+        Task<ApiResult<IEnumerable<CategoryResponseViewModel>>> GetCategoryByServiceId(int serviceId);
     }
 }

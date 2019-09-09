@@ -15,6 +15,7 @@ using Stadhawk.Laundry.Utility.IHandler;
 using Stadhawk.Laundry.Utility.Model;
 using Stadhawk.Laundry.Utility.ResponseUtility;
 using StadhawkCoreApi.Logger;
+using StadhawkLaundry.API.Common;
 using StadhawkLaundry.API.Data;
 using StadhawkLaundry.API.Models;
 using StadhawkLaundry.BAL.Core;
@@ -160,7 +161,7 @@ namespace StadhawkLaundry.API.Controllers
                 }
                 else
                 {
-                    var Id = (await _unit.IUser.GetSelectedAsync(t => t.PhoneNumber.Equals(value.MobileNo), m=> m.Id)).UserObject;
+                    var Id = (await _unit.IUser.GetSelectedAsync(t => t.PhoneNumber.Equals(value.MobileNo), m => m.Id)).UserObject;
                     var resultdata = await _userManager.FindByIdAsync(Convert.ToString(Id));
                     string strPhone = ("91" + value.MobileNo);
                     resultdata.FCMToken = value.FcmToken;
@@ -243,69 +244,73 @@ namespace StadhawkLaundry.API.Controllers
             response.Status = true;
             return response.ToHttpResponse();
         }
-        //[AllowAnonymous]
-        //[ValidateAntiForgeryToken]
-        //[HttpPost("login")]
-        //public async Task<IActionResult> Post([FromForm] LoginRequestViewModel value, string returnUrl = null)
-        //{
-        //    var response = new SingleResponse<LoginResponseViewModel>();
-        //    try
-        //    {
-        //        if (ModelState.IsValid)
-        //        {
-        //            var loginResponseData = new LoginResponseViewModel();
-        //            var loginstatus = (await _unit.IUser.AuthenticateUsers(value.UserId, EncryptionLibrary.EncryptText(value.Password))).UserObject;
 
-        //            if (loginstatus)
-        //            {
-        //                var userdetails = (await _unit.IUser.GetUserDetailsbyCredentials(value.UserId)).UserObject;
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        [HttpPost("login")]
+        public async Task<IActionResult> Post([FromForm] WebLoginRequestViewModel value, string returnUrl = null)
+        {
+            var response = new SingleResponse<LoginResponseViewModel>();
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var loginResponseData = new LoginResponseViewModel();
 
-        //                if (userdetails != null)
-        //                {
+                    var loginstatus = (await _unit.IUser.AuthenticateUsers(value.UserName, EncryptionLibrary.EncryptText(value.Password))).UserObject;
 
-        //                    var tokenHandler = new JwtSecurityTokenHandler();
-        //                    var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
-        //                    var tokenDescriptor = new SecurityTokenDescriptor
-        //                    {
-        //                        Subject = new ClaimsIdentity(new Claim[]
-        //                        {
-        //                                new Claim(ClaimTypes.Name, userdetails.UserId.ToString())
-        //                        }),
-        //                        Expires = DateTime.UtcNow.AddDays(1),
-        //                        SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
-        //                            SecurityAlgorithms.HmacSha256Signature)
-        //                    };
-        //                    var token = tokenHandler.CreateToken(tokenDescriptor);
-        //                    loginResponseData.Token = tokenHandler.WriteToken(token);
-        //                    loginResponseData.EmailId = userdetails.EmailId;
-        //                    response.Data = loginResponseData;
-        //                    response.Status = true;
-        //                    return response.ToHttpResponse();
+                    if (loginstatus)
+                    {
+                        var userdetails = (await _userManager.FindByEmailAsync(value.UserName));
 
-        //                }
-        //                else
-        //                {
-        //                    response.Data = null;
-        //                    response.Message = "Not valid user";
-        //                    response.Status = true;
-        //                    return response.ToHttpResponse();
-        //                }
-        //            }
-        //            else
-        //            {
-        //                response.Data = null;
-        //                response.Message = "Not valid user";
-        //                response.Status = true;
-        //                return response.ToHttpResponse();
-        //            }
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        ErrorTrace.Logger(LogArea.ApplicationTier, ex);
-        //        return response.ToHttpResponse();
-        //    }
-        //    return response.ToHttpResponse();
-        //}
+                        if (userdetails != null)
+                        {
+
+                            var tokenHandler = new JwtSecurityTokenHandler();
+                            var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
+                            var tokenDescriptor = new SecurityTokenDescriptor
+                            {
+                                Subject = new ClaimsIdentity(new Claim[]
+                                {
+                                    new Claim(ClaimTypes.Name, userdetails.Id.ToString()),
+                                     new Claim(ClaimTypes.MobilePhone, userdetails.PhoneNumber.ToString()),
+                                     new Claim(ClaimTypes.Email, userdetails.Email.ToString())
+                                }),
+                                Expires = DateTime.UtcNow.AddDays(1),
+                                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
+                                    SecurityAlgorithms.HmacSha256Signature)
+                            };
+                            var token = tokenHandler.CreateToken(tokenDescriptor);
+                            loginResponseData.Token = tokenHandler.WriteToken(token);
+                            loginResponseData.EmailId = userdetails.Email;
+                            response.Data = loginResponseData;
+                            response.Status = true;
+                            return response.ToHttpResponse();
+
+                        }
+                        else
+                        {
+                            response.Data = null;
+                            response.Message = "Not valid user";
+                            response.Status = true;
+                            return response.ToHttpResponse();
+                        }
+                    }
+                    else
+                    {
+                        response.Data = null;
+                        response.Message = "Not valid user";
+                        response.Status = true;
+                        return response.ToHttpResponse();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorTrace.Logger(LogArea.ApplicationTier, ex);
+                return response.ToHttpResponse();
+            }
+            return response.ToHttpResponse();
+        }
     }
 }

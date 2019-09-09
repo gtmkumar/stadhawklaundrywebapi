@@ -44,6 +44,7 @@ namespace StadhawkLaundry.DataModel.Models
         public virtual DbSet<TblStateMaster> TblStateMaster { get; set; }
         public virtual DbSet<TblStatusMaster> TblStatusMaster { get; set; }
         public virtual DbSet<TblStore> TblStore { get; set; }
+        public virtual DbSet<TblStoreCategory> TblStoreCategory { get; set; }
         public virtual DbSet<TblStoreEmployees> TblStoreEmployees { get; set; }
         public virtual DbSet<TblStoreItems> TblStoreItems { get; set; }
         public virtual DbSet<TblStorePackagesAndCategoryMapping> TblStorePackagesAndCategoryMapping { get; set; }
@@ -55,6 +56,14 @@ namespace StadhawkLaundry.DataModel.Models
 
         // Unable to generate entity type for table 'dbo.tblRolePrivilegesBase'. Please see the warning messages.
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+                optionsBuilder.UseSqlServer("Server=192.168.1.18,1433;Database=StadhawkLaundry;User=sa;password=Server@123;Trusted_Connection=false;");
+            }
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -628,6 +637,26 @@ namespace StadhawkLaundry.DataModel.Models
                     .HasConstraintName("FK_tblStoreDetail_tblDistrictMaster");
             });
 
+            modelBuilder.Entity<TblStoreCategory>(entity =>
+            {
+                entity.HasKey(e => new { e.StoreId, e.CategoryId })
+                    .HasName("PK_dbo.StoreCategory");
+
+                entity.ToTable("tblStoreCategory");
+
+                entity.HasOne(d => d.Category)
+                    .WithMany(p => p.TblStoreCategory)
+                    .HasForeignKey(d => d.CategoryId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_StoreCategory_tblCategoryMaster");
+
+                entity.HasOne(d => d.Store)
+                    .WithMany(p => p.TblStoreCategory)
+                    .HasForeignKey(d => d.StoreId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_StoreCategory_tblStore");
+            });
+
             modelBuilder.Entity<TblStoreEmployees>(entity =>
             {
                 entity.ToTable("tblStoreEmployees");
@@ -771,9 +800,7 @@ namespace StadhawkLaundry.DataModel.Models
 
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
 
-                entity.Property(e => e.UserId)
-                    .HasColumnName("User_id")
-                    .HasMaxLength(450);
+                entity.Property(e => e.UserId).HasColumnName("User_id");
 
                 entity.HasOne(d => d.Address)
                     .WithMany(p => p.TblUserAddress)

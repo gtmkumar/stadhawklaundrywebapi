@@ -45,6 +45,7 @@ namespace StadhawkLaundry.DataModel
         public virtual DbSet<TblStateMaster> TblStateMaster { get; set; }
         public virtual DbSet<TblStatusMaster> TblStatusMaster { get; set; }
         public virtual DbSet<TblStore> TblStore { get; set; }
+        public virtual DbSet<TblStoreCategory> TblStoreCategory { get; set; }
         public virtual DbSet<TblStoreEmployees> TblStoreEmployees { get; set; }
         public virtual DbSet<TblStoreItems> TblStoreItems { get; set; }
         public virtual DbSet<TblStorePackagesAndCategoryMapping> TblStorePackagesAndCategoryMapping { get; set; }
@@ -636,7 +637,25 @@ namespace StadhawkLaundry.DataModel
                     .HasForeignKey(d => d.DistrictId)
                     .HasConstraintName("FK_tblStoreDetail_tblDistrictMaster");
             });
+            modelBuilder.Entity<TblStoreCategory>(entity =>
+            {
+                entity.HasKey(e => new { e.StoreId, e.CategoryId })
+                    .HasName("PK_dbo.StoreCategory");
 
+                entity.ToTable("tblStoreCategory");
+
+                entity.HasOne(d => d.Category)
+                    .WithMany(p => p.TblStoreCategory)
+                    .HasForeignKey(d => d.CategoryId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_StoreCategory_tblCategoryMaster");
+
+                entity.HasOne(d => d.Store)
+                    .WithMany(p => p.TblStoreCategory)
+                    .HasForeignKey(d => d.StoreId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_StoreCategory_tblStore");
+            });
             modelBuilder.Entity<TblStoreEmployees>(entity =>
             {
                 entity.ToTable("tblStoreEmployees");
@@ -780,9 +799,7 @@ namespace StadhawkLaundry.DataModel
 
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
 
-                entity.Property(e => e.UserId)
-                    .HasColumnName("User_id")
-                    .HasMaxLength(450);
+                entity.Property(e => e.UserId).HasColumnName("User_id");
 
                 entity.HasOne(d => d.Address)
                     .WithMany(p => p.TblUserAddress)

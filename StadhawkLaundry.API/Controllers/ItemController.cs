@@ -1,15 +1,20 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Stadhawk.Laundry.Utility.ResponseUtility;
 using StadhawkCoreApi;
 using StadhawkCoreApi.Logger;
 using StadhawkLaundry.BAL.Core;
 using StadhawkLaundry.DataModel.Models;
 using StadhawkLaundry.ViewModel;
+using StadhawkLaundry.ViewModel.RequestModel;
+using StadhawkLaundry.ViewModel.ResponseModel;
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Utility;
 
 namespace StadhawkLaundry.API.Controllers
 {
@@ -162,6 +167,39 @@ namespace StadhawkLaundry.API.Controllers
                     StatusCode = HttpStatusCode.BadRequest
                 };
                 return response;
+            }
+        }
+
+        [HttpGet("items")]
+        public async Task<IEnumerable<ItemViewModel>> GetItemByService()
+        {
+            return (await _unit.IItem.GetALLltem()).UserObject;
+        }
+
+        [HttpGet("getitems")]
+        public async Task<IActionResult> GetItemByStore([FromQuery]CategoryItemFilterRequest filter)
+        {
+            int userId = 0;
+            var userstr = this.User.FindFirstValue(ClaimTypes.Name);
+
+            if (!string.IsNullOrWhiteSpace(userstr))
+                userId = Convert.ToInt32(userId);
+
+            var ownResponse = new ListResponse<ItemResponseViewModel>();
+            var dataResult = await _unit.IItem.GetItemByStore(filter);
+            if (dataResult.HasSuccess)
+            {
+                ownResponse.Message = "Success";
+                ownResponse.Status = true;
+                ownResponse.Data = dataResult.UserObject;
+                return ownResponse.ToHttpResponse();
+            }
+            else
+            {
+                ownResponse.Message = "No data found";
+                ownResponse.Status = true;
+                ownResponse.Data = dataResult.UserObject;
+                return ownResponse.ToHttpResponse();
             }
         }
     }

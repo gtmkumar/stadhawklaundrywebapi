@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace StadhawkLaundry.BAL.Persistence.Repositories
 {
-    public class BannerRepository : Repository<TblService>, IBannerRepository
+    public class BannerRepository : Repository<TblServiceMaster>, IBannerRepository
     {
         private LaundryContext _context;
         public BannerRepository(LaundryContext context) : base(context)

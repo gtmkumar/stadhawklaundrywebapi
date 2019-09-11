@@ -8,7 +8,7 @@ namespace StadhawkLaundry.DataModel.Models
         public TblCategoryMaster()
         {
             TblItemMaster = new HashSet<TblItemMaster>();
-            TblStoreCategory = new HashSet<TblStoreCategory>();
+            TblServiceCategoryMapping = new HashSet<TblServiceCategoryMapping>();
             TblStorePackagesAndCategoryMapping = new HashSet<TblStorePackagesAndCategoryMapping>();
         }
 
@@ -23,7 +23,7 @@ namespace StadhawkLaundry.DataModel.Models
         public bool? IsDeleted { get; set; }
 
         public virtual ICollection<TblItemMaster> TblItemMaster { get; set; }
-        public virtual ICollection<TblStoreCategory> TblStoreCategory { get; set; }
+        public virtual ICollection<TblServiceCategoryMapping> TblServiceCategoryMapping { get; set; }
         public virtual ICollection<TblStorePackagesAndCategoryMapping> TblStorePackagesAndCategoryMapping { get; set; }
     }
 }

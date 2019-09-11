@@ -17,9 +17,8 @@ namespace StadhawkLaundry.BAL.Core
         IOrderRepository IOrder { get; }
         IMenuMasterServiceRepository IMenuMasterService { get; }
         IUserAddressRepository IUserAddress { get; }
-
-        //IServiceMasterRepository IServiceMaster { get; }
         IBannerRepository IBanner { get; }
+        ICartRepository ICart { get; }
         Task<ApiResultCode> Complete();
     }
 }

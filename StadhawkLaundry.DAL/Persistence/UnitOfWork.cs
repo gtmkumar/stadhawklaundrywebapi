@@ -25,6 +25,7 @@ namespace StadhawkLaundry.BAL.Persistence
         private IMenuMasterServiceRepository _iMenuMasterService;
         private IUserAddressRepository _userAddress;
         private IBannerRepository _banner;
+        private ICartRepository _cart;
         public IServicesRepository IService => _service ?? (_service = new ServicesRepository(_context));
         public ICategoryRepository ICategory => _category ?? (_category = new CategoryRepository(_context));
         public IItemRepository IItem => _item ?? (_item = new ItemRepository(_context));
@@ -34,6 +35,7 @@ namespace StadhawkLaundry.BAL.Persistence
         public IMenuMasterServiceRepository IMenuMasterService => _iMenuMasterService ?? (_iMenuMasterService = new MenuMasterServiceRepository(_context));
         public IUserAddressRepository IUserAddress => _userAddress ?? (_userAddress = new UserAddressRepository(_context));
         public IBannerRepository IBanner => _banner ?? (_banner = new BannerRepository(_context));
+        public ICartRepository ICart => _cart ?? (_cart = new CartRepository(_context));
         public async Task<ApiResultCode> Complete()
         {
             try

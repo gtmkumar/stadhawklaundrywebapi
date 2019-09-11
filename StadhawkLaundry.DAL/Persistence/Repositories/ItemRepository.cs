@@ -112,7 +112,8 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                                      Image = (dr["Image"] != DBNull.Value) ? Convert.ToString(dr["Image"]) : string.Empty,
                                      CartId = (dr["CartId"] != DBNull.Value) ? Convert.ToInt32(dr["CartId"]) : 0,
                                      Price = (dr["Price"] != DBNull.Value) ? Convert.ToDecimal(dr["Price"]) : 0,
-                                     CartCount = (dr["CartCount"] != DBNull.Value) ? Convert.ToInt32(dr["CartCount"]) : 0
+                                     Quantity = (dr["CartCount"] != DBNull.Value) ? Convert.ToInt32(dr["CartCount"]) : 0,
+                                     IsKg = (dr["IsKg"] != DBNull.Value) ? Convert.ToBoolean(dr["IsKg"]) : false,
                                  }).ToList();
                 }
                 return listitems.Count < 0

@@ -28,6 +28,7 @@ namespace StadhawkLaundry.DataModel
         public virtual DbSet<TblAddressTypeMaster> TblAddressTypeMaster { get; set; }
         public virtual DbSet<TblBanner> TblBanner { get; set; }
         public virtual DbSet<TblBannerCategoryMaster> TblBannerCategoryMaster { get; set; }
+        public virtual DbSet<TblCart> TblCart { get; set; }
         public virtual DbSet<TblCategoryMaster> TblCategoryMaster { get; set; }
         public virtual DbSet<TblCityMaster> TblCityMaster { get; set; }
         public virtual DbSet<TblEntityMaster> TblEntityMaster { get; set; }
@@ -40,16 +41,17 @@ namespace StadhawkLaundry.DataModel
         public virtual DbSet<TblPayment> TblPayment { get; set; }
         public virtual DbSet<TblPaymentStatus> TblPaymentStatus { get; set; }
         public virtual DbSet<TblPrivilegeBase> TblPrivilegeBase { get; set; }
+        public virtual DbSet<TblServiceCategoryMapping> TblServiceCategoryMapping { get; set; }
         public virtual DbSet<TblServiceLabelMaster> TblServiceLabelMaster { get; set; }
         public virtual DbSet<TblServiceMaster> TblServiceMaster { get; set; }
         public virtual DbSet<TblStateMaster> TblStateMaster { get; set; }
         public virtual DbSet<TblStatusMaster> TblStatusMaster { get; set; }
         public virtual DbSet<TblStore> TblStore { get; set; }
-        public virtual DbSet<TblStoreCategory> TblStoreCategory { get; set; }
         public virtual DbSet<TblStoreEmployees> TblStoreEmployees { get; set; }
         public virtual DbSet<TblStoreItems> TblStoreItems { get; set; }
         public virtual DbSet<TblStorePackagesAndCategoryMapping> TblStorePackagesAndCategoryMapping { get; set; }
         public virtual DbSet<TblStorePckages> TblStorePckages { get; set; }
+        public virtual DbSet<TblStoreServiceMapping> TblStoreServiceMapping { get; set; }
         public virtual DbSet<TblSubServiceMaster> TblSubServiceMaster { get; set; }
         public virtual DbSet<TblUnitMaster> TblUnitMaster { get; set; }
         public virtual DbSet<TblUserAddress> TblUserAddress { get; set; }
@@ -63,8 +65,6 @@ namespace StadhawkLaundry.DataModel
         /// <param name="modelBuilder"></param>
 
         public virtual DbSet<UserAddressDataViewModel> AddressDataModels { get; set; }
-
-
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -255,6 +255,21 @@ namespace StadhawkLaundry.DataModel
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
 
                 entity.Property(e => e.Name).HasMaxLength(100);
+            });
+
+            modelBuilder.Entity<TblCart>(entity =>
+            {
+                entity.ToTable("tblCart");
+
+                entity.Property(e => e.CartPrice).HasColumnName("Cart_Price");
+
+                entity.Property(e => e.CreateDate).HasColumnType("datetime");
+
+                entity.Property(e => e.GstId).HasColumnName("GST_Id");
+
+                entity.Property(e => e.ModifyDate).HasColumnType("datetime");
+
+                entity.Property(e => e.UserId).HasColumnName("User_Id");
             });
 
             modelBuilder.Entity<TblCategoryMaster>(entity =>
@@ -532,6 +547,25 @@ namespace StadhawkLaundry.DataModel
                     .HasMaxLength(100);
             });
 
+            modelBuilder.Entity<TblServiceCategoryMapping>(entity =>
+            {
+                entity.HasKey(e => new { e.ServiceId, e.CategoryId });
+
+                entity.ToTable("tblServiceCategoryMapping");
+
+                entity.HasOne(d => d.Category)
+                    .WithMany(p => p.TblServiceCategoryMapping)
+                    .HasForeignKey(d => d.CategoryId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tblServiceCategoryMapping_tblCategoryMaster");
+
+                entity.HasOne(d => d.Service)
+                    .WithMany(p => p.TblServiceCategoryMapping)
+                    .HasForeignKey(d => d.ServiceId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tblServiceCategoryMapping_tblServiceMaster");
+            });
+
             modelBuilder.Entity<TblServiceLabelMaster>(entity =>
             {
                 entity.ToTable("tblServiceLabelMaster");
@@ -637,25 +671,7 @@ namespace StadhawkLaundry.DataModel
                     .HasForeignKey(d => d.DistrictId)
                     .HasConstraintName("FK_tblStoreDetail_tblDistrictMaster");
             });
-            modelBuilder.Entity<TblStoreCategory>(entity =>
-            {
-                entity.HasKey(e => new { e.StoreId, e.CategoryId })
-                    .HasName("PK_dbo.StoreCategory");
 
-                entity.ToTable("tblStoreCategory");
-
-                entity.HasOne(d => d.Category)
-                    .WithMany(p => p.TblStoreCategory)
-                    .HasForeignKey(d => d.CategoryId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_StoreCategory_tblCategoryMaster");
-
-                entity.HasOne(d => d.Store)
-                    .WithMany(p => p.TblStoreCategory)
-                    .HasForeignKey(d => d.StoreId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_StoreCategory_tblStore");
-            });
             modelBuilder.Entity<TblStoreEmployees>(entity =>
             {
                 entity.ToTable("tblStoreEmployees");
@@ -752,6 +768,27 @@ namespace StadhawkLaundry.DataModel
                     .WithMany(p => p.TblStorePckages)
                     .HasForeignKey(d => d.StoreId)
                     .HasConstraintName("FK_tblStorePckages_tblStore");
+            });
+
+            modelBuilder.Entity<TblStoreServiceMapping>(entity =>
+            {
+                entity.HasKey(e => new { e.StoreId, e.ServiceId, e.UnitId });
+
+                entity.ToTable("tblStoreServiceMapping");
+
+                entity.Property(e => e.UnitPrice).HasColumnType("decimal(18, 2)");
+
+                entity.HasOne(d => d.Service)
+                    .WithMany(p => p.TblStoreServiceMapping)
+                    .HasForeignKey(d => d.ServiceId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tblStoreServiceMapping_tblServiceMaster");
+
+                entity.HasOne(d => d.Store)
+                    .WithMany(p => p.TblStoreServiceMapping)
+                    .HasForeignKey(d => d.StoreId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_tblStoreServiceMapping_tblStore");
             });
 
             modelBuilder.Entity<TblSubServiceMaster>(entity =>

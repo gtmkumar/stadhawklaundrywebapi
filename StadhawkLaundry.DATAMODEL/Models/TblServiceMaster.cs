@@ -7,7 +7,9 @@ namespace StadhawkLaundry.DataModel.Models
     {
         public TblServiceMaster()
         {
+            TblServiceCategoryMapping = new HashSet<TblServiceCategoryMapping>();
             TblStoreItems = new HashSet<TblStoreItems>();
+            TblStoreServiceMapping = new HashSet<TblStoreServiceMapping>();
             TblSubServiceMaster = new HashSet<TblSubServiceMaster>();
         }
 
@@ -23,7 +25,9 @@ namespace StadhawkLaundry.DataModel.Models
         public int? DisplayOrder { get; set; }
         public string ServiceImage { get; set; }
 
+        public virtual ICollection<TblServiceCategoryMapping> TblServiceCategoryMapping { get; set; }
         public virtual ICollection<TblStoreItems> TblStoreItems { get; set; }
+        public virtual ICollection<TblStoreServiceMapping> TblStoreServiceMapping { get; set; }
         public virtual ICollection<TblSubServiceMaster> TblSubServiceMaster { get; set; }
     }
 }

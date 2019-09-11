@@ -8,11 +8,11 @@ namespace StadhawkLaundry.DataModel.Models
         public TblStore()
         {
             TblBanner = new HashSet<TblBanner>();
-            TblStoreCategory = new HashSet<TblStoreCategory>();
             TblStoreEmployees = new HashSet<TblStoreEmployees>();
             TblStoreItems = new HashSet<TblStoreItems>();
             TblStorePackagesAndCategoryMapping = new HashSet<TblStorePackagesAndCategoryMapping>();
             TblStorePckages = new HashSet<TblStorePckages>();
+            TblStoreServiceMapping = new HashSet<TblStoreServiceMapping>();
         }
 
         public long Id { get; set; }
@@ -38,10 +38,10 @@ namespace StadhawkLaundry.DataModel.Models
 
         public virtual TblCityMaster District { get; set; }
         public virtual ICollection<TblBanner> TblBanner { get; set; }
-        public virtual ICollection<TblStoreCategory> TblStoreCategory { get; set; }
         public virtual ICollection<TblStoreEmployees> TblStoreEmployees { get; set; }
         public virtual ICollection<TblStoreItems> TblStoreItems { get; set; }
         public virtual ICollection<TblStorePackagesAndCategoryMapping> TblStorePackagesAndCategoryMapping { get; set; }
         public virtual ICollection<TblStorePckages> TblStorePckages { get; set; }
+        public virtual ICollection<TblStoreServiceMapping> TblStoreServiceMapping { get; set; }
     }
 }

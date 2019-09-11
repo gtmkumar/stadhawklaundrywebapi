@@ -52,23 +52,25 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
         }
 
 
-        public async Task<ApiResult<IEnumerable<CategoryResponseViewModel>>> GetCategoryByServiceId(int serviceId)
+        public async Task<ApiResult<IEnumerable<CategoryResponseViewModel>>> GetCategoryByServiceId(CategoryFilterRequest filter)
         {
             try
             {
                 List<CategoryResponseViewModel> categories = new List<CategoryResponseViewModel>();
-                SqlParameter ServiceId = new SqlParameter("@StoreId", System.Data.SqlDbType.Int) { Value = serviceId };
-                var result = _context.ExecuteStoreProcedure("Usp_GetCategory", ServiceId);
+                SqlParameter AddressId = new SqlParameter("@Address_Id", System.Data.SqlDbType.Int) { Value = filter.AddressId };
+                SqlParameter ServiceId = new SqlParameter("@Service_Id", System.Data.SqlDbType.Int) { Value = filter.ServiceId };
+                var result = _context.ExecuteStoreProcedure("Usp_GetCategory", ServiceId, AddressId);
 
                 if (result.Tables[0].Rows.Count > 0)
                 {
                     categories = (from DataRow dr in result.Tables[0].Rows
                                  select new CategoryResponseViewModel()
                                  {
-                                     Name = (dr["ItemName"] != DBNull.Value) ? Convert.ToString(dr["ItemName"]) : string.Empty,
-                                     CategoryId = (dr["CategoryId"] != DBNull.Value) ? Convert.ToInt32(dr["CategoryId"]) : 0,
+                                     Name = (dr["CategoryName"] != DBNull.Value) ? Convert.ToString(dr["CategoryName"]) : string.Empty,
+                                     CategoryId = (dr["CtegoryID"] != DBNull.Value) ? Convert.ToInt32(dr["CtegoryID"]) : 0,
                                      ServiceId = (dr["ServiceId"] != DBNull.Value) ? Convert.ToInt32(dr["ServiceId"]) : 0,
-                                     IconUrl = (dr["ItemName"] != DBNull.Value) ? Convert.ToString(dr["ItemName"]) : string.Empty
+                                     StoreId = (dr["StoreId"] != DBNull.Value) ? Convert.ToInt32(dr["StoreId"]) : 0,
+                                     IconUrl = (dr["IconUrl"] != DBNull.Value) ? Convert.ToString(dr["IconUrl"]) : string.Empty
                                  }).ToList();
                 }
                 return result == null

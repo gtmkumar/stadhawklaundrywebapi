@@ -7,8 +7,9 @@ namespace StadhawkLaundry.ViewModel.ResponseModel
 {
     public class CategoryResponseViewModel
     {
-        public int CategoryId { get; set; }
         public int ServiceId { get; set; }
+        public int StoreId { get; set; }
+        public int CategoryId { get; set; }
         public string Name { get; set; }
         public string IconUrl { get; set; }
     }

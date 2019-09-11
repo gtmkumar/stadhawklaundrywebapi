@@ -4,12 +4,11 @@ using System.Text;
 
 namespace StadhawkLaundry.ViewModel.ResponseModel
 {
-   public class ServiceMasterResponseViewModel
+    public class ServiceMasterResponseViewModel
     {
-
         public int ServiceId { get; set; }
         public string ServiceName { get; set; }
         public string ServiceUrl { get; set; }
-        public int ServiceTypeId { get; set; }   
+        public int ServiceTypeId { get; set; }
     }
 }

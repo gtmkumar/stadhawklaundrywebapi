@@ -6,10 +6,14 @@ namespace StadhawkLaundry.ViewModel.ResponseModel
 {
     public class ItemResponseViewModel
     {
-        public int ItemId { get; set; }
+        public int StoreId { get; set; }
+        public int ServiceId { get; set; }
+        public int CategoryId { get; set; }
+        public int StoreItemId { get; set; }
         public string Name { get; set; }
         public decimal Price { get; set; }
         public int CartId { get; set; }
+        public int CartCount { get; set; }
         public string Image { get; set; }
     }
 }

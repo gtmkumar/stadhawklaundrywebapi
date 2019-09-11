@@ -95,21 +95,27 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
             {
                 SqlParameter CategoryId = new SqlParameter("@CategoryId", System.Data.SqlDbType.Int) { Value = filterRequest.CategoryId };
                 SqlParameter StoreId = new SqlParameter("@StoreId", System.Data.SqlDbType.Int) { Value = filterRequest.StoreId };
-                var ietms = _context.ExecuteStoreProcedure("Usp_GetItemByStore", CategoryId, StoreId);
+                SqlParameter ServiceId = new SqlParameter("@ServiceId", System.Data.SqlDbType.Int) { Value = filterRequest.ServiceId };
+                SqlParameter Userid = new SqlParameter("@Userid", System.Data.SqlDbType.Int) { Value = filterRequest.UserId };
+                var ietms = _context.ExecuteStoreProcedure("[Usp_GetItemByStore]", ServiceId,CategoryId, StoreId, Userid);
 
                 if (ietms.Tables[0].Rows.Count > 0)
                 {
                     listitems = (from DataRow dr in ietms.Tables[0].Rows
                                  select new ItemResponseViewModel()
                                  {
+                                     ServiceId = (dr["ServiceId"] != DBNull.Value) ? Convert.ToInt32(dr["ServiceId"]) : 0,
+                                     StoreId = (dr["StoreId"] != DBNull.Value) ? Convert.ToInt32(dr["StoreId"]) : 0,
+                                     CategoryId = (dr["CategoryId"] != DBNull.Value) ? Convert.ToInt32(dr["CategoryId"]) : 0,
+                                     StoreItemId=(dr["StoreItemId"] != DBNull.Value) ? Convert.ToInt32(dr["StoreItemId"]) : 0,
                                      Name = (dr["ItemName"] != DBNull.Value) ? Convert.ToString(dr["ItemName"]) : string.Empty,
-                                     ItemId = (dr["Id"] != DBNull.Value) ? Convert.ToInt32(dr["Id"]) : 0,
                                      Image = (dr["Image"] != DBNull.Value) ? Convert.ToString(dr["Image"]) : string.Empty,
                                      CartId = (dr["CartId"] != DBNull.Value) ? Convert.ToInt32(dr["CartId"]) : 0,
-                                     Price = (dr["Price"] != DBNull.Value) ? Convert.ToDecimal(dr["Price"]) : 0
+                                     Price = (dr["Price"] != DBNull.Value) ? Convert.ToDecimal(dr["Price"]) : 0,
+                                     CartCount = (dr["CartCount"] != DBNull.Value) ? Convert.ToInt32(dr["CartCount"]) : 0
                                  }).ToList();
                 }
-                return listitems.Count > 0
+                return listitems.Count < 0
                             ? new ApiResult<IEnumerable<ItemResponseViewModel>>(new ApiResultCode(ApiResultType.Error, 1, "No data in given request"))
                             : new ApiResult<IEnumerable<ItemResponseViewModel>>(new ApiResultCode(ApiResultType.Success), listitems);
             }

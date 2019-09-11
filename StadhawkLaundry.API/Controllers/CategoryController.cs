@@ -46,6 +46,7 @@ namespace StadhawkLaundry.API.Controllers
             data.CategoryId = result.Id;
             return data;
         }
+
         [HttpPost("add")]
         public async Task<HttpResponseMessage> Post([FromBody]CategoryViewModel value)
         {
@@ -128,7 +129,6 @@ namespace StadhawkLaundry.API.Controllers
             return response1;
         }
 
-        // DELETE: api/ApiWithActions/5
         [HttpDelete("delete/{id}")]
         public async Task<HttpResponseMessage> Delete(int id)
         {
@@ -165,7 +165,7 @@ namespace StadhawkLaundry.API.Controllers
             }
         }
 
-        [HttpGet("category")]
+        [HttpGet("categories")]
         public async Task<IActionResult> GetCategory(CategoryFilterRequest filter)
         {
             int userId = 0;
@@ -193,7 +193,7 @@ namespace StadhawkLaundry.API.Controllers
         }
 
         [HttpGet("getcategory")]
-        public async Task<IActionResult> GetCategoryByService([FromQuery] int serviceId)
+        public async Task<IActionResult> GetCategoryByService(CategoryFilterRequest filter)
         {
             int userId = 0;
             var userstr = this.User.FindFirstValue(ClaimTypes.Name);
@@ -202,7 +202,7 @@ namespace StadhawkLaundry.API.Controllers
                 userId = Convert.ToInt32(userId);
 
             var ownResponse = new ListResponse<CategoryResponseViewModel>();
-            var dataResult = await _unit.ICategory.GetCategoryByServiceId(serviceId);
+            var dataResult = await _unit.ICategory.GetCategoryByServiceId(filter);
             if (dataResult.HasSuccess)
             {
                 ownResponse.Message = "Success";

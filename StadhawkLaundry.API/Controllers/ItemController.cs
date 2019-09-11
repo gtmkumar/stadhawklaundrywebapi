@@ -45,7 +45,7 @@ namespace StadhawkLaundry.API.Controllers
         [HttpGet("itembysubcategoryid/{id}")]
         public async Task<IEnumerable<ItemViewModel>> GetItemsBySubcategoryId(int Id)
         {
-            var result = (await _unit.IItem.GetSelectedDataAsync(t => t.Id == Id, d => new ItemViewModel { ItemId = d.Id, Name = d.ItemName,Price=Convert.ToDecimal(d.Id) })).UserObject;
+            var result = (await _unit.IItem.GetSelectedDataAsync(t => t.Id == Id, d => new ItemViewModel { ItemId = d.Id, Name = d.ItemName, Price = Convert.ToDecimal(d.Id) })).UserObject;
             return result;
 
         }
@@ -181,9 +181,10 @@ namespace StadhawkLaundry.API.Controllers
         {
             int userId = 0;
             var userstr = this.User.FindFirstValue(ClaimTypes.Name);
-
             if (!string.IsNullOrWhiteSpace(userstr))
                 userId = Convert.ToInt32(userId);
+
+            filter.UserId = userId;
 
             var ownResponse = new ListResponse<ItemResponseViewModel>();
             var dataResult = await _unit.IItem.GetItemByStore(filter);

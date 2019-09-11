@@ -13,6 +13,6 @@ namespace StadhawkLaundry.BAL.Core.IRepositories
     public interface ICategoryRepository : IRepository<TblCategoryMaster>
     {
         Task<ApiResult<IEnumerable<CategoryResponseViewModel>>> GetCategoryWithServiceData(CategoryFilterRequest filter);
-        Task<ApiResult<IEnumerable<CategoryResponseViewModel>>> GetCategoryByServiceId(int serviceId);
+        Task<ApiResult<IEnumerable<CategoryResponseViewModel>>> GetCategoryByServiceId(CategoryFilterRequest filter);
     }
 }

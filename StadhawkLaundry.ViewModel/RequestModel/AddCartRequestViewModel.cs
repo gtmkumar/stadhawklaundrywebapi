@@ -8,7 +8,7 @@ namespace StadhawkLaundry.ViewModel.RequestModel
     {
         public int? CartId { get; set; }
         public int StoreItemId { get; set; }
-        public bool? IsRemove { get; set; }
+        public bool IsRemove { get; set; }
         public int AddressId { get; set; }
         public int? Quantity { get; set; }
     }

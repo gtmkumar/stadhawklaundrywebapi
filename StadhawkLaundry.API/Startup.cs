@@ -57,6 +57,7 @@ namespace StadhawkLaundry.API
             var key = Encoding.ASCII.GetBytes(appSettings.Secret);
             var keySmsHas = Encoding.ASCII.GetBytes(appSettings.SmsHasKey);
             var keySmsVendorUrl = Encoding.ASCII.GetBytes(appSettings.SmsVendorUrl);
+            var databsesecon = Encoding.ASCII.GetBytes(appSettings.DataBaseCon);
 
             services.AddAuthentication(x =>
             {

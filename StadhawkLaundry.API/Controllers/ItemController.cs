@@ -18,7 +18,7 @@ using Utility;
 
 namespace StadhawkLaundry.API.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ItemController : ControllerBase
@@ -182,7 +182,7 @@ namespace StadhawkLaundry.API.Controllers
             int userId = 0;
             var userstr = this.User.FindFirstValue(ClaimTypes.Name);
             if (!string.IsNullOrWhiteSpace(userstr))
-                userId = Convert.ToInt32(userId);
+                userId = Convert.ToInt32(userstr);
 
             filter.UserId = userId;
 

@@ -11,5 +11,6 @@ namespace StadhawkLaundry.API.Models
         public string SmsUserUrl { get; set; }
         public string SmsHasKey { get; set; }
         public string SmsVendorUrl { get; set; }
+        public string DataBaseCon { get; set; }
     }
 }

@@ -3,62 +3,84 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Stadhawk.Laundry.Utility.ResponseUtility;
 using StadhawkCoreApi.Logger;
+using StadhawkLaundry.API.Models;
 using StadhawkLaundry.BAL.Core;
+using StadhawkLaundry.DataModel.Models;
 using StadhawkLaundry.ViewModel.RequestModel;
+using StadhawkLaundry.ViewModel.ResponseModel;
 using Utility;
 
 namespace StadhawkLaundry.API.Controllers
 {
-    public class CartController : Controller
+    [Authorize]
+    [Route("api/[controller]")]
+    [ApiController]
+    public class CartController : ControllerBase
     {
         private readonly IUnitOfWork _unit;
-        public CartController(IUnitOfWork unit)
+        private readonly AppSettings _appSettings;
+        public CartController(IOptions<AppSettings> appSettings, IUnitOfWork unit)
         {
             _unit = unit;
+            _appSettings = appSettings.Value;
         }
-        public async IActionResult AddCart(AddCartRequestViewModel model)
+        [HttpPost("addcart")]
+        public async Task<IActionResult> AddCart([FromForm]AddCartRequestViewModel model)
         {
+            bool isEdit = false;
             int? userId = 0;
+            model.IsRemove = false;
             var userStrId = this.User.FindFirstValue(ClaimTypes.Name);
             if (!string.IsNullOrWhiteSpace(userStrId))
-                userId = Convert.ToInt32(userId);
+                userId = Convert.ToInt32(userStrId);
 
-            var response = new Response();
+            if (model.CartId > 0)
+                isEdit = true;
+
+            var response = new SingleResponse<CartCountResponseViewModel>();
             try
             {
-                if (model.IsRemove.Value)
+                var data = AutoMapper.Mapper.Map<TblCart>(model);
+                if (!isEdit)
                 {
-                    var result = await _unit.ICart.AddToCartAsync(model, userId: userId.Value);
-                    //var data = (await _unit.AddtCart.GetCustomerItemCartCountAndPrice(customerId: customerId.Value, itemId: model.Itemid)).UserObject;
-                    if (result.HasSuccess)
-                    {
-                        if (result.UserObject == false)
-                        {
-                            response.Message = "Item not avilable in selected address";
-                            response.Status = false;
-                            return response.ToHttpResponse();
-                        }
-                        //response.Data = data;
-                        response.Message = "Success";
-                        response.Status = true;
-                    }
-                    else
-                    {
-                        //response.Data = null;
-                        response.Message = "Error";
-                        response.Status = false;
-                    }
+                    data.CreateDate = DateTime.Now;
+                    data.ModifyDate = DateTime.Now;
+                    data.IsOrderPlaced = false;
+                    data.IsDeleted = false;
+                    data.UserId = userId;
+                    data.Quantity = 1;
+                    var result = _unit.ICart.Add(data);
                 }
                 else
                 {
-                   // response.Data = null;
-                    response.ErrorTypeCode = (int)ErrorMessage.CartPartnerMatched;
-                    response.Status = false;
+                    data = (await _unit.ICart.GetByID(model.CartId)).UserObject;
+                    data.ModifyDate = DateTime.Now;
+                    if (!model.IsRemove)
+                        data.Quantity = data.Quantity + 1;
+
+                    _unit.ICart.Update(data);
                 }
-                return response.ToHttpResponse();
+                var isDataSaved = await _unit.Complete();
+                if (isDataSaved.ResultType == StadhawkCoreApi.ApiResultType.Success)
+                {
+                    var dataResult = (await _unit.ICart.CartCountAndPrice(model, userId: userId.Value, _appSettings.DataBaseCon));
+                    response.Data = dataResult.HasSuccess ? dataResult.UserObject : null;
+                    response.Message = "Cart added";
+                    response.Status = true;
+                    return response.ToHttpResponse();
+                }
+                else
+                {
+                    response.Data = null;
+                    response.Message = "no cart added";
+                    response.Status = true;
+                    return response.ToHttpResponse();
+                }
             }
             catch (Exception ex)
             {
@@ -70,38 +92,64 @@ namespace StadhawkLaundry.API.Controllers
         }
 
         [HttpPost("removecart")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(201)]
-        [ProducesResponseType(400)]
-        [ProducesResponseType(500)]
         public async Task<IActionResult> DeleteCart([FromForm] AddCartRequestViewModel model)
         {
-            int? customerId = 0;
-            string mobileNo = string.Empty;
-            var userId = this.User.FindFirstValue(ClaimTypes.Name);
-            if (!string.IsNullOrWhiteSpace(userId))
-                customerId = Convert.ToInt32(userId);
+            int? userId = 0;
+            model.IsRemove = false;
+            var userStrId = this.User.FindFirstValue(ClaimTypes.Name);
+            if (!string.IsNullOrWhiteSpace(userStrId))
+                userId = Convert.ToInt32(userStrId);
 
-            var response = new Response();
+            var response = new SingleResponse<CartCountResponseViewModel>();
             try
             {
+                var data = AutoMapper.Mapper.Map<TblCart>(model);
+                data = (await _unit.ICart.GetByID(model.CartId)).UserObject;
+                data.ModifyDate = DateTime.Now;
+                data.Quantity = data.Quantity - 1;
+                _unit.ICart.Update(data);
 
-                model.IsRemove = true;
-                var result = (await _unit.ICart.Remove(1));
-                var data = (await _unit.ICart.GetByID(1));
-
-                if (result.ResultType == StadhawkCoreApi.ApiResultType.Success)
+                var isDataSaved = await _unit.Complete();
+                if (isDataSaved.ResultType == StadhawkCoreApi.ApiResultType.Success)
                 {
-                    //response.Data = data;
-                    response.Message = "Success";
+                    var dataResult = (await _unit.ICart.CartCountAndPrice(model, userId: userId.Value, _appSettings.DataBaseCon));
+                    response.Data = dataResult.HasSuccess ? dataResult.UserObject : null;
+                    response.Message = "Cart added";
                     response.Status = true;
+                    return response.ToHttpResponse();
                 }
                 else
                 {
-                    //response.Data = null;
-                    response.Message = "Error";
-                    response.Status = false;
+                    response.Data = null;
+                    response.Message = "no cart added";
+                    response.Status = true;
+                    return response.ToHttpResponse();
                 }
+            }
+            catch (Exception ex)
+            {
+                response.Status = false;
+                response.Message = "There was an internal error, please contact to technical support.";
+                ErrorTrace.Logger(LogArea.ApplicationTier, ex);
+            }
+            return response.ToHttpResponse();
+        }
+
+        [HttpGet("getcart")]
+        public async Task<IActionResult> GetCart([FromQuery]int addressId)
+        {
+            int? userId = 0;
+            var userStrId = this.User.FindFirstValue(ClaimTypes.Name);
+            if (!string.IsNullOrWhiteSpace(userStrId))
+                userId = Convert.ToInt32(userStrId);
+
+           
+
+            var response = new SingleResponse<CartDetailResponseViewModel>();
+            try
+            {
+                response.Data = (await _unit.ICart.GetCartDetail(userId.Value, addressId)).UserObject;
+                response.Status = true;
             }
             catch (Exception ex)
             {

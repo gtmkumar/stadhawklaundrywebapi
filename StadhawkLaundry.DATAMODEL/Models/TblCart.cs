@@ -15,5 +15,6 @@ namespace StadhawkLaundry.DataModel.Models
         public DateTime? CreateDate { get; set; }
         public DateTime? ModifyDate { get; set; }
         public bool? IsDeleted { get; set; }
+        public int AddressId { get; set; }
     }
 }

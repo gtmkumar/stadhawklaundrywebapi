@@ -2,6 +2,7 @@
 using StadhawkLaundry.API.Data;
 using StadhawkLaundry.DataModel.Models;
 using StadhawkLaundry.ViewModel;
+using StadhawkLaundry.ViewModel.RequestModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,6 +42,9 @@ namespace StadhawkLaundry.API.Mappings
             CreateMap<UsersViewModel, ApplicationUser>()
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.EmailId))
                 .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.ContactNo));
+
+            CreateMap<AddCartRequestViewModel, TblCart>()
+                .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsRemove));
         }
     }
 }

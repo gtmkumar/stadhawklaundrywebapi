@@ -270,6 +270,7 @@ namespace StadhawkLaundry.DataModel
                 entity.Property(e => e.ModifyDate).HasColumnType("datetime");
 
                 entity.Property(e => e.UserId).HasColumnName("User_Id");
+                entity.Property(e => e.AddressId).HasColumnName("AddressId");
             });
 
             modelBuilder.Entity<TblCategoryMaster>(entity =>
@@ -896,6 +897,25 @@ namespace StadhawkLaundry.DataModel
                 daReport.Fill(dataSet);
             }
 
+            return dataSet;
+        }
+
+        public DataSet ExecuteStoreProcedure(string con,string procedureName, params SqlParameter[] parameters)
+        {
+            DataSet dataSet = new DataSet();
+            string conStr = con;
+            SqlConnection sqlConn = new SqlConnection(conStr);
+            SqlCommand cmdReport = new SqlCommand(procedureName, sqlConn);
+            SqlDataAdapter daReport = new SqlDataAdapter(cmdReport);
+            cmdReport.CommandTimeout = 1000;
+            using (cmdReport)
+            {
+                cmdReport.CommandType = CommandType.StoredProcedure;
+                cmdReport.Parameters.AddRange(parameters);
+                daReport.Fill(dataSet);
+            }
+            sqlConn.Close();
+            sqlConn.Dispose();
             return dataSet;
         }
 

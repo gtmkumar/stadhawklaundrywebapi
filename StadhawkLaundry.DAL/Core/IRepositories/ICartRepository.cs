@@ -13,6 +13,6 @@ namespace StadhawkLaundry.BAL.Core.IRepositories
     {
         Task<ApiResult<bool>> AddToCartAsync(AddCartRequestViewModel customerAddToCart, int userId);
         Task<ApiResult<CartCountResponseViewModel>> CartCountAndPrice(AddCartRequestViewModel customerAddToCart, int userId, string con);
-        Task<ApiResult<CartDetailResponseViewModel>> GetCartDetail(int userId, int addressId);
+        Task<ApiResult<CartPriceDetail>> GetCartDetail(int userId, int addressId);
     }
 }

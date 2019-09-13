@@ -9,6 +9,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using StadhawkLaundry.ViewModel.ResponseModel;
+using System.Data.SqlClient;
+using StadhawkCoreApi.Logger;
 
 namespace StadhawkLaundry.BAL.Persistence.Repositories
 {
@@ -69,38 +72,34 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                     ? new ApiResult<OrderViewModel>(new ApiResultCode(ApiResultType.Error, 1, "No data in given request"))
                     : new ApiResult<OrderViewModel>(new ApiResultCode(ApiResultType.Success), orderView);
         }
-        
-        //public async Task<ApiResult<OrderViewModel>> GetItemDetails()
-        //{
-        //    var result = await (from s in _context.TblService
-        //                        join cat in _context.TblCategory on s.Id equals cat.ServiceId
-        //                        join subcat in _context.TblSubcategory on cat.Id equals subcat.CategoryId
-        //                        join itm in _context.TblItem on subcat.Id equals itm.SubcategoryId
-        //                        select new OrderViewModel()
-        //                        {
-        //                            Services = new List<ServicesViewModel>() { new ServicesViewModel {
-        //                         ServiceId = s.Id.ToString(),
-        //                         Name = s.Name
-        //                     } },
-        //                            Categories = new List<CategoryViewModel>() { new CategoryViewModel() {
-        //                         CategoryId = cat.Id.ToString(),
-        //                         Name = cat.Name
-        //                     } },
-        //                            Subcategories = new List<SubcategoryViewModel>() { new SubcategoryViewModel() {
-        //                         SubcategoryId = subcat.Id.ToString(),
-        //                         Name = subcat.Name
-        //                     } },
-        //                            Items = new List<ItemViewModel>() { new ItemViewModel() {
-        //                         ItemId = itm.Id.ToString(),
-        //                         Name=itm.Name,
-        //                         Price=itm.Price
-        //                     } }
-        //                        }).FirstOrDefaultAsync();
 
-        //    return result == null
-        //            ? new ApiResult<OrderViewModel>(new ApiResultCode(ApiResultType.Error, 1, "No data in given request"))
-        //            : new ApiResult<OrderViewModel>(new ApiResultCode(ApiResultType.Success), result);
-        //}
 
+        public async Task<ApiResult<OrderResponseViewModel>> CreateOrder(int userId)
+        {
+            {
+                OrderResponseViewModel model = null;
+                try
+                {
+                    SqlParameter UserId = new SqlParameter("@userId", System.Data.SqlDbType.Int) { Value = userId };
+                    var result = _context.ExecuteStoreProcedure("[CreateOrder]", UserId);
+                    if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
+                    {
+                        foreach (System.Data.DataRow row in result.Tables[0].Rows)
+                        {
+                            model = new OrderResponseViewModel()
+                            {
+                                OrderId = (row["OrderId"] != DBNull.Value) ? Convert.ToInt32(row["ServiceId"]) : 0
+                            };
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    ErrorTrace.Logger(LogArea.ApplicationTier, ex);
+                    return new ApiResult<OrderResponseViewModel>(new ApiResultCode(ApiResultType.Error, 0, "No data in given request"));
+                }
+                return new ApiResult<OrderResponseViewModel>(new ApiResultCode(ApiResultType.Success), model);
+            }
+        }
     }
 }

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Stadhawk.Laundry.Utility.ResponseUtility;
 using StadhawkLaundry.BAL.Core;
 using StadhawkLaundry.DataModel.Models;
 using StadhawkLaundry.ViewModel;
@@ -22,24 +23,17 @@ namespace StadhawkLaundry.API.Controllers
         {
             _unit = unit;
         }
-        //[HttpGet("createorder")]
-        //public async Task<OrderViewModel> PostOrderAsync()
-        //{
-        //    int? userId = 0;
-        //    var userStrId = this.User.FindFirstValue(ClaimTypes.Name);
-        //    if (!string.IsNullOrWhiteSpace(userStrId))
-        //        userId = Convert.ToInt32(userStrId);
-
-        //    var data = await _unit.ICart.SingleOrDefault(t => t.UserId == userId && t.IsDeleted == false);
-        //    TblOrder orderModel = 
-
-        //    _unit.IOrder.Add()
-
-        //}
-
-        [HttpGet("itemdetail")]
-        public async Task<OrderViewModel> GetAsync()
+        [HttpGet("createorder")]
+        public async Task<OrderViewModel> PostCreateAsync()
         {
+            int? userId = 0;
+            var userStrId = this.User.FindFirstValue(ClaimTypes.Name);
+            if (!string.IsNullOrWhiteSpace(userStrId))
+                userId = Convert.ToInt32(userStrId);
+
+            var response = new SingleResponse<OrderViewModel>();
+
+            var result = await _unit.IOrder.CreateOrder(userId.Value);
             return (await _unit.IOrder.GetItemDetails()).UserObject;
         }
     }

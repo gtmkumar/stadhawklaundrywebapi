@@ -145,7 +145,7 @@ namespace StadhawkLaundry.API.Controllers
 
            
 
-            var response = new SingleResponse<CartDetailResponseViewModel>();
+            var response = new SingleResponse<CartPriceDetail>();
             try
             {
                 response.Data = (await _unit.ICart.GetCartDetail(userId.Value, addressId)).UserObject;

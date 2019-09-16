@@ -84,11 +84,15 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                 var result = _context.ExecuteStoreProcedure("[usp_GetCartDetail]", UserId, AddressId);
                 if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
                 {
-                    priceDetail = new CartPriceDetail {
-                        CartCount = 0,
-                        CartPrice=0
-                    };
                     foreach (System.Data.DataRow row in result.Tables[0].Rows)
+                    {
+                        priceDetail = new CartPriceDetail
+                        {
+                            CartCount = (row["CartCount"] != DBNull.Value) ? Convert.ToInt32(row["CartCount"]) : 0,
+                            CartPrice = (row["CartPrice"] != DBNull.Value) ? Convert.ToInt32(row["CartPrice"]) : 0
+                        };
+                    }
+                    foreach (System.Data.DataRow row in result.Tables[1].Rows)
                     {
                         model = new CartDetailResponseViewModel()
                         {
@@ -96,9 +100,9 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                             ServiceName = (row["ServiceName"] != DBNull.Value) ? Convert.ToString(row["ServiceName"]) : string.Empty
                         };
                         priceDetail.ServiceData.Add(model);
-                        if (result.Tables.Count > 0 && result.Tables[1].Rows.Count > 0)
+                        if (result.Tables.Count > 0 && result.Tables[2].Rows.Count > 0)
                         {
-                            foreach (System.Data.DataRow catrow in result.Tables[1].Rows)
+                            foreach (System.Data.DataRow catrow in result.Tables[2].Rows)
                             {
                                 if (((row["ServiceId"] != DBNull.Value) ? Convert.ToInt32(row["ServiceId"]) : 0) == ((catrow["ServiceId"] != DBNull.Value) ? Convert.ToInt32(catrow["ServiceId"]) : 0))
                                 {
@@ -109,9 +113,9 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                                     };
                                     model.CategoryData.Add(categoryModel);
                                 }
-                                if (result.Tables.Count > 0 && result.Tables[2].Rows.Count > 0)
+                                if (result.Tables.Count > 0 && result.Tables[3].Rows.Count > 0)
                                 {
-                                    foreach (System.Data.DataRow itmrow in result.Tables[2].Rows)
+                                    foreach (System.Data.DataRow itmrow in result.Tables[3].Rows)
                                     {
                                         if (((catrow["categoryId"] != DBNull.Value) ? Convert.ToInt32(catrow["categoryId"]) : 0) == ((itmrow["categoryId"] != DBNull.Value) ? Convert.ToInt32(itmrow["categoryId"]) : 0))
                                         {

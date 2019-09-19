@@ -13,6 +13,7 @@ using StadhawkLaundry.ViewModel.ResponseModel;
 using System.Data.SqlClient;
 using StadhawkCoreApi.Logger;
 
+
 namespace StadhawkLaundry.BAL.Persistence.Repositories
 {
     public class OrderRepository : Repository<TblOrder>, IOrderRepository
@@ -22,8 +23,6 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
         {
             _context = context;
         }
-
-
 
         public async Task<ApiResult<OrderViewModel>> GetItemDetails()
         {
@@ -101,5 +100,55 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                 return new ApiResult<OrderResponseViewModel>(new ApiResultCode(ApiResultType.Success), model);
             }
         }
+
+        public async Task<ApiResult<List<TimeSlotViewModel>>> GetAvailableSlots()
+        {
+            List<TimeSlotViewModel> TimeSlot = new List<TimeSlotViewModel>();
+            TimeSlotViewModel timeSlotViewModel;
+            List<TimeSlots> slots;
+            TimeSlots timeSlots;
+            SqlParameter NoOfDays = new SqlParameter("@NoOfDays", System.Data.SqlDbType.VarChar) { Value = 10 };
+            var data = _context.ExecuteStoreProcedure("usp_GetAvailableSlots", NoOfDays);
+            string Date = "";
+            for (int i = 0; i < data.Tables[0].Rows.Count; i++)
+            {
+                if (Date != data.Tables[0].Rows[i]["FullDate"].ToString())
+                {
+                    Date = data.Tables[0].Rows[i]["FullDate"].ToString();
+                    timeSlotViewModel = new TimeSlotViewModel();
+                    timeSlotViewModel.Key = i;
+                    timeSlotViewModel.FullDate= data.Tables[0].Rows[i]["FullDate"].ToString();
+                    timeSlotViewModel.Date = data.Tables[0].Rows[i]["Date"].ToString();
+                    timeSlotViewModel.Day = data.Tables[0].Rows[i]["Day"].ToString();
+                    timeSlotViewModel.Month = data.Tables[0].Rows[i]["Month"].ToString();
+                    timeSlotViewModel.ShortMonth = data.Tables[0].Rows[i]["ShortMonth"].ToString();
+
+                    slots = new List<TimeSlots>();
+                    for (int j = 0; j < data.Tables[0].Rows.Count; j++)
+                    {
+                        if (Date == data.Tables[0].Rows[j]["FullDate"].ToString())
+                        {
+                            timeSlots = new TimeSlots();
+                            timeSlots.SlotId = Convert.ToInt32(data.Tables[0].Rows[j]["SlotId"].ToString());
+                            timeSlots.Label = data.Tables[0].Rows[j]["Label"].ToString();
+                            timeSlots.Icon = data.Tables[0].Rows[j]["Icon"].ToString();
+                            timeSlots.SlotRange = data.Tables[0].Rows[j]["SlotRange"].ToString();
+                            timeSlots.IsSlotAvailable = true;
+                            slots.Add(timeSlots);
+                        }
+                    }
+
+                    timeSlotViewModel.timeSlots = slots;
+                    TimeSlot.Add(timeSlotViewModel);
+                }
+
+            }
+
+            return TimeSlot == null
+                    ? new ApiResult<List<TimeSlotViewModel>>(new ApiResultCode(ApiResultType.Error, 1, "No data in given request"))
+                    : new ApiResult<List<TimeSlotViewModel>>(new ApiResultCode(ApiResultType.Success), TimeSlot);
+        }
+
+
     }
 }

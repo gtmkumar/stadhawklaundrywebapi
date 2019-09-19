@@ -141,9 +141,7 @@ namespace StadhawkLaundry.API.Controllers
             int? userId = 0;
             var userStrId = this.User.FindFirstValue(ClaimTypes.Name);
             if (!string.IsNullOrWhiteSpace(userStrId))
-                userId = Convert.ToInt32(userStrId);
-
-           
+                userId = Convert.ToInt32(userStrId);           
 
             var response = new SingleResponse<CartPriceDetail>();
             try

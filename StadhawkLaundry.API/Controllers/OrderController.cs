@@ -10,6 +10,7 @@ using Stadhawk.Laundry.Utility.ResponseUtility;
 using StadhawkLaundry.BAL.Core;
 using StadhawkLaundry.DataModel.Models;
 using StadhawkLaundry.ViewModel;
+using Utility;
 
 namespace StadhawkLaundry.API.Controllers
 {
@@ -36,5 +37,28 @@ namespace StadhawkLaundry.API.Controllers
             var result = await _unit.IOrder.CreateOrder(userId.Value);
             return (await _unit.IOrder.GetItemDetails()).UserObject;
         }
+
+        [HttpGet("slotDetails")]
+        public async Task<IActionResult> GetSlot()
+        {
+            var ownResponse = new ListResponse<TimeSlotViewModel>();
+            var dataResult = await _unit.IOrder.GetAvailableSlots();
+            if (dataResult.HasSuccess)
+            {
+                ownResponse.Message = "Success";
+                ownResponse.Status = true;
+                ownResponse.Data = dataResult.UserObject;
+                return ownResponse.ToHttpResponse();
+            }
+            else
+            {
+                ownResponse.Message = "No data found";
+                ownResponse.Status = true;
+                ownResponse.Data = dataResult.UserObject;
+                return ownResponse.ToHttpResponse();
+            }
+            
+        }
+
     }
 }

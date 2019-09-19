@@ -13,5 +13,6 @@ namespace StadhawkLaundry.BAL.Core.IRepositories
     {
         Task<ApiResult<OrderViewModel>> GetItemDetails();
         Task<ApiResult<OrderResponseViewModel>> CreateOrder(int userId);
+        Task<ApiResult<List<TimeSlotViewModel>>> GetAvailableSlots();
     }
 }

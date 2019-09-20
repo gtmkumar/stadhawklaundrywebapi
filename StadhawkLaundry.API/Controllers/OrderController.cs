@@ -14,7 +14,7 @@ using Utility;
 
 namespace StadhawkLaundry.API.Controllers
 {
-   // [Authorize]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class OrderController : ControllerBase

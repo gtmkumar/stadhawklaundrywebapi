@@ -107,6 +107,10 @@ namespace StadhawkLaundry.API.Controllers
                 data = (await _unit.ICart.GetByID(model.CartId)).UserObject;
                 data.ModifyDate = DateTime.Now;
                 data.Quantity = data.Quantity - 1;
+                if (data.Quantity == 0)
+                {
+                    data.IsDeleted = true;
+                }
                 _unit.ICart.Update(data);
 
                 var isDataSaved = await _unit.Complete();

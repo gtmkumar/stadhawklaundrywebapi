@@ -9,7 +9,7 @@ namespace StadhawkLaundry.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class DefaultController : ControllerBase
+    public class PaymentTransactionController : ControllerBase
     {
     }
 }

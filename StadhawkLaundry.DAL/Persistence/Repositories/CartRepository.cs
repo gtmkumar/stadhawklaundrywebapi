@@ -147,5 +147,37 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
             }
             return new ApiResult<CartPriceDetail>(new ApiResultCode(ApiResultType.Success), priceDetail);
         }
+
+        public async Task<ApiResult<CartOrderDetailResponseViewModel>> GetCartDetails(int userId, int addressId)
+        {
+            CartOrderDetailResponseViewModel priceDetail = null;
+            try
+            {
+                SqlParameter UserId = new SqlParameter("@userId", System.Data.SqlDbType.Int) { Value = userId };
+                SqlParameter AddressId = new SqlParameter("@AddressId", System.Data.SqlDbType.Int) { Value = addressId };
+                var result = _context.ExecuteStoreProcedure("[usp_GetCarOrdertDetail]", UserId, AddressId);
+                if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
+                {
+                    foreach (System.Data.DataRow row in result.Tables[0].Rows)
+                    {
+                        priceDetail = new CartOrderDetailResponseViewModel
+                        {
+                            CartCount = (row["CartCount"] != DBNull.Value) ? Convert.ToInt32(row["CartCount"]) : 0,
+                            CartPrice = (row["CartPrice"] != DBNull.Value) ? Convert.ToDecimal(row["CartPrice"]) : 0,
+                            IsKg = ((row["CartPrice"] != DBNull.Value) ? Convert.ToInt32(row["CartPrice"]) : 0) > 0 ? false : true,
+                            TaxAmount = (row["TaxAmount"] != DBNull.Value) ? Convert.ToDecimal(row["TaxAmount"]) : 0,
+                            TotalPrice = (row["TotalAmout"] != DBNull.Value) ? Convert.ToDecimal(row["TotalAmout"]) : 0,
+                            IsValidShipment = (row["IsValidShipment"] != DBNull.Value) ? Convert.ToBoolean(row["IsValidShipment"]) : false
+                        };
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorTrace.Logger(LogArea.ApplicationTier, ex);
+                return new ApiResult<CartOrderDetailResponseViewModel>(new ApiResultCode(ApiResultType.Error, 0, "No data in given request"));
+            }
+            return new ApiResult<CartOrderDetailResponseViewModel>(new ApiResultCode(ApiResultType.Success), priceDetail);
+        }
     }
 }

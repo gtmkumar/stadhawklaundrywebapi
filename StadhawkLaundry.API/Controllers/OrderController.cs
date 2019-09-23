@@ -7,9 +7,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Stadhawk.Laundry.Utility.ResponseUtility;
+using StadhawkLaundry.API.Common;
 using StadhawkLaundry.BAL.Core;
 using StadhawkLaundry.DataModel.Models;
 using StadhawkLaundry.ViewModel;
+using StadhawkLaundry.ViewModel.RequestModel;
+using StadhawkLaundry.ViewModel.ResponseModel;
 using Utility;
 
 namespace StadhawkLaundry.API.Controllers
@@ -24,21 +27,33 @@ namespace StadhawkLaundry.API.Controllers
         {
             _unit = unit;
         }
-        [HttpGet("createorder")]
-        public async Task<OrderViewModel> PostCreateAsync()
+        [HttpPost("createorder")]
+        public async Task<IActionResult> PostCreateAsync([FromForm]OrderRequestViewModel model)
         {
             int? userId = 0;
             var userStrId = this.User.FindFirstValue(ClaimTypes.Name);
             if (!string.IsNullOrWhiteSpace(userStrId))
                 userId = Convert.ToInt32(userStrId);
 
-            var response = new SingleResponse<OrderViewModel>();
+            var response = new SingleResponse<OrderResponseViewModel>();
+            var result = await _unit.IOrder.CreateOrder(userId.Value,model);
+            if (result.HasSuccess)
+            {
+                response.Data = result.UserObject;
+                response.Message = "Success";
+                response.Status = true;
+            }
+            else
+            {
+                response.Data = null;
+                response.Message = "Error";
+                response.Status = false;
+            }
 
-            var result = await _unit.IOrder.CreateOrder(userId.Value);
-            return (await _unit.IOrder.GetItemDetails()).UserObject;
+            return response.ToHttpResponse();
         }
 
-        [HttpGet("slotDetails")]
+        [HttpGet("pickslotDetails")]
         public async Task<IActionResult> GetSlot()
         {
             var ownResponse = new ListResponse<TimeSlotViewModel>();
@@ -58,6 +73,69 @@ namespace StadhawkLaundry.API.Controllers
                 return ownResponse.ToHttpResponse();
             }
             
+        }
+
+        [HttpGet("dropslotdetails")]
+        public async Task<IActionResult> GetDropSlot([FromQuery]SlotsRequestViewModel model)
+        {
+            var ownResponse = new ListResponse<TimeSlotViewModel>();
+            string fullDate;
+            try
+            {
+                var sDate = model.FullDate.Split(' ');
+                fullDate = Common.DateTimeConverter.DatetimeConverterfromString(sDate[0], format: DateTimeConverter.DateFormat.YYMMDD);
+                fullDate = fullDate + " " + sDate[1];
+                DateTime dd = Convert.ToDateTime(fullDate);
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+          
+            var dataResult = await _unit.IOrder.GetAvailableDropSlots(Convert.ToDateTime(model.FullDate));
+            if (dataResult.HasSuccess)
+            {
+                ownResponse.Message = "Success";
+                ownResponse.Status = true;
+                ownResponse.Data = dataResult.UserObject;
+                return ownResponse.ToHttpResponse();
+            }
+            else
+            {
+                ownResponse.Message = "No data found";
+                ownResponse.Status = true;
+                ownResponse.Data = dataResult.UserObject;
+                return ownResponse.ToHttpResponse();
+            }
+
+        }
+
+
+        [HttpGet("orderdetails")]
+        public async Task<IActionResult> GetOrderDetail()
+        {
+            int? userId = 0;
+            var userStrId = this.User.FindFirstValue(ClaimTypes.Name);
+            if (!string.IsNullOrWhiteSpace(userStrId))
+                userId = Convert.ToInt32(userStrId);
+
+            var ownResponse = new ListResponse<OrderDetailResponseViewModel>();
+            var dataResult = await _unit.IOrder.GetOrderByUser(userId.Value);
+            if (dataResult.HasSuccess)
+            {
+                ownResponse.Message = "Success";
+                ownResponse.Status = true;
+                ownResponse.Data = dataResult.UserObject;
+                return ownResponse.ToHttpResponse();
+            }
+            else
+            {
+                ownResponse.Message = "No data found";
+                ownResponse.Status = true;
+                ownResponse.Data = dataResult.UserObject;
+                return ownResponse.ToHttpResponse();
+            }
+
         }
 
     }

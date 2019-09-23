@@ -91,7 +91,8 @@ namespace StadhawkLaundry.API
 
             services.AddAutoMapper();
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
+            services.AddMvc(options => {options.ModelBinderProviders.Insert(0, new DateTimeModelBinderProvider());})
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2)
                 .AddJsonOptions(options =>
                 {
                     options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
@@ -122,7 +123,7 @@ namespace StadhawkLaundry.API
             app.UseCookiePolicy();
             app.UseAuthentication();
             app.UseCors("CorsPolicy");
-          
+
             app.UseMvc(routes =>
             {
                 routes.MapRoute(

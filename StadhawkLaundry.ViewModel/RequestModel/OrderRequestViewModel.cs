@@ -6,7 +6,11 @@ namespace StadhawkLaundry.ViewModel.RequestModel
 {
     public class OrderRequestViewModel
     {
-        public string OrderScheduleFrom { get; set; }
-        public string OrderScheduleTo { get; set; }
+        public int AddressId { get; set; }
+        public int PickUpSlotId { get; set; }
+        public string PickUpDate { get; set; }
+        public string DeliverDate { get; set; }
+        public int DeliverSlotId { get; set; }
+        public string DeliveryNote { get; set; }
     }
 }

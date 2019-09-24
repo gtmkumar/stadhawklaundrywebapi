@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Stadhawk.Laundry.Utility.Enums;
 using Stadhawk.Laundry.Utility.ResponseUtility;
 using StadhawkLaundry.API.Common;
 using StadhawkLaundry.BAL.Core;
@@ -112,15 +113,51 @@ namespace StadhawkLaundry.API.Controllers
 
 
         [HttpGet("orderdetails")]
-        public async Task<IActionResult> GetOrderDetail()
+        public async Task<IActionResult> GetOrderDetail([FromQuery]int orderType)
         {
             int? userId = 0;
+            string strStatus = string.Empty;
             var userStrId = this.User.FindFirstValue(ClaimTypes.Name);
             if (!string.IsNullOrWhiteSpace(userStrId))
                 userId = Convert.ToInt32(userStrId);
 
+            if (orderType == (int)OrderTypeEnum.UPCOMING)
+                strStatus = "2,3,8";
+
+            if (orderType == (int)OrderTypeEnum.HISTORY)
+                strStatus = "1,4,5,6,7";
+
             var ownResponse = new ListResponse<OrderDetailResponseViewModel>();
-            var dataResult = await _unit.IOrder.GetOrderByUser(userId.Value);
+            var dataResult = await _unit.IOrder.GetOrderByUser(userId.Value, strStatus);
+            if (dataResult.HasSuccess)
+            {
+                ownResponse.Message = "Success";
+                ownResponse.Status = true;
+                ownResponse.Data = dataResult.UserObject;
+                return ownResponse.ToHttpResponse();
+            }
+            else
+            {
+                ownResponse.Message = "No data found";
+                ownResponse.Status = true;
+                ownResponse.Data = dataResult.UserObject;
+                return ownResponse.ToHttpResponse();
+            }
+
+        }
+
+        [HttpGet("orderdetail")]
+        public async Task<IActionResult> GetOrderDetailByOrderId([FromQuery]int orderId)
+        {
+            int? userId = 0;
+            string strStatus = string.Empty;
+            var userStrId = this.User.FindFirstValue(ClaimTypes.Name);
+            if (!string.IsNullOrWhiteSpace(userStrId))
+                userId = Convert.ToInt32(userStrId);
+
+
+            var ownResponse = new SingleResponse<OrderDetailResponseModel>();
+            var dataResult = await _unit.IOrder.GetOrderByOrderId(userId.Value, orderId);
             if (dataResult.HasSuccess)
             {
                 ownResponse.Message = "Success";

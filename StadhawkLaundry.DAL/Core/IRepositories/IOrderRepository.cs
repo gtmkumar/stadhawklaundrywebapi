@@ -16,6 +16,7 @@ namespace StadhawkLaundry.BAL.Core.IRepositories
         Task<ApiResult<OrderResponseViewModel>> CreateOrder(int userId, OrderRequestViewModel model);
         Task<ApiResult<List<TimeSlotViewModel>>> GetAvailableSlots();
         Task<ApiResult<List<TimeSlotViewModel>>> GetAvailableDropSlots(DateTime dateTime);
-        Task<ApiResult<IEnumerable<OrderDetailResponseViewModel>>> GetOrderByUser(int userId);
+        Task<ApiResult<IEnumerable<OrderDetailResponseViewModel>>> GetOrderByUser(int userId,string orderTypeFilter);
+        Task<ApiResult<OrderDetailResponseModel>> GetOrderByOrderId(int userId, int orderId);
     }
 }

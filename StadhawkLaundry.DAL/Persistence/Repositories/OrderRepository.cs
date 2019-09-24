@@ -41,7 +41,6 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                     Name = item.ServiceName
                 });
             }
-
             foreach (var item in categories)
             {
                 orderView.Categories.Add(new CategoryViewModel()
@@ -50,7 +49,6 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                     Name = item.CategoryName
                 });
             }
-
             foreach (var item in subcategories)
             {
                 orderView.Subcategories.Add(new SubcategoryViewModel()
@@ -59,7 +57,6 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                     Name = item.SubServiceName
                 });
             }
-
             foreach (var item in items)
             {
                 orderView.Items.Add(new ItemViewModel()
@@ -124,7 +121,7 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                     Date = data.Tables[0].Rows[i]["FullDate"].ToString();
                     timeSlotViewModel = new TimeSlotViewModel();
                     timeSlotViewModel.Key = i;
-                    timeSlotViewModel.FullDate= data.Tables[0].Rows[i]["FullDate"].ToString();
+                    timeSlotViewModel.FullDate = data.Tables[0].Rows[i]["FullDate"].ToString();
                     timeSlotViewModel.Date = data.Tables[0].Rows[i]["Date"].ToString();
                     timeSlotViewModel.Day = data.Tables[0].Rows[i]["Day"].ToString();
                     timeSlotViewModel.Month = data.Tables[0].Rows[i]["Month"].ToString();
@@ -195,7 +192,6 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                                 slots.Add(timeSlots);
                             }
                         }
-
                         timeSlotViewModel.timeSlots = slots;
                         TimeSlot.Add(timeSlotViewModel);
                     }
@@ -213,7 +209,7 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
             }
         }
 
-        public async Task<ApiResult<IEnumerable<OrderDetailResponseViewModel>>> GetOrderByUser(int userId)
+        public async Task<ApiResult<IEnumerable<OrderDetailResponseViewModel>>> GetOrderByUser(int userId, string orderTypeFilter)
         {
             List<OrderDetailResponseViewModel> listitems = new List<OrderDetailResponseViewModel>();
             try
@@ -245,6 +241,93 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                 ErrorTrace.Logger(LogArea.BusinessTier, ex);
                 return new ApiResult<IEnumerable<OrderDetailResponseViewModel>>(new ApiResultCode(ApiResultType.ExceptionDuringOpration, 3, "Please contact system administrator"));
             }
+        }
+
+
+        public async Task<ApiResult<OrderDetailResponseModel>> GetOrderByOrderId(int userId, int orderId)
+        {
+            OrderDetailResponseModel model = null;
+            OrderServiceResponseViewModel service = new OrderServiceResponseViewModel();
+            List<OrderCategoryResponceViewModel> categores = new List<OrderCategoryResponceViewModel>();
+            OrderCategoryResponceViewModel category = new OrderCategoryResponceViewModel();
+            OrderItemDetailResponseViewModel item = null;
+
+            try
+            {
+                SqlParameter OrderId = new SqlParameter("@OrderId", System.Data.SqlDbType.Int) { Value = orderId };
+                SqlParameter UserId = new SqlParameter("@UserId", System.Data.SqlDbType.Int) { Value = userId };
+                var result = _context.ExecuteStoreProcedure("[usp_getOrderDetail]", UserId, OrderId);
+                if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
+                {
+                    foreach (System.Data.DataRow dr in result.Tables[0].Rows)
+                    {
+                        model = new OrderDetailResponseModel
+                        {
+                            OrderId = (dr["OrderId"] != DBNull.Value) ? Convert.ToInt32(dr["OrderId"]) : 0,
+                            OrderDate = (dr["OrderDate"] != DBNull.Value) ? Convert.ToString(dr["OrderDate"]) : string.Empty,
+                            OrderStatus = (dr["OrderStatus"] != DBNull.Value) ? Convert.ToInt32(dr["OrderStatus"]) : 0,
+                            TotalPrice = (dr["TotalPrice"] != DBNull.Value) ? Convert.ToDecimal(dr["TotalPrice"]) : 0,
+                            TotalKG = (dr["TotalKG"] != DBNull.Value) ? Convert.ToDecimal(dr["TotalKG"]) : 0,
+                            ItemCount = (dr["ItemCount"] != DBNull.Value) ? Convert.ToInt32(dr["ItemCount"]) : 0,
+                            IsKg = (dr["IsKg"] != DBNull.Value) ? Convert.ToBoolean(dr["IsKg"]) : false,
+                            OrderAmount = (dr["OrderAmount"] != DBNull.Value) ? Convert.ToDecimal(dr["OrderAmount"]) : 0,
+                            TaxAmount = (dr["TaxAmount"] != DBNull.Value) ? Convert.ToDecimal(dr["TaxAmount"]) : 0,
+                            DeliveryDateTime = (dr["DeliveryDateTime"] != DBNull.Value) ? Convert.ToString(dr["DeliveryDateTime"]) : string.Empty,
+                            PickupDateTime = (dr["PickupDateTime"] != DBNull.Value) ? Convert.ToString(dr["PickupDateTime"]) : string.Empty,
+                            PickUpAddress = (dr["PickUpAddress"] != DBNull.Value) ? Convert.ToString(dr["PickUpAddress"]) : string.Empty
+                        };
+                    }
+                    foreach (System.Data.DataRow row in result.Tables[1].Rows)
+                    {
+                        service = new OrderServiceResponseViewModel()
+                        {
+                            ServiceId = (row["ServiceId"] != DBNull.Value) ? Convert.ToInt32(row["ServiceId"]) : 0,
+                            ServiceName = (row["ServiceName"] != DBNull.Value) ? Convert.ToString(row["ServiceName"]) : string.Empty
+                        };
+                        model.Services.Add(service);
+                        if (result.Tables.Count > 0 && result.Tables[2].Rows.Count > 0)
+                        {
+                            foreach (System.Data.DataRow catrow in result.Tables[2].Rows)
+                            {
+                                if (((row["ServiceId"] != DBNull.Value) ? Convert.ToInt32(row["ServiceId"]) : 0) == ((catrow["ServiceId"] != DBNull.Value) ? Convert.ToInt32(catrow["ServiceId"]) : 0))
+                                {
+                                    category = new OrderCategoryResponceViewModel
+                                    {
+                                        CategoryId = (catrow["categoryId"] != DBNull.Value) ? Convert.ToInt32(catrow["categoryId"]) : 0,
+                                        CategoryName = (catrow["CategoryName"] != DBNull.Value) ? Convert.ToString(catrow["CategoryName"]) : string.Empty
+                                    };
+                                    service.Categories.Add(category);
+                                }
+                                if (result.Tables.Count > 0 && result.Tables[3].Rows.Count > 0)
+                                {
+                                    foreach (System.Data.DataRow itmrow in result.Tables[3].Rows)
+                                    {
+                                        if ((((catrow["CategoryId"] != DBNull.Value) ? Convert.ToInt32(catrow["CategoryId"]) : 0) == ((itmrow["CategoryId"] != DBNull.Value) ? Convert.ToInt32(itmrow["CategoryId"]) : 0)) && (((catrow["ServiceId"] != DBNull.Value) ? Convert.ToInt32(catrow["ServiceId"]) : 0) == ((itmrow["ServiceId"] != DBNull.Value) ? Convert.ToInt32(itmrow["ServiceId"]) : 0)))
+                                        {
+                                            category.OrderItemList.Add(new OrderItemDetailResponseViewModel
+                                            {
+                                                ItemId = (itmrow["ItemId"] != DBNull.Value) ? Convert.ToInt32(itmrow["ItemId"]) : 0,
+                                                ItemName = (itmrow["ItemName"] != DBNull.Value) ? Convert.ToString(itmrow["ItemName"]) : string.Empty,
+                                                Quantity = (itmrow["Quantity"] != DBNull.Value) ? Convert.ToInt32(itmrow["Quantity"]) : 0,
+                                                TotalPrice = (itmrow["TotalPrice"] != DBNull.Value) ? Convert.ToDecimal(itmrow["TotalPrice"]) : 0,
+                                                UnitPrice = (itmrow["UnitPrice"] != DBNull.Value) ? Convert.ToDecimal(itmrow["UnitPrice"]) : 0
+                                            });
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorTrace.Logger(LogArea.ApplicationTier, ex);
+                return new ApiResult<OrderDetailResponseModel>(new ApiResultCode(ApiResultType.Error, 0, "No data in given request"));
+            }
+            return model == null ? new ApiResult<OrderDetailResponseModel>(new ApiResultCode(ApiResultType.Error, 1, "No data in given request"))
+                : new ApiResult<OrderDetailResponseModel>(new ApiResultCode(ApiResultType.Success), model);
+
         }
 
     }

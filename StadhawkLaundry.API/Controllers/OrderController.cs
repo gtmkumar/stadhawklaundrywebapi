@@ -121,10 +121,10 @@ namespace StadhawkLaundry.API.Controllers
             if (!string.IsNullOrWhiteSpace(userStrId))
                 userId = Convert.ToInt32(userStrId);
 
-            if (orderType == (int)OrderTypeEnum.UPCOMING)
+            if (orderType == (int)EnumType.OrderTypeEnum.UPCOMING)
                 strStatus = "2,3,8";
 
-            if (orderType == (int)OrderTypeEnum.HISTORY)
+            if (orderType == (int)EnumType.OrderTypeEnum.HISTORY)
                 strStatus = "1,4,5,6,7";
 
             var ownResponse = new ListResponse<OrderDetailResponseViewModel>();

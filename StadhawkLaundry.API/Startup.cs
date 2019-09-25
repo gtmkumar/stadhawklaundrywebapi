@@ -58,7 +58,32 @@ namespace StadhawkLaundry.API
             var keySmsHas = Encoding.ASCII.GetBytes(appSettings.SmsHasKey);
             var keySmsVendorUrl = Encoding.ASCII.GetBytes(appSettings.SmsVendorUrl);
             var databsesecon = Encoding.ASCII.GetBytes(appSettings.DataBaseCon);
+            var razorpayKey = Encoding.ASCII.GetBytes(appSettings.RazorpayKey);
+            var razorpaySecret = Encoding.ASCII.GetBytes(appSettings.RazorpaySecret);
+            var PGType = Encoding.ASCII.GetBytes(appSettings.PGType);
+            var RazorPayReturnUrl = Encoding.ASCII.GetBytes(appSettings.RazorPayReturnUrl);
+            var RazorPayColor = Encoding.ASCII.GetBytes(appSettings.RazorPayColor);
+            var RazorPayDescription = Encoding.ASCII.GetBytes(appSettings.RazorPayDescription);
+            var RazorPayLogo = Encoding.ASCII.GetBytes(appSettings.RazorPayLogo);
 
+            //PAYTM PAYMENT GATEWAY CONSTANTS
+            var PAYTM_MID = Encoding.ASCII.GetBytes(appSettings.PAYTM_MID);
+            var PAYTM_MERCHANT_KEY = Encoding.ASCII.GetBytes(appSettings.PAYTM_MERCHANT_KEY);
+            var PAYTM_INDUSTRY_TYPE_ID = Encoding.ASCII.GetBytes(appSettings.PAYTM_INDUSTRY_TYPE_ID);
+            var PAYTM_CHANNEL_ID = Encoding.ASCII.GetBytes(appSettings.PAYTM_CHANNEL_ID);
+            var PAYTM_WEBSITE = Encoding.ASCII.GetBytes(appSettings.PAYTM_WEBSITE);
+            var PAYTM_STAGING_URL = Encoding.ASCII.GetBytes(appSettings.PAYTM_STAGING_URL);
+            var PAYTM_LIVE_URL = Encoding.ASCII.GetBytes(appSettings.PAYTM_LIVE_URL);
+            var PAYTM_TRANSACTION_STATUS_STAGING_URL = Encoding.ASCII.GetBytes(appSettings.PAYTM_TRANSACTION_STATUS_STAGING_URL);
+            var PAYTM_TRANSACTION_STATUS_LIVE_URL = Encoding.ASCII.GetBytes(appSettings.PAYTM_TRANSACTION_STATUS_LIVE_URL);
+
+            var PgVisibility = Encoding.ASCII.GetBytes(appSettings.PgVisibility);
+            var PaytmVisibility = Encoding.ASCII.GetBytes(appSettings.PaytmVisibility);
+            var CODVisibility = Encoding.ASCII.GetBytes(appSettings.CODVisibility);
+
+            //company name/ payment environment
+            var Company = Encoding.ASCII.GetBytes(appSettings.Company);
+            var IsLivePayment = Encoding.ASCII.GetBytes(appSettings.IsLivePayment);
             services.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

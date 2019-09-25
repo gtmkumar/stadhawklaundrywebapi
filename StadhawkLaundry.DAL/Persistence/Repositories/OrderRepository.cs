@@ -242,8 +242,6 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                 return new ApiResult<IEnumerable<OrderDetailResponseViewModel>>(new ApiResultCode(ApiResultType.ExceptionDuringOpration, 3, "Please contact system administrator"));
             }
         }
-
-
         public async Task<ApiResult<OrderDetailResponseModel>> GetOrderByOrderId(int userId, int orderId)
         {
             OrderDetailResponseModel model = null;
@@ -282,7 +280,9 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                         service = new OrderServiceResponseViewModel()
                         {
                             ServiceId = (row["ServiceId"] != DBNull.Value) ? Convert.ToInt32(row["ServiceId"]) : 0,
-                            ServiceName = (row["ServiceName"] != DBNull.Value) ? Convert.ToString(row["ServiceName"]) : string.Empty
+                            ServiceName = (row["ServiceName"] != DBNull.Value) ? Convert.ToString(row["ServiceName"]) : string.Empty,
+                            ServiceUrl = "",
+                            IsKg = model.IsKg
                         };
                         model.Services.Add(service);
                         if (result.Tables.Count > 0 && result.Tables[2].Rows.Count > 0)
@@ -328,6 +328,99 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
             return model == null ? new ApiResult<OrderDetailResponseModel>(new ApiResultCode(ApiResultType.Error, 1, "No data in given request"))
                 : new ApiResult<OrderDetailResponseModel>(new ApiResultCode(ApiResultType.Success), model);
 
+        }
+        public ApiResult<PaymentOrderResponceViewModel> GetOrderDetails(int orderId)
+        {
+            var OrderId = new SqlParameter("@Order_Id", System.Data.SqlDbType.Int) { Value = orderId };
+            bool isBookingOn = false;
+            try
+            {
+                var Data = _context.ExecuteStoreProcedure("usp_GetTotalOrderPricdeByOrderID", OrderId);
+                PaymentOrderResponceViewModel resultModel = null;
+                string orderRef = string.Empty;
+                if (Data != null && Data.Tables.Count > 0 && Data.Tables[0].Rows.Count > 0)
+                {
+                    foreach (System.Data.DataRow row in Data.Tables[0].Rows)
+                    {
+                        resultModel = new PaymentOrderResponceViewModel
+                        {
+                            Price = (row["TotalOrderPrice"] != DBNull.Value) ? Convert.ToInt32(row["TotalOrderPrice"]) : 0,
+                            InvoiceNo = (row["InvoiceNo"] != DBNull.Value) ? Convert.ToString(row["InvoiceNo"]) : string.Empty,
+                            EmailId = (row["EmailId"] != DBNull.Value) ? Convert.ToString(row["EmailId"]) : string.Empty,
+                            CustomerId = (row["CustomerId"] != DBNull.Value) ? Convert.ToString(row["CustomerId"]) : string.Empty,
+                            CustomerName = (row["CustomerName"] != DBNull.Value) ? Convert.ToString(row["CustomerName"]) : string.Empty,
+                            MobileNo = (row["MobileNo"] != DBNull.Value) ? Convert.ToString(row["MobileNo"]) : string.Empty,
+                            DeviceType = (row["DeviceType"] != DBNull.Value) ? Convert.ToString(row["DeviceType"]) : string.Empty,
+                            IsBookingOn = true
+                        };
+                    }
+                }
+                if (resultModel != null)
+                {
+                    return new ApiResult<PaymentOrderResponceViewModel>(new ApiResultCode(ApiResultType.Success), resultModel);
+                }
+
+                return new ApiResult<PaymentOrderResponceViewModel>(new ApiResultCode(ApiResultType.Error), resultModel);
+            }
+            catch (Exception ex)
+            {
+                ErrorTrace.Logger(LogArea.ApplicationTier, ex);
+                return new ApiResult<PaymentOrderResponceViewModel>(new ApiResultCode(ApiResultType.ExceptionDuringOpration, 3, "Please contact system administrator"));
+            }
+        }
+
+        public ApiResult<bool> IsOrderRefExist(string invoiceNo, string pgType)
+        {
+            SqlParameter InvoiceNo = new SqlParameter("@InvoiceNo", System.Data.SqlDbType.VarChar) { Value = invoiceNo };
+            SqlParameter PgType = new SqlParameter("@pgType", System.Data.SqlDbType.VarChar) { Value = pgType };
+            try
+            {
+                bool isExist = false;
+                var Data = _context.ExecuteStoreProcedure("[usp_GetOrderRefExist]", InvoiceNo, PgType);
+                if (Data != null && Data.Tables.Count > 0 && Data.Tables[0].Rows.Count > 0)
+                {
+                    foreach (System.Data.DataRow row in Data.Tables[0].Rows)
+                    {
+                        isExist = (row["IsExist"] != DBNull.Value) ? Convert.ToBoolean(row["IsExist"]) : false;
+                    }
+                }
+                return new ApiResult<bool>(new ApiResultCode(ApiResultType.Success), isExist);
+            }
+            catch (Exception ex)
+            {
+                ErrorTrace.Logger(LogArea.ApplicationTier, ex);
+                return new ApiResult<bool>(new ApiResultCode(ApiResultType.ExceptionDuringOpration, 3, "Please contact system administrator"));
+            }
+        }
+
+        public ApiResult<string> SaveCustomerPaymentInfo(PaymetIfoRequestViewModel model)
+        {
+            string deviceType = string.Empty;
+            try
+            {
+                SqlParameter OrderRef = new SqlParameter("@InvoiceNo", System.Data.SqlDbType.VarChar) { Value = model.InvoiceNo };
+                SqlParameter PgRequest = new SqlParameter("@PGRequest", System.Data.SqlDbType.NVarChar) { Value = model.PgRequest ?? (object)DBNull.Value };
+                SqlParameter PgResponse = new SqlParameter("@PGResponse", System.Data.SqlDbType.NVarChar) { Value = model.PgResponse ?? (object)DBNull.Value };
+                SqlParameter ToalPayment = new SqlParameter("@TotalPayment", System.Data.SqlDbType.Int) { Value = model.TotalPayment.HasValue ? model.TotalPayment.Value : (object)DBNull.Value };
+                SqlParameter pgType = new SqlParameter("@PG_Type", System.Data.SqlDbType.VarChar) { Value = model.PgType ?? (object)DBNull.Value };
+                SqlParameter PGTransactionId = new SqlParameter("@PGTransactionId", System.Data.SqlDbType.VarChar) { Value = model.PGTransactionId ?? (object)DBNull.Value };
+                SqlParameter Status = new SqlParameter("@Status", System.Data.SqlDbType.VarChar) { Value = model.Status ?? (object)DBNull.Value };
+                var result = _context.ExecuteStoreProcedure("[usp_SavePaymentResponse]", OrderRef, PgRequest, PgResponse, ToalPayment, pgType, PGTransactionId, Status);
+
+                if (result != null && result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
+                {
+                    foreach (System.Data.DataRow row in result.Tables[0].Rows)
+                    {
+                        deviceType = (row["Message"] != DBNull.Value) ? Convert.ToString(row["Message"]) : string.Empty;
+                    }
+                }
+                return new ApiResult<string>(new ApiResultCode(ApiResultType.Success), deviceType);
+            }
+            catch (Exception ex)
+            {
+                ErrorTrace.Logger(LogArea.ApplicationTier, ex);
+                return new ApiResult<string>(new ApiResultCode(ApiResultType.ExceptionDuringOpration), deviceType);
+            }
         }
 
     }

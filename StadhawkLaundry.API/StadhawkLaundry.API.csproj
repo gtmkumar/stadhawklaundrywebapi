@@ -25,6 +25,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.2.3" />
+    <PackageReference Include="RazorPayCore" Version="1.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,6 +35,12 @@
     <ProjectReference Include="..\StadhawkLaundry.DAL\StadhawkLaundry.BAL.csproj" />
     <ProjectReference Include="..\StadhawkLaundry.DATAMODEL\StadhawkLaundry.DataModel.csproj" />
     <ProjectReference Include="..\StadhawkLaundry.ViewModel\StadhawkLaundry.ViewModel.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="paytm">
+      <HintPath>..\..\paytm.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

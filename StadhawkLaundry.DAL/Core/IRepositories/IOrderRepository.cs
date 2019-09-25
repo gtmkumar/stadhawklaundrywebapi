@@ -18,5 +18,8 @@ namespace StadhawkLaundry.BAL.Core.IRepositories
         Task<ApiResult<List<TimeSlotViewModel>>> GetAvailableDropSlots(DateTime dateTime);
         Task<ApiResult<IEnumerable<OrderDetailResponseViewModel>>> GetOrderByUser(int userId,string orderTypeFilter);
         Task<ApiResult<OrderDetailResponseModel>> GetOrderByOrderId(int userId, int orderId);
+        ApiResult<PaymentOrderResponceViewModel> GetOrderDetails(int orderId);
+        ApiResult<bool> IsOrderRefExist(string invoiceNo, string pgType);
+        ApiResult<string> SaveCustomerPaymentInfo(PaymetIfoRequestViewModel model);
     }
 }

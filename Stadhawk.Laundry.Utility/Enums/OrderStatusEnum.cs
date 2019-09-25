@@ -4,9 +4,18 @@ using System.Text;
 
 namespace Stadhawk.Laundry.Utility.Enums
 {
-    public enum OrderTypeEnum
+    public class EnumType
     {
-        UPCOMING = 1,
-        HISTORY = 2
-    }
+        public enum PaymentGateWayType
+        {
+            ATOM,
+            RAZORPAY,
+            PAYTM
+        }
+        public enum OrderTypeEnum
+        {
+            UPCOMING = 1,
+            HISTORY = 2
+        }
+    }    
 }

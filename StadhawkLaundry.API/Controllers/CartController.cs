@@ -41,8 +41,16 @@ namespace StadhawkLaundry.API.Controllers
 
             if (model.CartId > 0)
                 isEdit = true;
-
             var response = new SingleResponse<CartCountResponseViewModel>();
+
+            if ((await _unit.ICart.IsCartFromDiffrentService(model.StoreItemId,userId.Value)).UserObject)
+            {
+                response.Data = null;
+                response.Message = "Cart from diffrent service";
+                response.Status = true;
+                response.ErrorTypeCode= (int)ErrorMessage.CartRemoverd;
+                return response.ToHttpResponse();
+            }
             try
             {
                 var data = AutoMapper.Mapper.Map<TblCart>(model);

@@ -179,5 +179,23 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
             }
             return new ApiResult<CartOrderDetailResponseViewModel>(new ApiResultCode(ApiResultType.Success), priceDetail);
         }
+
+        public async Task<ApiResult<bool>> IsCartFromDiffrentService(int storeItemId,int userId)
+        {
+            bool isCartRemove= false;
+            try
+            {
+                var data = await (from c in _context.TblCart
+                                  join stritm in _context.TblStoreItems on c.StoreItemId.Value equals stritm.Id
+                                  where c.UserId == userId && stritm.Id == storeItemId && stritm.UnitId == 1
+                                  select new { stritm.Unit }).AnyAsync();
+            }
+            catch (Exception ex)
+            {
+                ErrorTrace.Logger(LogArea.ApplicationTier, ex);
+                return new ApiResult<bool>(new ApiResultCode(ApiResultType.Error, 0, "No data in given request"));
+            }
+            return new ApiResult<bool>(new ApiResultCode(ApiResultType.Success), isCartRemove);
+        }
     }
 }

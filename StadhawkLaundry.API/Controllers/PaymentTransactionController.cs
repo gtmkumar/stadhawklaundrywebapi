@@ -36,7 +36,7 @@ namespace StadhawkLaundry.API.Controllers
             PaymetIfoRequestViewModel model = null;
             int PayFrom = 0;
             var resultData =new PaymentOrderResponceViewModel();
-            var data = (dynamic)null;
+            var data = new PaymentOrderResponceViewModel();
             if (string.IsNullOrEmpty(pgType))
                 pgType = _appSettings.PGType;
 
@@ -60,7 +60,6 @@ namespace StadhawkLaundry.API.Controllers
                     }
                     if (resultData != null)
                     {
-                        isExist = _unit.IOrder.IsOrderRefExist(resultData.InvoiceNo, pgType).UserObject;
                         var options = new Dictionary<string, object>();
                         var hashData = new Hashtable();
                         var htNotes = new Hashtable();
@@ -73,44 +72,46 @@ namespace StadhawkLaundry.API.Controllers
                         options.Add("payment_capture", "1");
                         //Razor pay client
                         RazorpayClient client = new RazorpayClient(_appSettings.RazorpayKey, _appSettings.RazorpaySecret);
+                        Order order = client.Order.Create(options);
+
+                        //hash data
+                        hashData.Add("data-key", _appSettings.RazorpayKey);
+                        hashData.Add("data-amount", (resultData.Price * 100));
+                        hashData.Add("data-name", _appSettings.Company);
+                        hashData.Add("data-description", _appSettings.RazorPayDescription);
+                        hashData.Add("data-order_id", order["id"].ToString());
+                        hashData.Add("data-image", _appSettings.RazorPayLogo);
+                        hashData.Add("data-prefill.name", resultData.CustomerName);
+                        hashData.Add("data-prefill.email", resultData.EmailId);
+                        hashData.Add("data-prefill.contact", resultData.MobileNo);
+                        hashData.Add("data-theme.color", _appSettings.RazorPayColor);
+                        //serialized object
+                        var orderSerialized = JsonConvert.SerializeObject(order);
+                        var orderResponse = JsonConvert.DeserializeObject<RazorpayGateWayOrderResponseViewModel>(orderSerialized);
+                        model = new PaymetIfoRequestViewModel
+                        {
+                            InvoiceNo = orderResponse.Attributes.Receipt,
+                            PgRequest = orderSerialized,
+                            PgType = EnumType.PaymentGateWayType.RAZORPAY.ToString()
+                        };
                         try
                         {
-                            Order order = client.Order.Create(options);
-                            hashData.Add("data-key", _appSettings.RazorpayKey);
-                            hashData.Add("data-amount", (resultData.Price * 100));
-                            hashData.Add("data-name", _appSettings.Company);
-                            hashData.Add("data-description", _appSettings.RazorPayDescription);
-                            hashData.Add("data-order_id", order["id"].ToString());
-                            hashData.Add("data-image", _appSettings.RazorPayLogo);
-                            hashData.Add("data-prefill.name", resultData.CustomerName);
-                            hashData.Add("data-prefill.email", resultData.EmailId);
-                            hashData.Add("data-prefill.contact", resultData.MobileNo);
-                            hashData.Add("data-theme.color", _appSettings.RazorPayColor);
-                            //serialized object
-                            var orderSerialized = JsonConvert.SerializeObject(order);
-                            var orderResponse = JsonConvert.DeserializeObject<RazorpayGateWayOrderResponseViewModel>(orderSerialized);
-                            model = new PaymetIfoRequestViewModel
+                            if (!isExist)
                             {
-                                InvoiceNo = orderResponse.Attributes.Receipt,
-                                PgRequest = orderSerialized,
-                                PgType = EnumType.PaymentGateWayType.RAZORPAY.ToString()
-                            };
-                            //post form data
-                            var hashtable = new Hashtable(hashData);
-                            pgRequestData = PostFormData("PaymentResponse", hashtable);
+                                var result = _unit.IOrder.SaveCustomerPaymentInfo(model);
+                            }
                         }
                         catch (Exception ex)
                         {
-
-                            throw;
+                            ErrorTrace.Logger(LogArea.ApplicationTier, ex);
                         }
-                        //hash data
-                       
+                        //post form data
+                        var hashtable = new Hashtable(hashData);
+                        pgRequestData = PostFormData("PaymentResponse", hashtable);
                     }
                     break;
 
                 #endregion
-
                 #region PAYTM PAYMENT GATEWAY REQUEST
 
                 case EnumType.PaymentGateWayType.PAYTM:
@@ -123,6 +124,9 @@ namespace StadhawkLaundry.API.Controllers
                             Response.Redirect(redirectUrl);
                         }
                     }
+
+
+                    // var data = _unit.Order.GetRezorPaymenOrdertDetails(orderId).UserObject;
                     if (data != null)
                     {
                         if (data.IsBookingOn == false)
@@ -229,68 +233,6 @@ namespace StadhawkLaundry.API.Controllers
             string orderRefContain = string.Empty;
             switch (paymentGateWayType)
             {
-                #region ATOM PAYMENT GATEWAY RESPONSE
-                case EnumType.PaymentGateWayType.ATOM:
-                    IFormCollection fromdata = Request.Form;
-                    if (!string.IsNullOrEmpty(Request.Form["mmp_txn"]))
-                    {
-                        string postingmmp_txn = Request.Form["mmp_txn"].ToString();
-                        string postingmer_txn = Request.Form["mer_txn"].ToString();
-                        string postinamount = Request.Form["amt"].ToString();
-                        string postingprod = Request.Form["prod"].ToString();
-                        string postingdate = Request.Form["date"].ToString();
-                        string postingbank_txn = Request.Form["bank_txn"].ToString();
-                        string postingf_code = Request.Form["f_code"].ToString();
-                        string signature = Request.Form["signature"].ToString();
-                        string postingdiscriminator = Request.Form["discriminator"].ToString();
-                        string respHashKey = _appSettings.RespHashKey;
-                        string ressignature = "";
-                        string strsignature = postingmmp_txn + postingmer_txn + postingf_code + postingprod + postingdiscriminator + postinamount + postingbank_txn;
-                        byte[] bytes = Encoding.UTF8.GetBytes(respHashKey);
-                        byte[] b = new System.Security.Cryptography.HMACSHA512(bytes).ComputeHash(Encoding.UTF8.GetBytes(strsignature));
-                        ressignature = byteToHexString(b).ToLower();
-                        string strTranData = "postingmmp_txn=" + postingmmp_txn + ",postingmer_txn=" + postingmer_txn + ",postinamount=" + postinamount + ",postingprod=" + postingprod + ",postingdate=" + postingdate + ",postingbank_txn=" + postingbank_txn + ",postingf_code=" + postingf_code + ",ressignature=" + ressignature + "";
-
-                        PaymetIfoRequestViewModel model = null;
-                        if (signature == ressignature)
-                        {
-                            if (postingf_code.ToUpper() == "F")
-                            {
-                                paymentStatus = "F";
-                                ViewBag.Message = "Transaction has been Failed";
-                                redirectUrl = _appSettings.ReturnUrl + "?Status=" + paymentStatus;
-                            }
-                            else if (postingf_code.ToUpper() == "OK")
-                            {
-                                paymentStatus = "OK";
-                                model = new PaymetIfoRequestViewModel
-                                {
-                                    InvoiceNo = postingmer_txn,
-                                    TotalPayment = Convert.ToInt32(Convert.ToDecimal(postinamount)),
-                                    PgResponse = strTranData,
-                                };
-                                var paymentResponseSave = _unit.IOrder.SaveCustomerPaymentInfo(model);
-                                
-                                ViewBag.Message = "OK! Transaction Successful.";
-                                redirectUrl = _appSettings.ReturnUrl + "?Status=" + paymentStatus;
-                            }
-                            if (postingf_code.ToUpper() == "C")
-                            {
-                                paymentStatus = "C";
-                                ViewBag.Message = "Transaction cancelled by User.";
-                                redirectUrl = _appSettings.ReturnUrl + "?Status=" + paymentStatus;
-                            }
-                        }
-                        else
-                        {
-                            paymentStatus = "F";
-                            ViewBag.Message = "Transaction Failed";
-                            redirectUrl = _appSettings.ReturnUrl + "?Status=" + paymentStatus;
-                        }
-                    }
-                    break;
-                #endregion
-
                 #region RAZORPAY PAYMENT GATEWAY RESPONSE
 
                 case EnumType.PaymentGateWayType.RAZORPAY:

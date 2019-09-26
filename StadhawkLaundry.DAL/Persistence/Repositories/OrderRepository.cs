@@ -401,7 +401,7 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                 SqlParameter OrderRef = new SqlParameter("@InvoiceNo", System.Data.SqlDbType.VarChar) { Value = model.InvoiceNo };
                 SqlParameter PgRequest = new SqlParameter("@PGRequest", System.Data.SqlDbType.NVarChar) { Value = model.PgRequest ?? (object)DBNull.Value };
                 SqlParameter PgResponse = new SqlParameter("@PGResponse", System.Data.SqlDbType.NVarChar) { Value = model.PgResponse ?? (object)DBNull.Value };
-                SqlParameter ToalPayment = new SqlParameter("@TotalPayment", System.Data.SqlDbType.Int) { Value = model.TotalPayment.HasValue ? model.TotalPayment.Value : (object)DBNull.Value };
+                SqlParameter ToalPayment = new SqlParameter("@TotalPayment", System.Data.SqlDbType.Decimal) { Value = model.TotalPayment.HasValue ? model.TotalPayment.Value : (object)DBNull.Value };
                 SqlParameter pgType = new SqlParameter("@PG_Type", System.Data.SqlDbType.VarChar) { Value = model.PgType ?? (object)DBNull.Value };
                 SqlParameter PGTransactionId = new SqlParameter("@PGTransactionId", System.Data.SqlDbType.VarChar) { Value = model.PGTransactionId ?? (object)DBNull.Value };
                 SqlParameter Status = new SqlParameter("@Status", System.Data.SqlDbType.VarChar) { Value = model.Status ?? (object)DBNull.Value };

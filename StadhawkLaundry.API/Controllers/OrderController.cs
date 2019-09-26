@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Stadhawk.Laundry.Utility.Enums;
 using Stadhawk.Laundry.Utility.ResponseUtility;
 using StadhawkLaundry.API.Common;
+using StadhawkLaundry.API.Models;
 using StadhawkLaundry.BAL.Core;
 using StadhawkLaundry.DataModel.Models;
 using StadhawkLaundry.ViewModel;
@@ -24,8 +26,10 @@ namespace StadhawkLaundry.API.Controllers
     public class OrderController : ControllerBase
     {
         private readonly IUnitOfWork _unit;
-        public OrderController(IUnitOfWork unit)
+        private readonly AppSettings _appSettings;
+        public OrderController(IOptions<AppSettings> appSettings, IUnitOfWork unit)
         {
+            _appSettings = appSettings.Value;
             _unit = unit;
         }
         [HttpPost("createorder")]
@@ -172,7 +176,26 @@ namespace StadhawkLaundry.API.Controllers
                 ownResponse.Data = dataResult.UserObject;
                 return ownResponse.ToHttpResponse();
             }
+        }
+        [HttpGet("getvisibility")]
+        public async Task<IActionResult> GetVisibility()
+        {
+            int? customerId = 0;
+            string userId = User.FindFirstValue(ClaimTypes.Name);
+            if (!string.IsNullOrWhiteSpace(userId))
+                customerId = Convert.ToInt32(userId);
 
+            var pgVisibility = new PgVisibilityResponseViewModel();
+            pgVisibility.PgVisibility = _appSettings.PgVisibility == "true" ? true : false;
+            pgVisibility.PaytmVisibility = _appSettings.PaytmVisibility == "true" ? true : false;
+            pgVisibility.CODVisibility = _appSettings.CODVisibility == "true" ? true : false;
+            var ownResponse = new SingleResponse<PgVisibilityResponseViewModel>
+            {
+                Data = pgVisibility,
+                Message = "Get Pg Visibility",
+                Status = true
+            };
+            return ownResponse.ToHttpResponse();
         }
 
     }

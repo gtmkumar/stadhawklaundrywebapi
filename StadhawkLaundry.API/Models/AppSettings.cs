@@ -36,5 +36,6 @@ namespace StadhawkLaundry.API.Models
         public string PgVisibility { get; set; }
         public string PaytmVisibility { get; set; }
         public string CODVisibility { get; set; }
+        public string CODVisibilityForMealPass { get; set; }
     }
 }

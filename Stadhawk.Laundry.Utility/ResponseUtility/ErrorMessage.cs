@@ -8,8 +8,9 @@
         Address = 104,
         WorngOTP = 105,
         PhoneOrEmailNotRegistor = 106,
-        CartPartnerMatched = 110,
+        CartRemoverd = 110,
         VersionUpdate = 111,
-        CODOptionClosed = 112
+        CODOptionClosed = 1120
+
     }
 }

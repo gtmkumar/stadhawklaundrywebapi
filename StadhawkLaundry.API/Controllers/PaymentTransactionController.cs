@@ -34,7 +34,6 @@ namespace StadhawkLaundry.API.Controllers
         public async Task<ActionResult> Index(int orderId, string pgType)
         {
             PaymetIfoRequestViewModel model = null;
-            int PayFrom = 0;
             var resultData =new PaymentOrderResponceViewModel();
             var data = new PaymentOrderResponceViewModel();
             if (string.IsNullOrEmpty(pgType))
@@ -445,12 +444,6 @@ namespace StadhawkLaundry.API.Controllers
 
             }
             Response.Redirect(redirectUrl);
-            return View();
-        }
-
-        //FOR RAZORPAY RESPONSE
-        public ActionResult PaymentResult()
-        {
             return View();
         }
         //POST FORM DATA

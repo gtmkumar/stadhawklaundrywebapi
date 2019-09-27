@@ -3,3 +3,10 @@
     Layout = null;
 }
 @Html.Raw(Model)
+<script type="text/javascript" src="~/Scripts/jquery-1.10.2.min.js"></script>
+<script>
+    $().ready(function () {
+        $(".razorpay-payment-button").click();
+        $(".razorpay-payment-button").hide();
+    });
+</script>

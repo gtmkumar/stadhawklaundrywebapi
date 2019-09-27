@@ -188,7 +188,9 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                 var data = await (from c in _context.TblCart
                                   join stritm in _context.TblStoreItems on c.StoreItemId.Value equals stritm.Id
                                   where c.UserId == userId && stritm.Id == storeItemId && stritm.UnitId == 1
-                                  select new { stritm.Unit }).AnyAsync();
+                                  select new { stritm.Price }).ToListAsync();
+
+                isCartRemove = data.Sum(t => t.Price).Value == 0 ? true : false;
             }
             catch (Exception ex)
             {

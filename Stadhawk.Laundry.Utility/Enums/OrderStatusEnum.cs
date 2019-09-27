@@ -8,7 +8,6 @@ namespace Stadhawk.Laundry.Utility.Enums
     {
         public enum PaymentGateWayType
         {
-            ATOM,
             RAZORPAY,
             PAYTM
         }

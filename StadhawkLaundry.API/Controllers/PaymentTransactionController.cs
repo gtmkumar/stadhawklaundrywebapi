@@ -39,7 +39,7 @@ namespace StadhawkLaundry.API.Controllers
             if (string.IsNullOrEmpty(pgType))
                 pgType = _appSettings.PGType;
 
-            if (pgType.Equals("ONLINE"))
+            if (pgType.Equals("2"))
                 pgType = _appSettings.PGType;
 
             EnumType.PaymentGateWayType paymentGateWayType = (EnumType.PaymentGateWayType)Enum.Parse(typeof(EnumType.PaymentGateWayType), pgType);

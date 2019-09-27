@@ -34,22 +34,34 @@ namespace StadhawkLaundry.API.Controllers
         {
             bool isEdit = false;
             int? userId = 0;
-            model.IsRemove = false;
+            bool cartremovelData = false;
             var userStrId = this.User.FindFirstValue(ClaimTypes.Name);
             if (!string.IsNullOrWhiteSpace(userStrId))
                 userId = Convert.ToInt32(userStrId);
 
             if (model.CartId > 0)
                 isEdit = true;
-            var response = new SingleResponse<CartCountResponseViewModel>();
 
-            if ((await _unit.ICart.IsCartFromDiffrentService(model.StoreItemId,userId.Value)).UserObject)
+            if (model.IsCartRemoved)
             {
-                response.Data = null;
-                response.Message = "Cart from diffrent service";
-                response.Status = true;
-                response.ErrorTypeCode= (int)ErrorMessage.CartRemoverd;
-                return response.ToHttpResponse();
+                cartremovelData = (await _unit.ICart.AllCalrtDeleteByUser(userId.Value)).UserObject;
+            }
+
+            var response = new SingleResponse<CartCountResponseViewModel>();
+            var cartDatCheck = (await _unit.ICart.IsCartFromDiffrentService(model.StoreItemId, userId.Value)).UserObject;
+            if (!cartremovelData)
+            {
+                if (cartDatCheck.isDifferent.HasValue)
+                {
+                    if (cartDatCheck.isDifferent != model.IsKg)
+                    {
+                        response.Data = null;
+                        response.Message = "Cart from different service";
+                        response.Status = true;
+                        response.ErrorTypeCode = (int)ErrorMessage.CartRemoverd;
+                        return response.ToHttpResponse();
+                    }
+                }
             }
             try
             {
@@ -68,8 +80,7 @@ namespace StadhawkLaundry.API.Controllers
                 {
                     data = (await _unit.ICart.GetByID(model.CartId)).UserObject;
                     data.ModifyDate = DateTime.Now;
-                    if (!model.IsRemove)
-                        data.Quantity = data.Quantity + 1;
+                    data.Quantity = data.Quantity + 1;
 
                     _unit.ICart.Update(data);
                 }
@@ -103,7 +114,7 @@ namespace StadhawkLaundry.API.Controllers
         public async Task<IActionResult> DeleteCart([FromForm] AddCartRequestViewModel model)
         {
             int? userId = 0;
-            model.IsRemove = false;
+            model.IsCartRemoved = false;
             var userStrId = this.User.FindFirstValue(ClaimTypes.Name);
             if (!string.IsNullOrWhiteSpace(userStrId))
                 userId = Convert.ToInt32(userStrId);
@@ -153,7 +164,7 @@ namespace StadhawkLaundry.API.Controllers
             int? userId = 0;
             var userStrId = this.User.FindFirstValue(ClaimTypes.Name);
             if (!string.IsNullOrWhiteSpace(userStrId))
-                userId = Convert.ToInt32(userStrId);           
+                userId = Convert.ToInt32(userStrId);
 
             var response = new SingleResponse<CartPriceDetail>();
             try

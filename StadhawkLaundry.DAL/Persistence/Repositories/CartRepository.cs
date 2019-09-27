@@ -31,7 +31,7 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                 SqlParameter CartId = new SqlParameter("@CartId", System.Data.SqlDbType.Int) { Value = customerAddToCart.CartId.HasValue ? customerAddToCart.CartId.Value : (object)DBNull.Value };
                 SqlParameter Itemid = new SqlParameter("@StoreItemId", System.Data.SqlDbType.Int) { Value = customerAddToCart.StoreItemId };
                 SqlParameter quantity = new SqlParameter("@Quantity", System.Data.SqlDbType.Int) { Value = customerAddToCart.Quantity.HasValue ? customerAddToCart.Quantity.Value : (object)DBNull.Value };
-                SqlParameter IsCartRemoved = new SqlParameter("@IsRemove", System.Data.SqlDbType.Bit) { Value = customerAddToCart.IsRemove };
+                SqlParameter IsCartRemoved = new SqlParameter("@IsRemove", System.Data.SqlDbType.Bit) { Value = customerAddToCart.IsCartRemoved };
                 SqlParameter AddressId = new SqlParameter("@AddressId", System.Data.SqlDbType.Int) { Value = customerAddToCart.AddressId };
                 SqlParameter UserId = new SqlParameter("@UserId", System.Data.SqlDbType.Int) { Value = userId };
                 var result = _context.ExecuteStoreProcedure("usp_SaveCartItemDetail", CartId, Itemid, quantity, quantity, IsCartRemoved, AddressId, UserId);
@@ -91,7 +91,7 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                             CartCount = (row["CartCount"] != DBNull.Value) ? Convert.ToInt32(row["CartCount"]) : 0,
                             CartPrice = (row["CartPrice"] != DBNull.Value) ? Convert.ToDecimal(row["CartPrice"]) : 0,
                             IsKg = ((row["CartPrice"] != DBNull.Value) ? Convert.ToInt32(row["CartPrice"]) : 0) > 0 ? false : true,
-                            TaxAmount = (row["TaxAmount"] != DBNull.Value) ? Convert.ToDecimal(row["TaxAmount"]) :0,
+                            TaxAmount = (row["TaxAmount"] != DBNull.Value) ? Convert.ToDecimal(row["TaxAmount"]) : 0,
                             TotalPrice = (row["TotalAmout"] != DBNull.Value) ? Convert.ToDecimal(row["TotalAmout"]) : 0,
                             IsValidShipment = (row["IsValidShipment"] != DBNull.Value) ? Convert.ToBoolean(row["IsValidShipment"]) : false
                         };
@@ -180,24 +180,43 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
             return new ApiResult<CartOrderDetailResponseViewModel>(new ApiResultCode(ApiResultType.Success), priceDetail);
         }
 
-        public async Task<ApiResult<bool>> IsCartFromDiffrentService(int storeItemId,int userId)
+        public async Task<ApiResult<ExistingCheckResponseViewModel>> IsCartFromDiffrentService(int storeItemId, int userId)
         {
-            bool isCartRemove= false;
+            ExistingCheckResponseViewModel model = new ExistingCheckResponseViewModel();
             try
             {
                 var data = await (from c in _context.TblCart
                                   join stritm in _context.TblStoreItems on c.StoreItemId.Value equals stritm.Id
-                                  where c.UserId == userId && stritm.Id == storeItemId && stritm.UnitId == 1
-                                  select new { stritm.Price }).ToListAsync();
+                                  where c.UserId == userId && c.IsDeleted == false
+                                  select new { stritm.UnitId }).FirstOrDefaultAsync();
 
-                isCartRemove = data.Sum(t => t.Price).Value == 0 ? true : false;
+                if (data != null)
+                    model.isDifferent = data.UnitId == 1 ? true : false;
+                
+            }
+            catch (Exception ex)
+            {
+                ErrorTrace.Logger(LogArea.ApplicationTier, ex);
+                return new ApiResult<ExistingCheckResponseViewModel>(new ApiResultCode(ApiResultType.Error, 0, "No data in given request"));
+            }
+            return new ApiResult<ExistingCheckResponseViewModel>(new ApiResultCode(ApiResultType.Success), model);
+        }
+
+        public async Task<ApiResult<bool>> AllCalrtDeleteByUser(int userId)
+        {
+            bool removed = false;
+            try
+            {
+                var data = await _context.Database.ExecuteSqlCommandAsync($"update tblCart set IsDeleted=1 where [User_Id]={userId}");
+                if (data > 0)
+                    removed = true;
             }
             catch (Exception ex)
             {
                 ErrorTrace.Logger(LogArea.ApplicationTier, ex);
                 return new ApiResult<bool>(new ApiResultCode(ApiResultType.Error, 0, "No data in given request"));
             }
-            return new ApiResult<bool>(new ApiResultCode(ApiResultType.Success), isCartRemove);
+            return new ApiResult<bool>(new ApiResultCode(ApiResultType.Success), removed);
         }
     }
 }

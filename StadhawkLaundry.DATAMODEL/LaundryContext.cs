@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using StadhawkLaundry.DataModel.Models;
+using StadhawkLaundry.DataModel.Models.dataModel;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -65,6 +66,8 @@ namespace StadhawkLaundry.DataModel
         /// <param name="modelBuilder"></param>
 
         public virtual DbSet<UserAddressDataViewModel> AddressDataModels { get; set; }
+
+        public virtual DbSet<UnitDataModel> Unit { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

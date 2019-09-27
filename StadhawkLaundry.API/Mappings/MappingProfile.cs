@@ -44,7 +44,7 @@ namespace StadhawkLaundry.API.Mappings
                 .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.ContactNo));
 
             CreateMap<AddCartRequestViewModel, TblCart>()
-                .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsRemove));
+                .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(src => src.IsCartRemoved));
         }
     }
 }

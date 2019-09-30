@@ -54,7 +54,7 @@ namespace StadhawkLaundry.DataModel.Models
         public virtual DbSet<TblSubServiceMaster> TblSubServiceMaster { get; set; }
         public virtual DbSet<TblUnitMaster> TblUnitMaster { get; set; }
         public virtual DbSet<TblUserAddress> TblUserAddress { get; set; }
-        public virtual DbSet<UsersMaster> UsersMaster { get; set; }
+        public virtual DbSet<TblUsersMaster> UsersMaster { get; set; }
 
         // Unable to generate entity type for table 'dbo.tblRolePrivilegesBase'. Please see the warning messages.
 
@@ -843,10 +843,10 @@ namespace StadhawkLaundry.DataModel.Models
                     .HasConstraintName("FK_tblUserAddress_tblAddressTypeMaster");
             });
 
-            modelBuilder.Entity<UsersMaster>(entity =>
+            modelBuilder.Entity<TblUsersMaster>(entity =>
             {
                 entity.HasKey(e => e.UserId);
-
+                entity.ToTable("tblUsersMaster");
                 entity.Property(e => e.UserId).ValueGeneratedNever();
 
                 entity.Property(e => e.CreatedDate).HasColumnType("datetime");
@@ -854,10 +854,10 @@ namespace StadhawkLaundry.DataModel.Models
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
 
                 entity.HasOne(d => d.User)
-                    .WithOne(p => p.UsersMaster)
-                    .HasForeignKey<UsersMaster>(d => d.UserId)
+                    .WithOne(p => p.TblUsersMaster)
+                    .HasForeignKey<TblUsersMaster>(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_UsersMaster_AspNetUsers");
+                    .HasConstraintName("FK_tblUsersMaster_AspNetUsers");
             });
         }
     }

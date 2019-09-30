@@ -126,10 +126,10 @@ namespace StadhawkLaundry.API.Controllers
                 userId = Convert.ToInt32(userStrId);
 
             if (orderType == (int)EnumType.OrderTypeEnum.UPCOMING)
-                strStatus = "2,3,8";
+                strStatus = "4,5,6,7";
 
             if (orderType == (int)EnumType.OrderTypeEnum.HISTORY)
-                strStatus = "1,4,5,6,7";
+                strStatus = "2,3,8";
 
             var ownResponse = new ListResponse<OrderDetailResponseViewModel>();
             var dataResult = await _unit.IOrder.GetOrderByUser(userId.Value, strStatus);
@@ -147,7 +147,6 @@ namespace StadhawkLaundry.API.Controllers
                 ownResponse.Data = dataResult.UserObject;
                 return ownResponse.ToHttpResponse();
             }
-
         }
 
         [HttpGet("orderdetail")]

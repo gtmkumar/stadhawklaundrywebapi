@@ -11,6 +11,7 @@ namespace StadhawkLaundry.ViewModel.ResponseModel
             Services = new List<OrderServiceResponseViewModel>();
         }
         public int OrderId { get; set; }
+        public string OrderRef { get; set; }
         public string OrderDate { get; set; }
         public int OrderStatus { get; set; }
         public decimal TotalKG { get; set; }

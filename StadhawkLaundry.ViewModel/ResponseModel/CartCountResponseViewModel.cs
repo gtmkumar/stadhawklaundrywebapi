@@ -9,5 +9,6 @@ namespace StadhawkLaundry.ViewModel.ResponseModel
         public int CartCount { get; set; }
         public int CartPrice { get; set; }
         public int? CartId { get; set; }
+        public bool IsKg { get; set; }
     }
 }

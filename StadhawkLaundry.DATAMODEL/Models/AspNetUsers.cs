@@ -43,7 +43,7 @@ namespace StadhawkLaundry.DataModel.Models
         public bool? Status { get; set; }
         public int UserType { get; set; }
 
-        public virtual UsersMaster UsersMaster { get; set; }
+        public virtual TblUsersMaster TblUsersMaster { get; set; }
         public virtual ICollection<AspNetUserClaims> AspNetUserClaims { get; set; }
         public virtual ICollection<AspNetUserLogins> AspNetUserLogins { get; set; }
         public virtual ICollection<AspNetUserRoles> AspNetUserRoles { get; set; }

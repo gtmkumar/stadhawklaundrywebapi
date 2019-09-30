@@ -13,6 +13,6 @@ namespace StadhawkLaundry.ViewModel.RequestModel
         public int DeliverSlotId { get; set; }
         public string DeliveryNote { get; set; }
         public int ServiceId { get; set; }
-        public int PaymentType { get; set; }
+        public int? PaymentType { get; set; }
     }
 }

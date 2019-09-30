@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace StadhawkLaundry.DataModel.Models
 {
-    public partial class UsersMaster
+    public partial class TblUsersMaster
     {
         public int UserId { get; set; }
         public DateTime? CreatedDate { get; set; }

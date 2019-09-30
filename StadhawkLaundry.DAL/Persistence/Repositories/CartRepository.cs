@@ -45,14 +45,13 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
             return new ApiResult<bool>(new ApiResultCode(ApiResultType.Success), false);
         }
 
-        public async Task<ApiResult<CartCountResponseViewModel>> CartCountAndPrice(AddCartRequestViewModel customerAddToCart, int userId, string databseCon)
+        public async Task<ApiResult<CartCountResponseViewModel>> CartCountAndPrice(int userId, string databseCon)
         {
             CartCountResponseViewModel model = new CartCountResponseViewModel();
             try
             {
-                SqlParameter StoreItemId = new SqlParameter("@StoreItemId", System.Data.SqlDbType.Int) { Value = customerAddToCart.StoreItemId };
                 SqlParameter UserId = new SqlParameter("@UserId", System.Data.SqlDbType.Int) { Value = userId };
-                var result = _context.ExecuteStoreProcedure(databseCon, "usp_GetCartItemCountAndPrice", UserId, StoreItemId);
+                var result = _context.ExecuteStoreProcedure(databseCon, "usp_GetCartItemCountAndPrice", UserId);
                 if (result.Tables[0].Rows.Count > 0)
                 {
                     model = (from DataRow dr in result.Tables[0].Rows
@@ -60,7 +59,8 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                              {
                                  CartCount = (dr["CartCount"] != DBNull.Value) ? Convert.ToInt32(dr["CartCount"]) : 0,
                                  CartPrice = (dr["CartPrice"] != DBNull.Value) ? Convert.ToInt32(dr["CartPrice"]) : 0,
-                                 CartId = (dr["CartId"] != DBNull.Value) ? Convert.ToInt32(dr["CartId"]) : 0
+                                 CartId = (dr["CartId"] != DBNull.Value) ? Convert.ToInt32(dr["CartId"]) : 0,
+                                 IsKg = (dr["IsKg"] != DBNull.Value) ? Convert.ToBoolean(dr["IsKg"]) : false
                              }).FirstOrDefault();
                 }
             }

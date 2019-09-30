@@ -5,7 +5,6 @@ using StadhawkLaundry.DataModel.Models;
 using StadhawkLaundry.ViewModel;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
@@ -24,7 +23,6 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
         {
             _context = context;
         }
-
         public async Task<ApiResult<OrderViewModel>> GetItemDetails()
         {
             OrderViewModel orderView = new OrderViewModel();
@@ -69,8 +67,6 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                     ? new ApiResult<OrderViewModel>(new ApiResultCode(ApiResultType.Error, 1, "No data in given request"))
                     : new ApiResult<OrderViewModel>(new ApiResultCode(ApiResultType.Success), orderView);
         }
-
-
         public async Task<ApiResult<OrderResponseViewModel>> CreateOrder(int userId, OrderRequestViewModel orderModel)
         {
             {
@@ -84,7 +80,8 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                     SqlParameter DeliverDate = new SqlParameter("@DeliverDate", System.Data.SqlDbType.DateTime) { Value = orderModel.DeliverDate };
                     SqlParameter DeliverSlotId = new SqlParameter("@DeliverSlotId", System.Data.SqlDbType.Int) { Value = orderModel.DeliverSlotId };
                     SqlParameter DeliveryNote = new SqlParameter("@DeliveryNote", System.Data.SqlDbType.VarChar) { Value = orderModel.DeliveryNote ?? (object)DBNull.Value };
-                    var result = _context.ExecuteStoreProcedure("[CreateOrder]", UserId, AddressId, PickUpSlotId, PickUpDate, DeliverDate, DeliverSlotId, DeliveryNote);
+                    SqlParameter PaymentType = new SqlParameter("@PaymentType", System.Data.SqlDbType.Int) { Value = orderModel.PaymentType ?? (object)DBNull.Value };
+                    var result = _context.ExecuteStoreProcedure("[CreateOrder]", UserId, AddressId, PickUpSlotId, PickUpDate, DeliverDate, DeliverSlotId, DeliveryNote, PaymentType);
                     if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
                     {
                         foreach (System.Data.DataRow row in result.Tables[0].Rows)
@@ -104,7 +101,6 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                 return new ApiResult<OrderResponseViewModel>(new ApiResultCode(ApiResultType.Success), model);
             }
         }
-
         public async Task<ApiResult<List<TimeSlotViewModel>>> GetAvailableSlots()
         {
             List<TimeSlotViewModel> TimeSlot = new List<TimeSlotViewModel>();
@@ -152,7 +148,6 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                     ? new ApiResult<List<TimeSlotViewModel>>(new ApiResultCode(ApiResultType.Error, 1, "No data in given request"))
                     : new ApiResult<List<TimeSlotViewModel>>(new ApiResultCode(ApiResultType.Success), TimeSlot);
         }
-
         public async Task<ApiResult<List<TimeSlotViewModel>>> GetAvailableDropSlots(DateTime dateTime)
         {
             List<TimeSlotViewModel> TimeSlot = new List<TimeSlotViewModel>();
@@ -208,14 +203,14 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                 return new ApiResult<List<TimeSlotViewModel>>(new ApiResultCode(ApiResultType.ExceptionDuringOpration, 1, "No data in given request"));
             }
         }
-
         public async Task<ApiResult<IEnumerable<OrderDetailResponseViewModel>>> GetOrderByUser(int userId, string orderTypeFilter)
         {
             List<OrderDetailResponseViewModel> listitems = new List<OrderDetailResponseViewModel>();
             try
             {
                 SqlParameter Userid = new SqlParameter("@Userid", System.Data.SqlDbType.Int) { Value = userId };
-                var ietms = _context.ExecuteStoreProcedure("[usp_getOrderDetailList]", Userid);
+                SqlParameter OrderType = new SqlParameter("@OrderType", System.Data.SqlDbType.VarChar) { Value = orderTypeFilter };
+                var ietms = _context.ExecuteStoreProcedure("[usp_getOrderDetailList]", Userid, OrderType);
 
                 if (ietms.Tables[0].Rows.Count > 0)
                 {
@@ -223,6 +218,7 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                                  select new OrderDetailResponseViewModel()
                                  {
                                      OrderId = (dr["OrderId"] != DBNull.Value) ? Convert.ToInt32(dr["OrderId"]) : 0,
+                                     OrderRef = (dr["InvoiceNo"] != DBNull.Value) ? Convert.ToString(dr["InvoiceNo"]) : string.Empty,
                                      OrderDate = (dr["OrderDate"] != DBNull.Value) ? Convert.ToString(dr["OrderDate"]) : string.Empty,
                                      TotalKg = (dr["TotalKg"] != DBNull.Value) ? Convert.ToInt32(dr["TotalKg"]) : 0,
                                      TotalPrice = (dr["TotalPrice"] != DBNull.Value) ? Convert.ToDecimal(dr["TotalPrice"]) : 0,
@@ -262,6 +258,7 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                         model = new OrderDetailResponseModel
                         {
                             OrderId = (dr["OrderId"] != DBNull.Value) ? Convert.ToInt32(dr["OrderId"]) : 0,
+                            OrderRef = (dr["InvoiceNo"] != DBNull.Value) ? Convert.ToString(dr["InvoiceNo"]) : string.Empty,
                             OrderDate = (dr["OrderDate"] != DBNull.Value) ? Convert.ToString(dr["OrderDate"]) : string.Empty,
                             OrderStatus = (dr["OrderStatus"] != DBNull.Value) ? Convert.ToInt32(dr["OrderStatus"]) : 0,
                             TotalPrice = (dr["TotalPrice"] != DBNull.Value) ? Convert.ToDecimal(dr["TotalPrice"]) : 0,
@@ -332,7 +329,6 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
         public ApiResult<PaymentOrderResponceViewModel> GetOrderDetails(int orderId)
         {
             var OrderId = new SqlParameter("@Order_Id", System.Data.SqlDbType.Int) { Value = orderId };
-            bool isBookingOn = false;
             try
             {
                 var Data = _context.ExecuteStoreProcedure("usp_GetTotalOrderPricdeByOrderID", OrderId);
@@ -368,7 +364,6 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                 return new ApiResult<PaymentOrderResponceViewModel>(new ApiResultCode(ApiResultType.ExceptionDuringOpration, 3, "Please contact system administrator"));
             }
         }
-
         public ApiResult<bool> IsOrderRefExist(string invoiceNo, string pgType)
         {
             SqlParameter InvoiceNo = new SqlParameter("@InvoiceNo", System.Data.SqlDbType.VarChar) { Value = invoiceNo };
@@ -392,7 +387,6 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                 return new ApiResult<bool>(new ApiResultCode(ApiResultType.ExceptionDuringOpration, 3, "Please contact system administrator"));
             }
         }
-
         public ApiResult<string> SaveCustomerPaymentInfo(PaymetIfoRequestViewModel model)
         {
             string deviceType = string.Empty;
@@ -422,6 +416,5 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                 return new ApiResult<string>(new ApiResultCode(ApiResultType.ExceptionDuringOpration), deviceType);
             }
         }
-
     }
 }

@@ -56,7 +56,7 @@ namespace StadhawkLaundry.DataModel
         public virtual DbSet<TblSubServiceMaster> TblSubServiceMaster { get; set; }
         public virtual DbSet<TblUnitMaster> TblUnitMaster { get; set; }
         public virtual DbSet<TblUserAddress> TblUserAddress { get; set; }
-        public virtual DbSet<UsersMaster> UsersMaster { get; set; }
+        public virtual DbSet<TblUsersMaster> UsersMaster { get; set; }
         public virtual DbSet<NavigatorView> NavigatorViews { get; set; }
 
 
@@ -853,9 +853,10 @@ namespace StadhawkLaundry.DataModel
                     .HasConstraintName("FK_tblUserAddress_tblAddressTypeMaster");
             });
 
-            modelBuilder.Entity<UsersMaster>(entity =>
+            modelBuilder.Entity<TblUsersMaster>(entity =>
             {
                 entity.HasKey(e => e.UserId);
+                entity.ToTable("tblUsersMaster");
 
                 entity.Property(e => e.UserId).ValueGeneratedNever();
 
@@ -864,10 +865,10 @@ namespace StadhawkLaundry.DataModel
                 entity.Property(e => e.ModifiedDate).HasColumnType("datetime");
 
                 entity.HasOne(d => d.User)
-                    .WithOne(p => p.UsersMaster)
-                    .HasForeignKey<UsersMaster>(d => d.UserId)
+                    .WithOne(p => p.TblUsersMaster)
+                    .HasForeignKey<TblUsersMaster>(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_UsersMaster_AspNetUsers");
+                    .HasConstraintName("FK_tblUsersMaster_AspNetUsers");
             });
             modelBuilder.Entity<NavigatorView>(entity =>
             {

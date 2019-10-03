@@ -34,7 +34,7 @@ namespace StadhawkLaundry.API.Controllers
         public async Task<ActionResult> Index(int orderId, string pgType)
         {
             PaymetIfoRequestViewModel model = null;
-            var resultData =new PaymentOrderResponceViewModel();
+            var resultData = new PaymentOrderResponceViewModel();
             var data = new PaymentOrderResponceViewModel();
             if (string.IsNullOrEmpty(pgType))
                 pgType = _appSettings.PGType;
@@ -212,7 +212,7 @@ namespace StadhawkLaundry.API.Controllers
         }
         // GET: PaymentTransaction
         [HttpPost]
-        public ActionResult PaymentResponse()
+        public void PaymentResponse()
         {
             string paymentStatus = string.Empty;
             string paymentGatewayType = string.Empty;
@@ -394,7 +394,7 @@ namespace StadhawkLaundry.API.Controllers
                                             orderRefContain = model.InvoiceNo.ToString().Substring(0, 2);
                                             var paymentResponseSave = (dynamic)null;
                                             paymentResponseSave = _unit.IOrder.SaveCustomerPaymentInfo(model);
-                                            
+
                                             redirectUrl = _appSettings.RazorPayReturnUrl + "?Status=" + paymentStatus;
                                             ViewBag.Message = "Transaction Successful.";
                                         }
@@ -436,15 +436,16 @@ namespace StadhawkLaundry.API.Controllers
                             redirectUrl = _appSettings.ReturnUrl + "?Status=" + paymentStatus;
                         }
                     }
-
                     break;
                     #endregion
-
-
-
             }
             Response.Redirect(redirectUrl);
-            return View();
+        }
+
+        public string PaymentResult()
+        {
+            string str = "Payment success";
+            return str;
         }
         //POST FORM DATA
         public static string PostFormData(string url, Hashtable data)

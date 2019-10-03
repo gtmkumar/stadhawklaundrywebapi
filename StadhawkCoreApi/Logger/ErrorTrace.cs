@@ -15,7 +15,7 @@ namespace StadhawkCoreApi.Logger
         {
             lock (s_locker)
             {
-                s_logFolder = string.Empty; //System.Web.HttpContext.Current.Server.MapPath("~/") + "/Upload/LogFile/";
+                s_logFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/Upload/LogFile/");
                 if (!Directory.Exists(s_logFolder))
                 {
                     Directory.CreateDirectory(s_logFolder);

@@ -81,7 +81,8 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                     SqlParameter DeliverSlotId = new SqlParameter("@DeliverSlotId", System.Data.SqlDbType.Int) { Value = orderModel.DeliverSlotId };
                     SqlParameter DeliveryNote = new SqlParameter("@DeliveryNote", System.Data.SqlDbType.VarChar) { Value = orderModel.DeliveryNote ?? (object)DBNull.Value };
                     SqlParameter PaymentType = new SqlParameter("@PaymentType", System.Data.SqlDbType.Int) { Value = orderModel.PaymentType ?? (object)DBNull.Value };
-                    var result = _context.ExecuteStoreProcedure("[CreateOrder]", UserId, AddressId, PickUpSlotId, PickUpDate, DeliverDate, DeliverSlotId, DeliveryNote, PaymentType);
+                    SqlParameter ServiceId = new SqlParameter("@ServiceId", System.Data.SqlDbType.Int) { Value = orderModel.ServiceId };
+                    var result = _context.ExecuteStoreProcedure("[CreateOrder]", UserId, AddressId, PickUpSlotId, PickUpDate, DeliverDate, DeliverSlotId, DeliveryNote, PaymentType,ServiceId);
                     if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
                     {
                         foreach (System.Data.DataRow row in result.Tables[0].Rows)

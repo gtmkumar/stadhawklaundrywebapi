@@ -116,22 +116,22 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                                         CategoryName = (catrow["CategoryName"] != DBNull.Value) ? Convert.ToString(catrow["CategoryName"]) : string.Empty
                                     };
                                     model.CategoryData.Add(categoryModel);
-                                }
-                                if (result.Tables.Count > 0 && result.Tables[3].Rows.Count > 0)
-                                {
-                                    foreach (System.Data.DataRow itmrow in result.Tables[3].Rows)
+                                    if (result.Tables.Count > 0 && result.Tables[3].Rows.Count > 0)
                                     {
-                                        if (((catrow["categoryId"] != DBNull.Value) ? Convert.ToInt32(catrow["categoryId"]) : 0) == ((itmrow["categoryId"] != DBNull.Value) ? Convert.ToInt32(itmrow["categoryId"]) : 0))
+                                        foreach (System.Data.DataRow itmrow in result.Tables[3].Rows)
                                         {
-                                            categoryModel.ItemsData.Add(new CartItemResponseDetailViewModel
+                                            if ((Convert.ToInt32(catrow["ServiceId"]) == Convert.ToInt32(itmrow["ServiceId"])) && Convert.ToInt32(catrow["categoryId"]) == Convert.ToInt32(itmrow["categoryId"]))
                                             {
-                                                CartId = (itmrow["CartId"] != DBNull.Value) ? Convert.ToInt32(itmrow["CartId"]) : 0,
-                                                ItemId = (itmrow["ItemId"] != DBNull.Value) ? Convert.ToInt32(itmrow["ItemId"]) : 0,
-                                                ItemName = (itmrow["ItemName"] != DBNull.Value) ? Convert.ToString(itmrow["ItemName"]) : string.Empty,
-                                                Quantity = (itmrow["Quantity"] != DBNull.Value) ? Convert.ToInt32(itmrow["Quantity"]) : 0,
-                                                TotalPrice = (itmrow["totalprice"] != DBNull.Value) ? Convert.ToDecimal(itmrow["totalprice"]) : 0,
-                                                UnitPrice = (itmrow["Price"] != DBNull.Value) ? Convert.ToDecimal(itmrow["Price"]) : 0
-                                            });
+                                                categoryModel.ItemsData.Add(new CartItemResponseDetailViewModel
+                                                {
+                                                    CartId = (itmrow["CartId"] != DBNull.Value) ? Convert.ToInt32(itmrow["CartId"]) : 0,
+                                                    ItemId = (itmrow["ItemId"] != DBNull.Value) ? Convert.ToInt32(itmrow["ItemId"]) : 0,
+                                                    ItemName = (itmrow["ItemName"] != DBNull.Value) ? Convert.ToString(itmrow["ItemName"]) : string.Empty,
+                                                    Quantity = (itmrow["Quantity"] != DBNull.Value) ? Convert.ToInt32(itmrow["Quantity"]) : 0,
+                                                    TotalPrice = (itmrow["totalprice"] != DBNull.Value) ? Convert.ToDecimal(itmrow["totalprice"]) : 0,
+                                                    UnitPrice = (itmrow["Price"] != DBNull.Value) ? Convert.ToDecimal(itmrow["Price"]) : 0
+                                                });
+                                            }
                                         }
                                     }
                                 }
@@ -192,7 +192,7 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
 
                 if (data != null)
                     model.isDifferent = data.UnitId == 1 ? true : false;
-                
+
             }
             catch (Exception ex)
             {

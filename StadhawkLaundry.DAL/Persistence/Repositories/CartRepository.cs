@@ -8,7 +8,6 @@ using StadhawkLaundry.ViewModel.ResponseModel;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;

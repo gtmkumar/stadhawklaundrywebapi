@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Stadhawk.Laundry.Utility.ResponseUtility;
@@ -12,6 +13,7 @@ using Utility;
 
 namespace StadhawkLaundry.API.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class StoreController : ControllerBase
@@ -22,16 +24,11 @@ namespace StadhawkLaundry.API.Controllers
             _unit = unit;
         }
 
-        [HttpGet("getservicemaster")]
-        public async Task<IActionResult> Get()
+        [HttpGet("getstore")]
+        public async Task<IActionResult> Get([FromQuery]int addressId)
         {
-            int customerId = 0;
-            string userId = User.FindFirstValue(ClaimTypes.Name);
-            if (!string.IsNullOrWhiteSpace(userId))
-                customerId = Convert.ToInt32(userId);
-
-            var response = new ListResponse<ServiceLabelMasterResponseViewModel>();
-            var data = await _unit.IService.GetServiceMaster(customerId);
+            var response = new ListResponse<StoreResponseViewModel>();
+            var data = await _unit.IStore.GetStoreByAddress(addressId);
             if (data.HasSuccess)
             {
                 response.Data = data.UserObject;
@@ -39,6 +36,7 @@ namespace StadhawkLaundry.API.Controllers
             }
             else
             {
+                response.Message = "Data not found";
                 response.Data = null;
                 response.Status = false;
             }

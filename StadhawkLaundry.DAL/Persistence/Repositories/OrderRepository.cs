@@ -82,7 +82,7 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                     SqlParameter DeliveryNote = new SqlParameter("@DeliveryNote", System.Data.SqlDbType.VarChar) { Value = orderModel.DeliveryNote ?? (object)DBNull.Value };
                     SqlParameter PaymentType = new SqlParameter("@PaymentType", System.Data.SqlDbType.Int) { Value = orderModel.PaymentType ?? (object)DBNull.Value };
                     SqlParameter ServiceId = new SqlParameter("@ServiceId", System.Data.SqlDbType.Int) { Value = orderModel.ServiceId };
-                    var result = _context.ExecuteStoreProcedure("[CreateOrder]", UserId, AddressId, PickUpSlotId, PickUpDate, DeliverDate, DeliverSlotId, DeliveryNote, PaymentType,ServiceId);
+                    var result = _context.ExecuteStoreProcedure("[CreateOrder]", UserId, AddressId, PickUpSlotId, PickUpDate, DeliverDate, DeliverSlotId, DeliveryNote, PaymentType, ServiceId);
                     if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
                     {
                         foreach (System.Data.DataRow row in result.Tables[0].Rows)
@@ -295,21 +295,21 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                                         CategoryName = (catrow["CategoryName"] != DBNull.Value) ? Convert.ToString(catrow["CategoryName"]) : string.Empty
                                     };
                                     service.Categories.Add(category);
-                                }
-                                if (result.Tables.Count > 0 && result.Tables[3].Rows.Count > 0)
-                                {
-                                    foreach (System.Data.DataRow itmrow in result.Tables[3].Rows)
+                                    if (result.Tables.Count > 0 && result.Tables[3].Rows.Count > 0)
                                     {
-                                        if ((((catrow["CategoryId"] != DBNull.Value) ? Convert.ToInt32(catrow["CategoryId"]) : 0) == ((itmrow["CategoryId"] != DBNull.Value) ? Convert.ToInt32(itmrow["CategoryId"]) : 0)) && (((catrow["ServiceId"] != DBNull.Value) ? Convert.ToInt32(catrow["ServiceId"]) : 0) == ((itmrow["ServiceId"] != DBNull.Value) ? Convert.ToInt32(itmrow["ServiceId"]) : 0)))
+                                        foreach (System.Data.DataRow itmrow in result.Tables[3].Rows)
                                         {
-                                            category.OrderItemList.Add(new OrderItemDetailResponseViewModel
+                                            if ((((catrow["CategoryId"] != DBNull.Value) ? Convert.ToInt32(catrow["CategoryId"]) : 0) == ((itmrow["CategoryId"] != DBNull.Value) ? Convert.ToInt32(itmrow["CategoryId"]) : 0)) && (((catrow["ServiceId"] != DBNull.Value) ? Convert.ToInt32(catrow["ServiceId"]) : 0) == ((itmrow["ServiceId"] != DBNull.Value) ? Convert.ToInt32(itmrow["ServiceId"]) : 0)))
                                             {
-                                                ItemId = (itmrow["ItemId"] != DBNull.Value) ? Convert.ToInt32(itmrow["ItemId"]) : 0,
-                                                ItemName = (itmrow["ItemName"] != DBNull.Value) ? Convert.ToString(itmrow["ItemName"]) : string.Empty,
-                                                Quantity = (itmrow["Quantity"] != DBNull.Value) ? Convert.ToInt32(itmrow["Quantity"]) : 0,
-                                                TotalPrice = (itmrow["TotalPrice"] != DBNull.Value) ? Convert.ToDecimal(itmrow["TotalPrice"]) : 0,
-                                                UnitPrice = (itmrow["UnitPrice"] != DBNull.Value) ? Convert.ToDecimal(itmrow["UnitPrice"]) : 0
-                                            });
+                                                category.OrderItemList.Add(new OrderItemDetailResponseViewModel
+                                                {
+                                                    ItemId = (itmrow["ItemId"] != DBNull.Value) ? Convert.ToInt32(itmrow["ItemId"]) : 0,
+                                                    ItemName = (itmrow["ItemName"] != DBNull.Value) ? Convert.ToString(itmrow["ItemName"]) : string.Empty,
+                                                    Quantity = (itmrow["Quantity"] != DBNull.Value) ? Convert.ToInt32(itmrow["Quantity"]) : 0,
+                                                    TotalPrice = (itmrow["TotalPrice"] != DBNull.Value) ? Convert.ToDecimal(itmrow["TotalPrice"]) : 0,
+                                                    UnitPrice = (itmrow["UnitPrice"] != DBNull.Value) ? Convert.ToDecimal(itmrow["UnitPrice"]) : 0
+                                                });
+                                            }
                                         }
                                     }
                                 }

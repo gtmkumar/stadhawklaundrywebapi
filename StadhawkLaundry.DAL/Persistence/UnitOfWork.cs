@@ -31,6 +31,7 @@ namespace StadhawkLaundry.BAL.Persistence
         private ICartRepository _cart;
         private IOrderIteamRepository _orderItem;
         private ITblUsersMasterRepository _usersMaster;
+        private IStoreRepository _store;
 
         public IServicesRepository IService => _service ?? (_service = new ServicesRepository(_context));
         public ICategoryRepository ICategory => _category ?? (_category = new CategoryRepository(_context));
@@ -44,6 +45,7 @@ namespace StadhawkLaundry.BAL.Persistence
         public ICartRepository ICart => _cart ?? (_cart = new CartRepository(_context));
         public IOrderIteamRepository IOrderItem => _orderItem ?? (_orderItem = new OrderIteamRepository(_context));
         public ITblUsersMasterRepository IUsersMaster => _usersMaster ?? (_usersMaster = new TblUsersMasterRepository(_context));
+        public IStoreRepository IStore => _store ?? (_store = new StoreRepository(_context));
         public async Task<ApiResultCode> Complete()
         {
             try

@@ -6,10 +6,11 @@ using StadhawkLaundry.DataModel.Models;
 using StadhawkLaundry.ViewModel.ResponseModel;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Text;
 using System.Threading.Tasks;
-
+using System.Linq;
 namespace StadhawkLaundry.BAL.Persistence.Repositories
 {
     public class ServicesRepository : Repository<TblServiceMaster>, IServicesRepository
@@ -66,6 +67,36 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                 StadhawkCoreApi.Logger.ErrorTrace.Logger(LogArea.ApplicationTier, ex);
             }
             return new ApiResult<IEnumerable<ServiceLabelMasterResponseViewModel>>(new ApiResultCode(ApiResultType.Error), serviceList);
+        }
+
+        public async Task<ApiResult<IEnumerable<ServiceMasterResponseViewModel>>> GetServiceByStore(int storeId)
+        {
+            List<ServiceMasterResponseViewModel> listitems = new List<ServiceMasterResponseViewModel>();
+            try
+            {
+                SqlParameter StoreId = new SqlParameter("@StoreId", System.Data.SqlDbType.Int) { Value = storeId };
+                var ietms = _context.ExecuteStoreProcedure("[GetServiceByStore]", StoreId);
+
+                if (ietms.Tables[0].Rows.Count > 0)
+                {
+                    listitems = (from DataRow dr in ietms.Tables[0].Rows
+                                 select new ServiceMasterResponseViewModel()
+                                 {
+                                     ServiceId = (dr["ServiceId"] != DBNull.Value) ? Convert.ToInt32(dr["ServiceId"]) : 0,
+                                     ServiceName = (dr["ServiceName"] != DBNull.Value) ? Convert.ToString(dr["ServiceName"]) : string.Empty,
+                                     ServiceTypeId = (dr["ServiceTypeId"] != DBNull.Value) ? Convert.ToInt32(dr["ServiceTypeId"]) : 0,
+                                     ServiceUrl = (dr["ServiceUrl"] != DBNull.Value) ? Convert.ToString(dr["ServiceUrl"]) : string.Empty
+                                 }).ToList();
+                }
+                return listitems.Count < 0
+                            ? new ApiResult<IEnumerable<ServiceMasterResponseViewModel>>(new ApiResultCode(ApiResultType.Error, 1, "No data in given request"))
+                            : new ApiResult<IEnumerable<ServiceMasterResponseViewModel>>(new ApiResultCode(ApiResultType.Success), listitems);
+            }
+            catch (Exception ex)
+            {
+                ErrorTrace.Logger(LogArea.BusinessTier, ex);
+                return new ApiResult<IEnumerable<ServiceMasterResponseViewModel>>(new ApiResultCode(ApiResultType.ExceptionDuringOpration, 3, "Please contact system administrator"));
+            }
         }
     }
 }

@@ -89,7 +89,8 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                         {
                             model = new OrderResponseViewModel()
                             {
-                                OrderId = (row["OrderId"] != DBNull.Value) ? Convert.ToInt32(row["OrderId"]) : 0
+                                OrderId = (row["OrderId"] != DBNull.Value) ? Convert.ToInt32(row["OrderId"]) : 0,
+                                OrderRef = (row["InvoiceNo"] != DBNull.Value) ? Convert.ToString(row["InvoiceNo"]) : string.Empty
                             };
                         }
                     }

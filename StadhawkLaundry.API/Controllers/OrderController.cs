@@ -129,7 +129,7 @@ namespace StadhawkLaundry.API.Controllers
                 strStatus = "4,5,6,7";
 
             if (orderType == (int)EnumType.OrderTypeEnum.HISTORY)
-                strStatus = "2,3,8";
+                strStatus = "2,3,8,3";
 
             var ownResponse = new ListResponse<OrderDetailResponseViewModel>();
             var dataResult = await _unit.IOrder.GetOrderByUser(userId.Value, strStatus);

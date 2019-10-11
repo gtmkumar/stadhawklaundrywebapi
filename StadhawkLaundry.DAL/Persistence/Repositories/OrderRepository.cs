@@ -418,5 +418,41 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                 return new ApiResult<string>(new ApiResultCode(ApiResultType.ExceptionDuringOpration), deviceType);
             }
         }
+
+        public async Task<ApiResult<IEnumerable<OrderDetailResponseViewModel>>> GetOrderByDeliveryBoyId(int userId, string orderTypeFilter)
+        {
+            List<OrderDetailResponseViewModel> listitems = new List<OrderDetailResponseViewModel>();
+            try
+            {
+                SqlParameter Userid = new SqlParameter("@Userid", System.Data.SqlDbType.Int) { Value = userId };
+                SqlParameter OrderType = new SqlParameter("@OrderType", System.Data.SqlDbType.VarChar) { Value = orderTypeFilter };
+                var ietms = _context.ExecuteStoreProcedure("[usp_getDeliveryBoyOrderDetailList]", Userid, OrderType);
+
+                if (ietms.Tables[0].Rows.Count > 0)
+                {
+                    listitems = (from DataRow dr in ietms.Tables[0].Rows
+                                 select new OrderDetailResponseViewModel()
+                                 {
+                                     OrderId = (dr["OrderId"] != DBNull.Value) ? Convert.ToInt32(dr["OrderId"]) : 0,
+                                     OrderRef = (dr["InvoiceNo"] != DBNull.Value) ? Convert.ToString(dr["InvoiceNo"]) : string.Empty,
+                                     OrderDate = (dr["OrderDate"] != DBNull.Value) ? Convert.ToString(dr["OrderDate"]) : string.Empty,
+                                     TotalKg = (dr["TotalKg"] != DBNull.Value) ? Convert.ToInt32(dr["TotalKg"]) : 0,
+                                     TotalPrice = (dr["TotalPrice"] != DBNull.Value) ? Convert.ToDecimal(dr["TotalPrice"]) : 0,
+                                     IsKG = false,
+                                     isRepeatOrder = false,
+                                     ItemCount = (dr["ItemCount"] != DBNull.Value) ? Convert.ToInt32(dr["ItemCount"]) : 0,
+                                     OrderStatus = (dr["OrderStatus"] != DBNull.Value) ? Convert.ToInt32(dr["OrderStatus"]) : 0
+                                 }).ToList();
+                }
+                return listitems.Count < 0
+                            ? new ApiResult<IEnumerable<OrderDetailResponseViewModel>>(new ApiResultCode(ApiResultType.Error, 1, "No data in given request"))
+                            : new ApiResult<IEnumerable<OrderDetailResponseViewModel>>(new ApiResultCode(ApiResultType.Success), listitems);
+            }
+            catch (Exception ex)
+            {
+                ErrorTrace.Logger(LogArea.BusinessTier, ex);
+                return new ApiResult<IEnumerable<OrderDetailResponseViewModel>>(new ApiResultCode(ApiResultType.ExceptionDuringOpration, 3, "Please contact system administrator"));
+            }
+        }
     }
 }

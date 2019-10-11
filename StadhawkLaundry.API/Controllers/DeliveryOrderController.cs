@@ -30,7 +30,7 @@ namespace StadhawkLaundry.API.Controllers
             string strStatus = string.Empty;
             var userStrId = this.User.FindFirstValue(ClaimTypes.Name);
             if (!string.IsNullOrWhiteSpace(userStrId))
-                userId = Convert.ToInt32(userStrId);
+                userId = Convert.ToInt32("55");
 
             if (orderType == (int)EnumType.OrderTypeEnum.UPCOMING)
                 strStatus = "4,5,6,7";

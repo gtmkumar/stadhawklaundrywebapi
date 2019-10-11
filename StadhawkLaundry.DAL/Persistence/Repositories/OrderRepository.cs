@@ -224,7 +224,7 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                                      OrderDate = (dr["OrderDate"] != DBNull.Value) ? Convert.ToString(dr["OrderDate"]) : string.Empty,
                                      TotalKg = (dr["TotalKg"] != DBNull.Value) ? Convert.ToInt32(dr["TotalKg"]) : 0,
                                      TotalPrice = (dr["TotalPrice"] != DBNull.Value) ? Convert.ToDecimal(dr["TotalPrice"]) : 0,
-                                     IsKG = false,
+                                     IsKG = (dr["IsKG"] != DBNull.Value) ? Convert.ToBoolean(dr["IsKG"]) : false,
                                      isRepeatOrder = false,
                                      ItemCount = (dr["ItemCount"] != DBNull.Value) ? Convert.ToInt32(dr["ItemCount"]) : 0,
                                      OrderStatus = (dr["OrderStatus"] != DBNull.Value) ? Convert.ToInt32(dr["OrderStatus"]) : 0
@@ -438,7 +438,7 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                                      OrderDate = (dr["OrderDate"] != DBNull.Value) ? Convert.ToString(dr["OrderDate"]) : string.Empty,
                                      TotalKg = (dr["TotalKg"] != DBNull.Value) ? Convert.ToInt32(dr["TotalKg"]) : 0,
                                      TotalPrice = (dr["TotalPrice"] != DBNull.Value) ? Convert.ToDecimal(dr["TotalPrice"]) : 0,
-                                     IsKG = false,
+                                     IsKG = (dr["IsKG"] != DBNull.Value) ? Convert.ToBoolean(dr["IsKG"]) : false,
                                      isRepeatOrder = false,
                                      ItemCount = (dr["ItemCount"] != DBNull.Value) ? Convert.ToInt32(dr["ItemCount"]) : 0,
                                      OrderStatus = (dr["OrderStatus"] != DBNull.Value) ? Convert.ToInt32(dr["OrderStatus"]) : 0

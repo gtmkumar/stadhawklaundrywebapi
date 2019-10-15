@@ -33,7 +33,7 @@ namespace StadhawkLaundry.API.Controllers
                 userId = Convert.ToInt32("55");
 
             if (orderType == (int)EnumType.OrderTypeEnum.UPCOMING)
-                strStatus = "4,5,6,7";
+                strStatus = "4";
 
             if (orderType == (int)EnumType.OrderTypeEnum.HISTORY)
                 strStatus = "2,3,8,3";

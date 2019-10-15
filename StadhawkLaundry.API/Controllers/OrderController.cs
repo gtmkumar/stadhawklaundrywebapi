@@ -41,7 +41,7 @@ namespace StadhawkLaundry.API.Controllers
                 userId = Convert.ToInt32(userStrId);
 
             var response = new SingleResponse<OrderResponseViewModel>();
-            var result = await _unit.IOrder.CreateOrder(userId.Value,model);
+            var result = await _unit.IOrder.CreateOrder(userId.Value, model);
             if (result.HasSuccess)
             {
                 response.Data = result.UserObject;
@@ -57,7 +57,6 @@ namespace StadhawkLaundry.API.Controllers
 
             return response.ToHttpResponse();
         }
-
         [HttpGet("pickslotDetails")]
         public async Task<IActionResult> GetSlot()
         {
@@ -77,9 +76,8 @@ namespace StadhawkLaundry.API.Controllers
                 ownResponse.Data = dataResult.UserObject;
                 return ownResponse.ToHttpResponse();
             }
-            
-        }
 
+        }
         [HttpGet("dropslotdetails")]
         public async Task<IActionResult> GetDropSlot([FromQuery]SlotsRequestViewModel model)
         {
@@ -96,7 +94,7 @@ namespace StadhawkLaundry.API.Controllers
             {
                 throw;
             }
-          
+
             var dataResult = await _unit.IOrder.GetAvailableDropSlots(Convert.ToDateTime(model.FullDate));
             if (dataResult.HasSuccess)
             {
@@ -114,8 +112,6 @@ namespace StadhawkLaundry.API.Controllers
             }
 
         }
-
-
         [HttpGet("orderdetails")]
         public async Task<IActionResult> GetOrderDetail([FromQuery]int orderType)
         {

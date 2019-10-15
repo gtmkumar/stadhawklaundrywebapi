@@ -24,18 +24,26 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
         }
         public async Task<ApiResult<bool>> AddToCartAsync(AddCartRequestViewModel customerAddToCart, int userId)
         {
+            bool iSFromDiffrentService = false;
             try
             {
-                customerAddToCart.Quantity = 1;
-                SqlParameter CartId = new SqlParameter("@CartId", System.Data.SqlDbType.Int) { Value = customerAddToCart.CartId.HasValue ? customerAddToCart.CartId.Value : (object)DBNull.Value };
-                SqlParameter Itemid = new SqlParameter("@StoreItemId", System.Data.SqlDbType.Int) { Value = customerAddToCart.StoreItemId };
-                SqlParameter quantity = new SqlParameter("@Quantity", System.Data.SqlDbType.Int) { Value = customerAddToCart.Quantity.HasValue ? customerAddToCart.Quantity.Value : (object)DBNull.Value };
-                SqlParameter IsCartRemoved = new SqlParameter("@IsRemove", System.Data.SqlDbType.Bit) { Value = customerAddToCart.IsCartRemoved };
+                SqlParameter CartId = new SqlParameter("@CartId", System.Data.SqlDbType.Int) { Value = customerAddToCart.CartId.HasValue ? customerAddToCart.CartId.Value : 0 };
+                SqlParameter StoreItemId = new SqlParameter("@StoreItemId", System.Data.SqlDbType.Int) { Value = customerAddToCart.StoreItemId };
+                SqlParameter IsCartRemoved = new SqlParameter("@IsCartRemoved", System.Data.SqlDbType.Bit) { Value = customerAddToCart.IsCartRemoved };
                 SqlParameter AddressId = new SqlParameter("@AddressId", System.Data.SqlDbType.Int) { Value = customerAddToCart.AddressId };
                 SqlParameter UserId = new SqlParameter("@UserId", System.Data.SqlDbType.Int) { Value = userId };
-                var result = _context.ExecuteStoreProcedure("usp_SaveCartItemDetail", CartId, Itemid, quantity, quantity, IsCartRemoved, AddressId, UserId);
-
-                return new ApiResult<bool>(new ApiResultCode(ApiResultType.Success), true);
+                var result = _context.ExecuteStoreProcedure("dbo.usp_AddCart", CartId, StoreItemId, IsCartRemoved, AddressId, UserId);
+                if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
+                {
+                    foreach (System.Data.DataRow row in result.Tables[0].Rows)
+                    {
+                        if (((row["ErrorMessage"] != DBNull.Value) ? Convert.ToString(row["ErrorMessage"]) : string.Empty) == "1")
+                        {
+                            iSFromDiffrentService = true;
+                        }
+                    }
+                }
+                return new ApiResult<bool>(new ApiResultCode(ApiResultType.Success), iSFromDiffrentService);
             }
             catch (Exception ex)
             {
@@ -43,14 +51,14 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
             }
             return new ApiResult<bool>(new ApiResultCode(ApiResultType.Success), false);
         }
-
+         
         public async Task<ApiResult<CartCountResponseViewModel>> CartCountAndPrice(int userId, string databseCon)
         {
             CartCountResponseViewModel model = new CartCountResponseViewModel();
             try
             {
                 SqlParameter UserId = new SqlParameter("@UserId", System.Data.SqlDbType.Int) { Value = userId };
-                var result = _context.ExecuteStoreProcedure(databseCon, "usp_GetCartItemCountAndPrice", UserId);
+                var result = _context.ExecuteStoreProcedure(databseCon, "dbo.usp_GetCartItemCountAndPrice", UserId);
                 if (result.Tables[0].Rows.Count > 0)
                 {
                     model = (from DataRow dr in result.Tables[0].Rows
@@ -80,7 +88,7 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
             {
                 SqlParameter UserId = new SqlParameter("@userId", System.Data.SqlDbType.Int) { Value = userId };
                 SqlParameter AddressId = new SqlParameter("@AddressId", System.Data.SqlDbType.Int) { Value = addressId };
-                var result = _context.ExecuteStoreProcedure("[usp_GetCartDetail]", UserId, AddressId);
+                var result = _context.ExecuteStoreProcedure("dbo.usp_GetCartDetail", UserId, AddressId);
                 if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
                 {
                     foreach (System.Data.DataRow row in result.Tables[0].Rows)
@@ -201,21 +209,21 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
             return new ApiResult<ExistingCheckResponseViewModel>(new ApiResultCode(ApiResultType.Success), model);
         }
 
-        public async Task<ApiResult<bool>> AllCalrtDeleteByUser(int userId)
+        public async Task<ApiResult<bool>> CartRemove(int CartId)
         {
-            bool removed = false;
+            bool removed = true;
             try
             {
-                var data = await _context.Database.ExecuteSqlCommandAsync($"update tblCart set IsDeleted=1 where [User_Id]={userId}");
-                if (data > 0)
-                    removed = true;
+                SqlParameter cartId = new SqlParameter("@CartId", System.Data.SqlDbType.Int) { Value = CartId};
+                var result = _context.ExecuteStoreProcedure("dbo.usp_RemoveCart", cartId);
+                return new ApiResult<bool>(new ApiResultCode(ApiResultType.Success), removed);
             }
             catch (Exception ex)
             {
                 ErrorTrace.Logger(LogArea.ApplicationTier, ex);
-                return new ApiResult<bool>(new ApiResultCode(ApiResultType.Error, 0, "No data in given request"));
+                removed = false;
+                return new ApiResult<bool>(new ApiResultCode(ApiResultType.ExceptionDuringOpration), removed);
             }
-            return new ApiResult<bool>(new ApiResultCode(ApiResultType.Success), removed);
         }
     }
 }

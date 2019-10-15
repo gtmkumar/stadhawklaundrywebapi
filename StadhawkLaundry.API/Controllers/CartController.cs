@@ -32,71 +32,28 @@ namespace StadhawkLaundry.API.Controllers
         [HttpPost("addcart")]
         public async Task<IActionResult> AddCart([FromForm]AddCartRequestViewModel model)
         {
-            bool isEdit = false;
             int? userId = 0;
-            bool cartremovelData = false;
             var userStrId = this.User.FindFirstValue(ClaimTypes.Name);
             if (!string.IsNullOrWhiteSpace(userStrId))
                 userId = Convert.ToInt32(userStrId);
 
-            if (model.CartId > 0)
-                isEdit = true;
-
-            if (model.IsCartRemoved)
-            {
-                cartremovelData = (await _unit.ICart.AllCalrtDeleteByUser(userId.Value)).UserObject;
-            }
-
             var response = new SingleResponse<CartCountResponseViewModel>();
-            var cartDatCheck = (await _unit.ICart.IsCartFromDiffrentService(model.StoreItemId, userId.Value)).UserObject;
-            if (!cartremovelData)
-            {
-                if (cartDatCheck.isDifferent.HasValue)
-                {
-                    if (cartDatCheck.isDifferent != model.IsKg)
-                    {
-                        response.Data = null;
-                        response.Message = "Cart from different service";
-                        response.Status = true;
-                        response.ErrorTypeCode = (int)ErrorMessage.CartRemoverd;
-                        return response.ToHttpResponse();
-                    }
-                }
-            }
             try
             {
-                var data = AutoMapper.Mapper.Map<TblCart>(model);
-                if (!isEdit)
+                var result = (await _unit.ICart.AddToCartAsync(model, userId: userId.Value)).UserObject;
+                if (result)
                 {
-                    data.CreateDate = DateTime.Now;
-                    data.ModifyDate = DateTime.Now;
-                    data.IsOrderPlaced = false;
-                    data.IsDeleted = false;
-                    data.UserId = userId;
-                    data.Quantity = 1;
-                    var result = _unit.ICart.Add(data);
-                }
-                else
-                {
-                    data = (await _unit.ICart.GetByID(model.CartId)).UserObject;
-                    data.ModifyDate = DateTime.Now;
-                    data.Quantity = data.Quantity + 1;
-
-                    _unit.ICart.Update(data);
-                }
-                var isDataSaved = await _unit.Complete();
-                if (isDataSaved.ResultType == StadhawkCoreApi.ApiResultType.Success)
-                {
-                    var dataResult = (await _unit.ICart.CartCountAndPrice(userId: userId.Value, _appSettings.DataBaseCon));
-                    response.Data = dataResult.HasSuccess ? dataResult.UserObject : null;
-                    response.Message = "Cart added";
+                    response.Data = null;
+                    response.Message = "Cart from different service";
                     response.Status = true;
+                    response.ErrorTypeCode = (int)ErrorMessage.CartRemoverd;
                     return response.ToHttpResponse();
                 }
                 else
                 {
-                    response.Data = null;
-                    response.Message = "no cart added";
+                    var dataResult = (await _unit.ICart.CartCountAndPrice(userId: userId.Value, _appSettings.DataBaseCon));
+                    response.Data = dataResult.HasSuccess ? dataResult.UserObject : null;
+                    response.Message = "Cart added";
                     response.Status = true;
                     return response.ToHttpResponse();
                 }
@@ -114,7 +71,6 @@ namespace StadhawkLaundry.API.Controllers
         public async Task<IActionResult> DeleteCart([FromForm] AddCartRequestViewModel model)
         {
             int? userId = 0;
-            model.IsCartRemoved = false;
             var userStrId = this.User.FindFirstValue(ClaimTypes.Name);
             if (!string.IsNullOrWhiteSpace(userStrId))
                 userId = Convert.ToInt32(userStrId);
@@ -122,18 +78,8 @@ namespace StadhawkLaundry.API.Controllers
             var response = new SingleResponse<CartCountResponseViewModel>();
             try
             {
-                var data = AutoMapper.Mapper.Map<TblCart>(model);
-                data = (await _unit.ICart.GetByID(model.CartId)).UserObject;
-                data.ModifyDate = DateTime.Now;
-                data.Quantity = data.Quantity - 1;
-                if (data.Quantity == 0)
-                {
-                    data.IsDeleted = true;
-                }
-                _unit.ICart.Update(data);
-
-                var isDataSaved = await _unit.Complete();
-                if (isDataSaved.ResultType == StadhawkCoreApi.ApiResultType.Success)
+               var isDataRemoved = await _unit.ICart.CartRemove(model.CartId.Value);
+                if (isDataRemoved.UserObject)
                 {
                     var dataResult = (await _unit.ICart.CartCountAndPrice(userId: userId.Value, _appSettings.DataBaseCon));
                     response.Data = dataResult.HasSuccess ? dataResult.UserObject : null;
@@ -203,7 +149,7 @@ namespace StadhawkLaundry.API.Controllers
             }
             return response.ToHttpResponse();
         }
-        
+
         [HttpGet("getcartcount")]
         public async Task<IActionResult> Getcartcount()
         {

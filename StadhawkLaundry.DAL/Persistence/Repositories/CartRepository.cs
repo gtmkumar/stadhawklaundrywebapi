@@ -32,7 +32,8 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                 SqlParameter IsCartRemoved = new SqlParameter("@IsCartRemoved", System.Data.SqlDbType.Bit) { Value = customerAddToCart.IsCartRemoved };
                 SqlParameter AddressId = new SqlParameter("@AddressId", System.Data.SqlDbType.Int) { Value = customerAddToCart.AddressId };
                 SqlParameter UserId = new SqlParameter("@UserId", System.Data.SqlDbType.Int) { Value = userId };
-                var result = _context.ExecuteStoreProcedure("dbo.usp_AddCart", CartId, StoreItemId, IsCartRemoved, AddressId, UserId);
+                SqlParameter Quantity = new SqlParameter("@Quantity", System.Data.SqlDbType.Int) { Value = customerAddToCart.Quantity ?? (object)DBNull.Value };
+                var result = _context.ExecuteStoreProcedure("dbo.usp_AddCart", CartId, StoreItemId, Quantity, IsCartRemoved, AddressId, UserId);
                 if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
                 {
                     foreach (System.Data.DataRow row in result.Tables[0].Rows)

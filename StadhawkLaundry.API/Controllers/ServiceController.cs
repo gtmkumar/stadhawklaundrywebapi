@@ -33,9 +33,6 @@ namespace StadhawkLaundry.API.Controllers
             _imageHandler = imageHandler;
             _unit = unit;
         }
-
-
-
         [HttpGet("getservicemaster")]
         public async Task<IActionResult> Get()
         {

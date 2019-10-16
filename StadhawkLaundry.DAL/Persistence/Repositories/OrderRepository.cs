@@ -454,5 +454,25 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                 return new ApiResult<IEnumerable<OrderDetailResponseViewModel>>(new ApiResultCode(ApiResultType.ExceptionDuringOpration, 3, "Please contact system administrator"));
             }
         }
+
+        public async Task<ApiResult<bool>> UpdateOrderStatus(OrderStatusUpdateRequestModel model, int userId) 
+        {
+            bool isUpdate = false;
+            try
+            {
+                SqlParameter UserId = new SqlParameter("@UserId", System.Data.SqlDbType.Int) { Value = userId };
+                SqlParameter OrderId = new SqlParameter("@OrderId", System.Data.SqlDbType.Int) { Value = model.OrderId};
+                SqlParameter OrderStatusId = new SqlParameter("@OrderStatusId", System.Data.SqlDbType.Int) { Value = model.OrderStatusId };
+
+                var result = _context.ExecuteStoreProcedure("dbo.[usp_UpdateOrderStatus]", UserId, OrderId, OrderStatusId);
+                
+                return new ApiResult<bool>(new ApiResultCode(ApiResultType.Success), isUpdate);
+            }
+            catch (Exception ex)
+            {
+                ErrorTrace.Logger(LogArea.ApplicationTier, ex);
+                return new ApiResult<bool>(new ApiResultCode(ApiResultType.ExceptionDuringOpration), isUpdate);
+            }
+        }
     }
 }

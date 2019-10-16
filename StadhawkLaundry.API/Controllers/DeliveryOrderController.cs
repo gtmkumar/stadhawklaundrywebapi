@@ -7,6 +7,7 @@ using Stadhawk.Laundry.Utility.Enums;
 using Stadhawk.Laundry.Utility.ResponseUtility;
 using StadhawkLaundry.API.Models;
 using StadhawkLaundry.BAL.Core;
+using StadhawkLaundry.ViewModel.RequestModel;
 using StadhawkLaundry.ViewModel.ResponseModel;
 using Utility;
 
@@ -33,10 +34,10 @@ namespace StadhawkLaundry.API.Controllers
                 userId = Convert.ToInt32("55");
 
             if (orderType == (int)EnumType.OrderTypeEnum.UPCOMING)
-                strStatus = "4";
+                strStatus = "9,11,12,13";
 
             if (orderType == (int)EnumType.OrderTypeEnum.HISTORY)
-                strStatus = "2,3,8,3";
+                strStatus = "14,8";
 
             var ownResponse = new ListResponse<OrderDetailResponseViewModel>();
             var dataResult = await _unit.IOrder.GetOrderByDeliveryBoyId(userId.Value, strStatus);
@@ -83,5 +84,33 @@ namespace StadhawkLaundry.API.Controllers
                 return ownResponse.ToHttpResponse();
             }
         }
+
+        [HttpGet("updateorderstatus")]
+        public async Task<IActionResult> PostUpdateOrderSatus([FromForm]OrderStatusUpdateRequestModel model)
+        {
+            int? userId = 0;
+            string strStatus = string.Empty;
+            var userStrId = this.User.FindFirstValue(ClaimTypes.Name);
+            if (!string.IsNullOrWhiteSpace(userStrId))
+                userId = Convert.ToInt32(userStrId);
+
+
+            var ownResponse = new Response();
+            var dataResult = await _unit.IOrder.UpdateOrderStatus(model, userId.Value);
+            if (dataResult.HasSuccess)
+            {
+                ownResponse.Message = "Success";
+                ownResponse.Status = true;
+                return ownResponse.ToHttpResponse();
+            }
+            else
+            {
+                ownResponse.Message = "No data found";
+                ownResponse.Status = false;
+                return ownResponse.ToHttpResponse();
+            }
+        }
+
+
     }
 }

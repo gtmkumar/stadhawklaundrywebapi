@@ -197,7 +197,7 @@ namespace StadhawkLaundry.API.Controllers
             }
             else
             {
-                ownResponse.Message = "No data found";
+                ownResponse.Message = "Service is not availabe for selected address.";
                 ownResponse.Status = true;
                 ownResponse.Data = dataResult.UserObject;
                 return ownResponse.ToHttpResponse();

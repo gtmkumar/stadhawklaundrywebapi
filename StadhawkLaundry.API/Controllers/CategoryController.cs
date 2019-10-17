@@ -185,9 +185,9 @@ namespace StadhawkLaundry.API.Controllers
             }
             else
             {
-                ownResponse.Message = "No data found";
-                ownResponse.Status = true;
-                ownResponse.Data = dataResult.UserObject;
+                ownResponse.Message = "Service is not availabe for selected address.";
+                ownResponse.Status = false;
+                ownResponse.Data = null;
                 return ownResponse.ToHttpResponse();
             }
         }
@@ -212,9 +212,9 @@ namespace StadhawkLaundry.API.Controllers
             }
             else
             {
-                ownResponse.Message = "No data found";
-                ownResponse.Status = true;
-                ownResponse.Data = dataResult.UserObject;
+                ownResponse.Message = "Service is not availabe for selected address.";
+                ownResponse.Status = false;
+                ownResponse.Data = null;
                 return ownResponse.ToHttpResponse();
             }
         }

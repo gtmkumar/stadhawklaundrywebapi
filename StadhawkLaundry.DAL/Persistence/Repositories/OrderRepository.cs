@@ -228,7 +228,7 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                                      isRepeatOrder = false,
                                      ItemCount = (dr["ItemCount"] != DBNull.Value) ? Convert.ToInt32(dr["ItemCount"]) : 0,
                                      OrderStatusId = (dr["OrderStatusId"] != DBNull.Value) ? Convert.ToInt32(dr["OrderStatusId"]) : 0,
-                                     OrderStatus = (dr["PickUpBoyStatus"] != DBNull.Value) ? Convert.ToString(dr["PickUpBoyStatus"]) : string.Empty
+                                     OrderStatus = (dr["CustomerStatus"] != DBNull.Value) ? Convert.ToString(dr["CustomerStatus"]) : string.Empty
                                  }).ToList();
                 }
                 return listitems.Count < 0

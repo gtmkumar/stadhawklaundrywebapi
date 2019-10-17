@@ -412,5 +412,80 @@ namespace StadhawkLaundry.API.Controllers
             }
             return response.ToHttpResponse();
         }
+
+        [AllowAnonymous]
+        [HttpPost("weblogin")]
+        public async Task<IActionResult> Post([FromForm] WebLoginRequestViewModel value)
+        {
+            var response = new SingleResponse<LoginResponseViewModel>();
+            try
+            {
+                if (ModelState.IsValid)
+                {
+                    var loginResponseData = new LoginResponseViewModel();
+                    dynamic Id = 0;
+                    var loginstatus = (await _unit.IUser.AuthenticateUsers(value.UserName, EncryptionLibrary.EncryptText(value.Password))).UserObject;
+                    if (loginstatus == true)
+                    {
+                        Id = (await _unit.IUser.GetSelectedAsync(t => t.Email.Equals(value.UserName), m => m.Id)).UserObject;
+                        if (Id == 0 || Id == null)
+                        {
+                            Id = (await _unit.IUser.GetSelectedAsync(t => t.PhoneNumber.Equals(value.UserName), m => m.Id)).UserObject;
+                        }
+                    }
+                    if (loginstatus)
+                    {
+                        var userdetails = await _userManager.FindByIdAsync(Convert.ToString(Id));
+
+                        if (userdetails != null)
+                        {
+
+                            var tokenHandler = new JwtSecurityTokenHandler();
+                            var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
+                            var tokenDescriptor = new SecurityTokenDescriptor
+                            {
+                                Subject = new ClaimsIdentity(new Claim[]
+                                {
+                                    new Claim(ClaimTypes.Name, userdetails.Id.ToString()),
+                                     new Claim(ClaimTypes.MobilePhone, userdetails.PhoneNumber.ToString()),
+                                     new Claim(ClaimTypes.Email, userdetails.Email.ToString())
+                                }),
+                                Expires = DateTime.UtcNow.AddDays(1),
+                                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
+                                    SecurityAlgorithms.HmacSha256Signature)
+                            };
+                            var token = tokenHandler.CreateToken(tokenDescriptor);
+                            loginResponseData.Token = tokenHandler.WriteToken(token);
+                            loginResponseData.EmailId = userdetails.Email;
+                            loginResponseData.UserId = userdetails.Id;
+                            response.Data = loginResponseData;
+                            response.Status = true;
+                            return response.ToHttpResponse();
+
+                        }
+                        else
+                        {
+                            response.Data = null;
+                            response.Message = "Not valid user";
+                            response.Status = true;
+                            return response.ToHttpResponse();
+                        }
+                    }
+                    else
+                    {
+                        response.Data = null;
+                        response.Message = "Not valid user";
+                        response.Status = true;
+                        return response.ToHttpResponse();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorTrace.Logger(LogArea.ApplicationTier, ex);
+                return response.ToHttpResponse();
+            }
+            return response.ToHttpResponse();
+        }
     }
 }

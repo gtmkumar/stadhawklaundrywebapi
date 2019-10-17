@@ -25,8 +25,8 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
 
         public async Task<ApiResult<bool>> AuthenticateUsers(string username, string password)
         {
-            //var result = await _context.Users.AnyAsync(t => t.UserName == username && t.Password == password);
-            return null; //new ApiResult<bool>(new ApiResultCode(ApiResultType.Success), result);
+            var result = await _context.AspNetUsers.AnyAsync(t => (t.UserName == username || t.PhoneNumber == username) && t.PasswordHash == password && t.PhoneNumberConfirmed == true);
+            return new ApiResult<bool>(new ApiResultCode(ApiResultType.Success), result);
         }
 
         public Task<ApiResult<LoginResponseViewModel>> GetDataFromPhoneNo(string phoneNo)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Stadhawk.Laundry.Utility.Enums;
@@ -13,6 +14,7 @@ using Utility;
 
 namespace StadhawkLaundry.API.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class DeliveryOrderController : ControllerBase
@@ -31,10 +33,10 @@ namespace StadhawkLaundry.API.Controllers
             string strStatus = string.Empty;
             var userStrId = this.User.FindFirstValue(ClaimTypes.Name);
             if (!string.IsNullOrWhiteSpace(userStrId))
-                userId = Convert.ToInt32("55");
+                userId = Convert.ToInt32(userStrId);
 
             if (orderType == (int)EnumType.OrderTypeEnum.UPCOMING)
-                strStatus = "9,11,12,13";
+                strStatus = "5,11,12,13";
 
             if (orderType == (int)EnumType.OrderTypeEnum.HISTORY)
                 strStatus = "14,8";

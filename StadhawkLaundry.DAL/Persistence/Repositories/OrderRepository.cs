@@ -227,7 +227,8 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                                      IsKG = (dr["IsKG"] != DBNull.Value) ? Convert.ToBoolean(dr["IsKG"]) : false,
                                      isRepeatOrder = false,
                                      ItemCount = (dr["ItemCount"] != DBNull.Value) ? Convert.ToInt32(dr["ItemCount"]) : 0,
-                                     OrderStatus = (dr["OrderStatus"] != DBNull.Value) ? Convert.ToInt32(dr["OrderStatus"]) : 0
+                                     OrderStatusId = (dr["OrderStatusId"] != DBNull.Value) ? Convert.ToInt32(dr["OrderStatusId"]) : 0,
+                                     OrderStatus = (dr["PickUpBoyStatus"] != DBNull.Value) ? Convert.ToString(dr["PickUpBoyStatus"]) : string.Empty
                                  }).ToList();
                 }
                 return listitems.Count < 0
@@ -246,7 +247,6 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
             OrderServiceResponseViewModel service = new OrderServiceResponseViewModel();
             List<OrderCategoryResponceViewModel> categores = new List<OrderCategoryResponceViewModel>();
             OrderCategoryResponceViewModel category = new OrderCategoryResponceViewModel();
-            OrderItemDetailResponseViewModel item = null;
 
             try
             {
@@ -262,7 +262,8 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                             OrderId = (dr["OrderId"] != DBNull.Value) ? Convert.ToInt32(dr["OrderId"]) : 0,
                             OrderRef = (dr["InvoiceNo"] != DBNull.Value) ? Convert.ToString(dr["InvoiceNo"]) : string.Empty,
                             OrderDate = (dr["OrderDate"] != DBNull.Value) ? Convert.ToString(dr["OrderDate"]) : string.Empty,
-                            OrderStatus = (dr["OrderStatus"] != DBNull.Value) ? Convert.ToInt32(dr["OrderStatus"]) : 0,
+                            OrderStatusId = (dr["OrderStatusId"] != DBNull.Value) ? Convert.ToInt32(dr["OrderStatusId"]) : 0,
+                            OrderStatus = (dr["OrderStatus"] != DBNull.Value) ? Convert.ToString(dr["OrderStatus"]) : string.Empty,
                             TotalPrice = (dr["TotalPrice"] != DBNull.Value) ? Convert.ToDecimal(dr["TotalPrice"]) : 0,
                             TotalKG = (dr["TotalKG"] != DBNull.Value) ? Convert.ToDecimal(dr["TotalKG"]) : 0,
                             ItemCount = (dr["ItemCount"] != DBNull.Value) ? Convert.ToInt32(dr["ItemCount"]) : 0,
@@ -426,7 +427,7 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
             {
                 SqlParameter Userid = new SqlParameter("@Userid", System.Data.SqlDbType.Int) { Value = userId };
                 SqlParameter OrderType = new SqlParameter("@OrderType", System.Data.SqlDbType.VarChar) { Value = orderTypeFilter };
-                var ietms = _context.ExecuteStoreProcedure("[usp_getDeliveryBoyOrderDetailList]", Userid, OrderType);
+                var ietms = _context.ExecuteStoreProcedure("dbo.[usp_getDeliveryBoyOrderDetailList]", Userid, OrderType);
 
                 if (ietms.Tables[0].Rows.Count > 0)
                 {
@@ -441,7 +442,9 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                                      IsKG = (dr["IsKG"] != DBNull.Value) ? Convert.ToBoolean(dr["IsKG"]) : false,
                                      isRepeatOrder = false,
                                      ItemCount = (dr["ItemCount"] != DBNull.Value) ? Convert.ToInt32(dr["ItemCount"]) : 0,
-                                     OrderStatus = (dr["OrderStatus"] != DBNull.Value) ? Convert.ToInt32(dr["OrderStatus"]) : 0
+                                     OrderStatusId = (dr["OrderStatusId"] != DBNull.Value) ? Convert.ToInt32(dr["OrderStatusId"]) : 0,
+                                     OrderStatus = (dr["PickUpBoyStatus"] != DBNull.Value) ? Convert.ToString(dr["PickUpBoyStatus"]) : string.Empty
+
                                  }).ToList();
                 }
                 return listitems.Count < 0
@@ -454,7 +457,6 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                 return new ApiResult<IEnumerable<OrderDetailResponseViewModel>>(new ApiResultCode(ApiResultType.ExceptionDuringOpration, 3, "Please contact system administrator"));
             }
         }
-
         public async Task<ApiResult<bool>> UpdateOrderStatus(OrderStatusUpdateRequestModel model, int userId) 
         {
             bool isUpdate = false;

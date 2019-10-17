@@ -11,9 +11,10 @@ namespace StadhawkLaundry.ViewModel.ResponseModel
         public string OrderDate { get; set; }
         public int TotalKg { get; set; }
         public decimal TotalPrice { get; set; }
-        public int OrderStatus { get; set; }
+        public int OrderStatusId { get; set; }
         public int ItemCount { get; set; }
         public bool IsKG { get; set; }
         public bool isRepeatOrder { get; set; }
+        public string OrderStatus { get; set; }
     }
 }

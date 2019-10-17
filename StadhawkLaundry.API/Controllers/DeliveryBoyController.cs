@@ -51,14 +51,14 @@ namespace StadhawkLaundry.API.Controllers
                 isEdit = userId > 0 ? true : false;
                 try
                 {
-                    if (!(await _unit.IUser.Exists(t => t.PhoneNumber.Equals(users.ContactNo))).UserObject)
+                    if (!(await _unit.IUser.Exists(t => t.PhoneNumber.Equals(users.ContactNo) && t.UserType == 2)).UserObject)
                     {
                         ModelState.AddModelError("PPhone", "Your Phone no. is not register with us");
                         response.Message = "Your Phone no. is not register with us";
                         response.Status = false;
                         response.ErrorTypeCode = (int)ErrorMessage.PhoneOrEmailNotRegistor;
                     }
-                    if ((await _unit.IUser.Exists(t => t.Email.Equals(users.EmailId))).UserObject)
+                    if ((await _unit.IUser.Exists(t => t.Email.Equals(users.EmailId) && t.UserType == 2)).UserObject)
                     {
                         response.Message = "Email already in use.";
                         response.Status = false;

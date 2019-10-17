@@ -13,7 +13,8 @@ namespace StadhawkLaundry.ViewModel.ResponseModel
         public int OrderId { get; set; }
         public string OrderRef { get; set; }
         public string OrderDate { get; set; }
-        public int OrderStatus { get; set; }
+        public int OrderStatusId { get; set; }
+        public string OrderStatus { get; set; }
         public decimal TotalKG { get; set; }
         public int ItemCount { get; set; }
         public bool IsKg { get; set; }

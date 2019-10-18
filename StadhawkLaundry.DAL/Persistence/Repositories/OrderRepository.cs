@@ -520,7 +520,8 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                             DeliveryLat = (dr["DeliveryLat"] != DBNull.Value) ? Convert.ToDecimal(dr["DeliveryLat"]) : 0,
                             DeliveryLong = (dr["DeliveryLong"] != DBNull.Value) ? Convert.ToDecimal(dr["DeliveryLong"]) : 0,
                             IsCOD = (dr["IsCOD"] != DBNull.Value) ? Convert.ToBoolean(dr["IsCOD"]) : false,
-                            DeliveryAddress = (dr["DeliveryAddress"] != DBNull.Value) ? Convert.ToString(dr["DeliveryAddress"]) : string.Empty
+                            DeliveryAddress = (dr["DeliveryAddress"] != DBNull.Value) ? Convert.ToString(dr["DeliveryAddress"]) : string.Empty,
+                            PickUpItemCount = (dr["PickUpItemCount"] != DBNull.Value) ? Convert.ToInt32(dr["PickUpItemCount"]) : 0,
                         };
                     }
                     foreach (System.Data.DataRow row in result.Tables[1].Rows)
@@ -553,6 +554,7 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                                             {
                                                 category.OrderItemList.Add(new OrderItemDetailResponseViewModel
                                                 {
+                                                    OrderItemId = (itmrow["OrderItemId"] != DBNull.Value) ? Convert.ToInt32(itmrow["OrderItemId"]) : 0,
                                                     ItemId = (itmrow["ItemId"] != DBNull.Value) ? Convert.ToInt32(itmrow["ItemId"]) : 0,
                                                     ItemName = (itmrow["ItemName"] != DBNull.Value) ? Convert.ToString(itmrow["ItemName"]) : string.Empty,
                                                     Quantity = (itmrow["Quantity"] != DBNull.Value) ? Convert.ToInt32(itmrow["Quantity"]) : 0,

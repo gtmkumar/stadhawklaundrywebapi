@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -11,6 +12,7 @@ using StadhawkLaundry.BAL.Core;
 using StadhawkLaundry.ViewModel.RequestModel;
 using StadhawkLaundry.ViewModel.ResponseModel;
 using Utility;
+using System.Linq;
 
 namespace StadhawkLaundry.API.Controllers
 {
@@ -113,6 +115,41 @@ namespace StadhawkLaundry.API.Controllers
             }
         }
 
+        [HttpPost("updateorderpickeditem")]
+        public async Task<IActionResult> PostUpdatePickedItemSatus([FromForm]string orderidsforstaus)
+        {
+            int? userId = 0;
+            string strStatus = string.Empty;
+            var userStrId = this.User.FindFirstValue(ClaimTypes.Name);
+            if (!string.IsNullOrWhiteSpace(userStrId))
+                userId = Convert.ToInt32(userStrId);
+
+            var ownResponse = new Response();
+
+            string[] orderItemIds = orderidsforstaus.Split(',');
+
+            Int64[] myInts = orderItemIds.Select(Int64.Parse).ToArray();
+
+            var dataResult = (await _unit.IOrderItem.Get(t => myInts.Contains(t.Id))).UserObject;
+            dataResult.Update(t => t.IsOrderPicked = true);
+            foreach (var item in dataResult)
+                _unit.IOrderItem.Update(item);
+            
+            var result = await _unit.Complete();
+
+            if (result.ResultType == StadhawkCoreApi.ApiResultType.Success)
+            {
+                ownResponse.Message = "Success";
+                ownResponse.Status = true;
+                return ownResponse.ToHttpResponse();
+            }
+            else
+            {
+                ownResponse.Message = "No data found";
+                ownResponse.Status = false;
+                return ownResponse.ToHttpResponse();
+            }
+        }
 
     }
 }

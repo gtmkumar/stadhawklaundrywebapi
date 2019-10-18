@@ -14,6 +14,7 @@ namespace StadhawkLaundry.DataModel.Models
         public int? CreatedBy { get; set; }
         public DateTime? ModifiedDate { get; set; }
         public int? ModifiedBy { get; set; }
+        public bool? IsOrderPicked { get; set; }
 
         public virtual TblOrder Order { get; set; }
         public virtual TblStoreItems StoreItem { get; set; }

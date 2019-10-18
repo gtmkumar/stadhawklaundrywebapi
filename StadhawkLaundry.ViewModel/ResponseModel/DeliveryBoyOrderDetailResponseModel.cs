@@ -32,6 +32,7 @@ namespace StadhawkLaundry.ViewModel.ResponseModel
         public string DeliveryContact { get; set; }
         public decimal DeliveryLat { get; set; }
         public decimal DeliveryLong { get; set; }
+        public int PickUpItemCount { get; set; }
         public List<OrderServiceResponseViewModel> Services { get; set; }
     }
 }

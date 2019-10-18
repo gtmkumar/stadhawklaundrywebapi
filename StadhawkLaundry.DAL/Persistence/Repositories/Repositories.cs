@@ -104,8 +104,8 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
         {
             try
             {
-                Context.Set<TEntity>().AddRange(entities);
-                return new ApiResultCode(ApiResultType.Success, 1, "Deleted successfully");
+                Context.Set<TEntity>().AttachRange(entities);
+                return new ApiResultCode(ApiResultType.Success, 1, "Items updated successfully");
             }
             catch (Exception ex)
             {

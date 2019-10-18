@@ -466,6 +466,8 @@ namespace StadhawkLaundry.DataModel.Models
 
                 entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
 
+                entity.Property(e => e.IsOrderPicked).HasColumnName("IsOrderPicked");
+
                 entity.HasOne(d => d.Order)
                     .WithMany(p => p.TblOrderItems)
                     .HasForeignKey(d => d.OrderId)

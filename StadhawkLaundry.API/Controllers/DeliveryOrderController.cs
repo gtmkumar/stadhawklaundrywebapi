@@ -69,8 +69,8 @@ namespace StadhawkLaundry.API.Controllers
                 userId = Convert.ToInt32(userStrId);
 
 
-            var ownResponse = new SingleResponse<OrderDetailResponseModel>();
-            var dataResult = await _unit.IOrder.GetOrderByOrderId(userId.Value, orderId);
+            var ownResponse = new SingleResponse<DeliveryBoyOrderDetailResponseModel>();
+            var dataResult = await _unit.IOrder.GetDeliveryBoyOrderByOrderId(userId.Value, orderId);
             if (dataResult.HasSuccess)
             {
                 ownResponse.Message = "Success";

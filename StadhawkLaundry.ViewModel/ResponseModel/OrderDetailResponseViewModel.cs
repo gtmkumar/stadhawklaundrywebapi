@@ -16,5 +16,10 @@ namespace StadhawkLaundry.ViewModel.ResponseModel
         public bool IsKG { get; set; }
         public bool isRepeatOrder { get; set; }
         public string OrderStatus { get; set; }
+        public string PickName { get; set; }
+        public string PickUpAddress { get; set; }
+        public string DeliveryName { get; set; }
+        public string DeliveryAddress { get; set; }
+        public bool IsCod { get; set; }
     }
 }

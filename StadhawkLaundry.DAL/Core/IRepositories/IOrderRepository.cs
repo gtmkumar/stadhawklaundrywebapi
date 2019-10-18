@@ -23,5 +23,6 @@ namespace StadhawkLaundry.BAL.Core.IRepositories
         ApiResult<string> SaveCustomerPaymentInfo(PaymetIfoRequestViewModel model);
         Task<ApiResult<IEnumerable<OrderDetailResponseViewModel>>> GetOrderByDeliveryBoyId(int userId, string orderTypeFilter);
         Task<ApiResult<bool>> UpdateOrderStatus(OrderStatusUpdateRequestModel orderStatus,int userId);
+        Task<ApiResult<DeliveryBoyOrderDetailResponseModel>> GetDeliveryBoyOrderByOrderId(int userId, int orderId);
     }
 }

@@ -36,10 +36,10 @@ namespace StadhawkLaundry.API.Controllers
                 userId = Convert.ToInt32(userStrId);
 
             if (orderType == (int)EnumType.OrderTypeEnum.UPCOMING)
-                strStatus = "5,11,12,13";
+                strStatus = "5,6,7,8,9,11,12,13,14,15";
 
             if (orderType == (int)EnumType.OrderTypeEnum.HISTORY)
-                strStatus = "14,8";
+                strStatus = ",10,16";
 
             var ownResponse = new ListResponse<OrderDetailResponseViewModel>();
             var dataResult = await _unit.IOrder.GetOrderByDeliveryBoyId(userId.Value, strStatus);
@@ -87,7 +87,7 @@ namespace StadhawkLaundry.API.Controllers
             }
         }
 
-        [HttpGet("updateorderstatus")]
+        [HttpPost("updateorderstatus")]
         public async Task<IActionResult> PostUpdateOrderSatus([FromForm]OrderStatusUpdateRequestModel model)
         {
             int? userId = 0;

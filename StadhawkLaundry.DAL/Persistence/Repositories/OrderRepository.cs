@@ -560,7 +560,7 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                                                     Quantity = (itmrow["Quantity"] != DBNull.Value) ? Convert.ToInt32(itmrow["Quantity"]) : 0,
                                                     TotalPrice = (itmrow["TotalPrice"] != DBNull.Value) ? Convert.ToDecimal(itmrow["TotalPrice"]) : 0,
                                                     UnitPrice = (itmrow["UnitPrice"] != DBNull.Value) ? Convert.ToDecimal(itmrow["UnitPrice"]) : 0,
-                                                    isChecked =Convert.ToBoolean(itmrow["IsOrderPicked"])
+                                                    IsChecked = Convert.ToBoolean(itmrow["IsOrderPicked"])
                                                 });
                                             }
                                         }

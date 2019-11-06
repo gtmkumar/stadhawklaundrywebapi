@@ -98,5 +98,36 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                 return new ApiResult<IEnumerable<ServiceMasterResponseViewModel>>(new ApiResultCode(ApiResultType.ExceptionDuringOpration, 3, "Please contact system administrator"));
             }
         }
+
+        public async Task<ApiResult<IEnumerable<ServiceByKgResponseViewModel>>> GetServiceByKg(int storeId)
+        {
+            List<ServiceByKgResponseViewModel> listitems = new List<ServiceByKgResponseViewModel>();
+            try
+            {
+                SqlParameter StoreId = new SqlParameter("@StoreId", System.Data.SqlDbType.Int) { Value = storeId };
+                var ietms = _context.ExecuteStoreProcedure("[usp_getservicebykg]", StoreId);
+
+                if (ietms.Tables[0].Rows.Count > 0)
+                {
+                    listitems = (from DataRow dr in ietms.Tables[0].Rows
+                                 select new ServiceByKgResponseViewModel()
+                                 {
+                                     StoreId = (dr["StoreId"] != DBNull.Value) ? Convert.ToInt32(dr["StoreId"]) : 0,
+                                     ServiceId = (dr["ServiceId"] != DBNull.Value) ? Convert.ToInt32(dr["ServiceId"]) : 0,
+                                     ServiceName = (dr["ServiceName"] != DBNull.Value) ? Convert.ToString(dr["ServiceName"]) : string.Empty,
+                                     pricePerKG = (dr["pricePerKG"] != DBNull.Value) ? Convert.ToDecimal(dr["pricePerKG"]) : 0,
+                                     ServiceImageUrl = (dr["ServiceImageUrl"] != DBNull.Value) ? Convert.ToString(dr["ServiceImageUrl"]) : string.Empty
+                                 }).ToList();
+                }
+                return listitems.Count < 0
+                            ? new ApiResult<IEnumerable<ServiceByKgResponseViewModel>>(new ApiResultCode(ApiResultType.Error, 1, "No data in given request"))
+                            : new ApiResult<IEnumerable<ServiceByKgResponseViewModel>>(new ApiResultCode(ApiResultType.Success), listitems);
+            }
+            catch (Exception ex)
+            {
+                ErrorTrace.Logger(LogArea.BusinessTier, ex);
+                return new ApiResult<IEnumerable<ServiceByKgResponseViewModel>>(new ApiResultCode(ApiResultType.ExceptionDuringOpration, 3, "Please contact system administrator"));
+            }
+        }
     }
 }

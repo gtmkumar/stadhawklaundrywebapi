@@ -79,5 +79,27 @@ namespace StadhawkLaundry.API.Controllers
             return response.ToHttpResponse();
         }
 
+        [HttpGet("getservicebykg")]
+        public async Task<IActionResult> GetServiceByKG([FromQuery]int storeId)
+        {
+            int customerId = 0;
+            string userId = User.FindFirstValue(ClaimTypes.Name);
+            if (!string.IsNullOrWhiteSpace(userId))
+                customerId = Convert.ToInt32(userId);
+
+            var response = new ListResponse<ServiceByKgResponseViewModel>();
+            var data = await _unit.IService.GetServiceByKg(storeId);
+            if (data.HasSuccess)
+            {
+                response.Data = data.UserObject;
+                response.Status = true;
+            }
+            else
+            {
+                response.Data = null;
+                response.Status = false;
+            }
+            return response.ToHttpResponse();
+        }
     }
 }

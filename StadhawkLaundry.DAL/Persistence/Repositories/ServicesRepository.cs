@@ -117,6 +117,7 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                                      ServiceId = (dr["ServiceId"] != DBNull.Value) ? Convert.ToInt32(dr["ServiceId"]) : 0,
                                      ServiceName = (dr["ServiceName"] != DBNull.Value) ? Convert.ToString(dr["ServiceName"]) : string.Empty,
                                      pricePerKG = (dr["pricePerKG"] != DBNull.Value) ? Convert.ToDecimal(dr["pricePerKG"]) : 0,
+                                     QuantityInKG = (dr["QuantityInKG"] != DBNull.Value) ? Convert.ToDecimal(dr["QuantityInKG"]) : 0,
                                      ServiceImageUrl = (dr["ServiceImageUrl"] != DBNull.Value) ? Convert.ToString(dr["ServiceImageUrl"]) : string.Empty
                                  }).FirstOrDefault();
                 }

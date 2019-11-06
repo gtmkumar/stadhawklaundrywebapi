@@ -10,6 +10,7 @@ namespace StadhawkLaundry.ViewModel.ResponseModel
         public int ServiceId { get; set; }
         public string ServiceName { get; set; }
         public decimal pricePerKG { get; set; }
+        public decimal QuantityInKG { get; set; }
         public string ServiceImageUrl { get; set; }
     }
 }

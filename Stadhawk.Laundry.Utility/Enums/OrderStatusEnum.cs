@@ -8,8 +8,8 @@ namespace Stadhawk.Laundry.Utility.Enums
     {
         public enum PaymentGateWayType
         {
-            RAZORPAY,
-            PAYTM
+            RAZORPAY=2,
+            PAYTM=3
         }
         public enum OrderTypeEnum
         {

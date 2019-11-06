@@ -80,15 +80,15 @@ namespace StadhawkLaundry.API.Controllers
         }
 
         [HttpGet("getservicebykg")]
-        public async Task<IActionResult> GetServiceByKG([FromQuery]int storeId)
+        public async Task<IActionResult> GetServiceByKG([FromQuery]int storeId,int ServiceId)
         {
             int customerId = 0;
             string userId = User.FindFirstValue(ClaimTypes.Name);
             if (!string.IsNullOrWhiteSpace(userId))
                 customerId = Convert.ToInt32(userId);
 
-            var response = new ListResponse<ServiceByKgResponseViewModel>();
-            var data = await _unit.IService.GetServiceByKg(storeId);
+            var response = new SingleResponse<ServiceByKgResponseViewModel>();
+            var data = await _unit.IService.GetServiceByKg(storeId, ServiceId);
             if (data.HasSuccess)
             {
                 response.Data = data.UserObject;

@@ -158,7 +158,7 @@ namespace StadhawkLaundry.API.Controllers
                         * this should be numeric with optionally having two decimal points*/
                         paytmParams.Add("TXN_AMOUNT", data.Price.ToString());
                         /* on completion of transaction, we will send you the response on this URL */
-                        paytmParams.Add("CALLBACK_URL", _appSettings.RazorPayReturnUrl);
+                        paytmParams.Add("CALLBACK_URL", _appSettings.ReturnUrl);
 
                         /* Generate checksum for parameters we have  */
                         string checksum = paytm.CheckSum.generateCheckSum(_appSettings.PAYTM_MERCHANT_KEY, paytmParams);

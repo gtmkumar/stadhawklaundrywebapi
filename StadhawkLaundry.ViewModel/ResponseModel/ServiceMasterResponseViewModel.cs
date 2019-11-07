@@ -10,5 +10,7 @@ namespace StadhawkLaundry.ViewModel.ResponseModel
         public string ServiceName { get; set; }
         public string ServiceUrl { get; set; }
         public int ServiceTypeId { get; set; }
+        public int StoreId { get; set; }
+        public bool IsKG { get; set; }
     }
 }

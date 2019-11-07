@@ -50,7 +50,9 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                                         ServiceId = (row1["ServiceId"] != DBNull.Value) ? Convert.ToInt32(row1["ServiceId"]) : 0,
                                         ServiceName = (row1["ServiceName"] != DBNull.Value) ? Convert.ToString(row1["ServiceName"]) : string.Empty,
                                         ServiceTypeId = (row1["ServiceTypeId"] != DBNull.Value) ? Convert.ToInt32(row1["ServiceTypeId"]) : 0,
-                                        ServiceUrl = (row1["ServiceUrl"] != DBNull.Value) ? Convert.ToString(row1["ServiceUrl"]) : string.Empty
+                                        ServiceUrl = (row1["ServiceUrl"] != DBNull.Value) ? Convert.ToString(row1["ServiceUrl"]) : string.Empty,
+                                        StoreId = (row1["StoreId"] != DBNull.Value) ? Convert.ToInt32(row1["StoreId"]) : 0,
+                                        IsKG = (row1["IsKG"] != DBNull.Value) ? Convert.ToBoolean(row1["IsKG"]) :false
                                     });
                                 }
                             }

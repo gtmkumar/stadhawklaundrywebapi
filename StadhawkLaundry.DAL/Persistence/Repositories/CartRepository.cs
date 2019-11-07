@@ -108,6 +108,7 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                     {
                         model = new CartDetailResponseViewModel()
                         {
+                            StoreId = (row["StoreId"] != DBNull.Value) ? Convert.ToInt32(row["StoreId"]) : 0,
                             ServiceId = (row["ServiceId"] != DBNull.Value) ? Convert.ToInt32(row["ServiceId"]) : 0,
                             ServiceName = (row["ServiceName"] != DBNull.Value) ? Convert.ToString(row["ServiceName"]) : string.Empty
                         };

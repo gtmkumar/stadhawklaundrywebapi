@@ -214,5 +214,28 @@ namespace StadhawkLaundry.API.Controllers
             return response.ToHttpResponse();
         }
 
+        [HttpGet("getServicecart")]
+        public async Task<IActionResult> GetServiceCart([FromQuery]int addressId)
+        {
+            int? userId = 0;
+            var userStrId = this.User.FindFirstValue(ClaimTypes.Name);
+            if (!string.IsNullOrWhiteSpace(userStrId))
+                userId = Convert.ToInt32(userStrId);
+
+            var response = new SingleResponse<CartPriceDetail>();
+            try
+            {
+                response.Data = (await _unit.ICart.GetCartDetail(userId.Value, addressId)).UserObject;
+                response.Status = true;
+            }
+            catch (Exception ex)
+            {
+                response.Status = false;
+                response.Message = "There was an internal error, please contact to technical support.";
+                ErrorTrace.Logger(LogArea.ApplicationTier, ex);
+            }
+            return response.ToHttpResponse();
+        }
+
     }
 }

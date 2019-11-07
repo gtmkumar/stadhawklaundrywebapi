@@ -17,5 +17,7 @@ namespace StadhawkLaundry.BAL.Core.IRepositories
         Task<ApiResult<CartOrderDetailResponseViewModel>> GetCartDetails(int userId, int addressId);
         Task<ApiResult<ExistingCheckResponseViewModel>> IsCartFromDiffrentService(int storeItemId, int userId);
         Task<ApiResult<bool>> CartRemove(int CartId);
+        Task<ApiResult<bool>> AddToServiceCartAsync(AddServiceCartRequestViewModel model, int userId);
+        Task<ApiResult<CartServiceCountResponseViewModel>> CartServiceCountAndPrice(int userId);
     }
 }

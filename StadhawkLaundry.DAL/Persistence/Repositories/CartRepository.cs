@@ -226,5 +226,63 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                 return new ApiResult<bool>(new ApiResultCode(ApiResultType.ExceptionDuringOpration), removed);
             }
         }
+
+        public async Task<ApiResult<bool>> AddToServiceCartAsync(AddServiceCartRequestViewModel model, int userId)
+        {
+            bool iSFromDiffrentService = false;
+            try
+            {
+                SqlParameter CartId = new SqlParameter("@CartId", System.Data.SqlDbType.Int) { Value = model.CartId.HasValue ? model.CartId.Value : 0 };
+                SqlParameter StoreId = new SqlParameter("@StoreId", System.Data.SqlDbType.Int) { Value = model.StoreId };
+                SqlParameter ServiceId = new SqlParameter("@ServiceId", System.Data.SqlDbType.Int) { Value = model.ServiceId };
+                SqlParameter Quantity = new SqlParameter("@Quantity", System.Data.SqlDbType.Int) { Value = model.Quantity ?? 0 };
+                SqlParameter IsCartRemoved = new SqlParameter("@IsCartRemoved", System.Data.SqlDbType.Bit) { Value = model.IsCartRemoved };
+                SqlParameter AddressId = new SqlParameter("@AddressId", System.Data.SqlDbType.Int) { Value = model.AddressId };
+                SqlParameter UserId = new SqlParameter("@UserId", System.Data.SqlDbType.Int) { Value = userId };
+                var result = _context.ExecuteStoreProcedure("dbo.[usp_AddServiceCart]", CartId, StoreId,ServiceId, Quantity, IsCartRemoved, AddressId, UserId);
+                if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
+                {
+                    foreach (System.Data.DataRow row in result.Tables[0].Rows)
+                    {
+                        if (((row["ErrorMessage"] != DBNull.Value) ? Convert.ToString(row["ErrorMessage"]) : string.Empty) == "1")
+                        {
+                            iSFromDiffrentService = true;
+                        }
+                    }
+                }
+                return new ApiResult<bool>(new ApiResultCode(ApiResultType.Success), iSFromDiffrentService);
+            }
+            catch (Exception ex)
+            {
+                ErrorTrace.Logger(LogArea.ApplicationTier, ex);
+            }
+            return new ApiResult<bool>(new ApiResultCode(ApiResultType.Success), false);
+        }
+        public async Task<ApiResult<CartServiceCountResponseViewModel>> CartServiceCountAndPrice(int userId)
+        {
+            CartServiceCountResponseViewModel model = new CartServiceCountResponseViewModel();
+            try
+            {
+                SqlParameter UserId = new SqlParameter("@UserId", System.Data.SqlDbType.Int) { Value = userId };
+                var result = _context.ExecuteStoreProcedure("dbo.usp_GetServiceCartItemCountAndPrice", UserId);
+                if (result.Tables[0].Rows.Count > 0)
+                {
+                    model = (from DataRow dr in result.Tables[0].Rows
+                             select new CartServiceCountResponseViewModel()
+                             {
+                                 CartCount = (dr["CartCount"] != DBNull.Value) ? Convert.ToDecimal(dr["CartCount"]) : 0,
+                                 CartPrice = (dr["CartPrice"] != DBNull.Value) ? Convert.ToDecimal(dr["CartPrice"]) : 0,
+                                 CartId = (dr["CartId"] != DBNull.Value) ? Convert.ToInt32(dr["CartId"]) : 0,
+                                 IsKg = (dr["IsKg"] != DBNull.Value) ? Convert.ToBoolean(dr["IsKg"]) : false
+                             }).FirstOrDefault();
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorTrace.Logger(LogArea.ApplicationTier, ex);
+                return new ApiResult<CartServiceCountResponseViewModel>(new ApiResultCode(ApiResultType.Error, 0, "No data in given request"));
+            }
+            return new ApiResult<CartServiceCountResponseViewModel>(new ApiResultCode(ApiResultType.Success), model);
+        }
     }
 }

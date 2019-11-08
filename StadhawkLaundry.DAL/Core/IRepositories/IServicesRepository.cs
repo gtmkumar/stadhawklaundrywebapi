@@ -10,7 +10,7 @@ namespace StadhawkLaundry.BAL.Core.IRepositories
 {
     public interface IServicesRepository: IRepository<TblServiceMaster>
     {
-        Task<ApiResult<IEnumerable<ServiceLabelMasterResponseViewModel>>> GetServiceMaster(int customerId);
+        Task<ApiResult<IEnumerable<ServiceLabelMasterResponseViewModel>>> GetServiceMaster(int addressId);
         Task<ApiResult<IEnumerable<ServiceMasterResponseViewModel>>> GetServiceByStore(int storeId);
         Task<ApiResult<ServiceByKgResponseViewModel>> GetServiceByKg(int storeId,int ServiceId);
     }

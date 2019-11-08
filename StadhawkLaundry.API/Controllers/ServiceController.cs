@@ -34,7 +34,7 @@ namespace StadhawkLaundry.API.Controllers
             _unit = unit;
         }
         [HttpGet("getservicemaster")]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> Get([FromQuery]int addressId)
         {
             int customerId = 0;
             string userId = User.FindFirstValue(ClaimTypes.Name);
@@ -42,7 +42,7 @@ namespace StadhawkLaundry.API.Controllers
                 customerId = Convert.ToInt32(userId);
 
             var response = new ListResponse<ServiceLabelMasterResponseViewModel>();
-            var data = await _unit.IService.GetServiceMaster(customerId);
+            var data = await _unit.IService.GetServiceMaster(addressId);
             if (data.HasSuccess)
             {
                 response.Data = data.UserObject;

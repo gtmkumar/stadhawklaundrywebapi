@@ -21,14 +21,16 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
             _context = context;
         }
 
-        public async Task<ApiResult<IEnumerable<ServiceLabelMasterResponseViewModel>>> GetServiceMaster(int customerId)
+        public async Task<ApiResult<IEnumerable<ServiceLabelMasterResponseViewModel>>> GetServiceMaster(int addressId)
         {
             ServiceLabelMasterResponseViewModel service = null;
             List<ServiceLabelMasterResponseViewModel> serviceList = new List<ServiceLabelMasterResponseViewModel>();
             try
             {
-                SqlParameter Customerid = new SqlParameter("@CustomerId", System.Data.SqlDbType.Int) { Value = customerId };
-                var result = _context.ExecuteStoreProcedure("GetServiceMaster", Customerid);
+                int customerId = 1;
+                SqlParameter AddressId = new SqlParameter("@AddressId", System.Data.SqlDbType.Int) { Value = addressId };
+                SqlParameter CustomerId = new SqlParameter("@CustomerId", System.Data.SqlDbType.Int) { Value = customerId };
+                var result = _context.ExecuteStoreProcedure("GetServiceMaster", CustomerId,AddressId);
                 if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
                 {
                     foreach (System.Data.DataRow row in result.Tables[0].Rows)

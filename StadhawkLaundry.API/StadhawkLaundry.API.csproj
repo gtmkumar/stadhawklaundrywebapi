@@ -43,7 +43,13 @@
 
   <ItemGroup>
     <Reference Include="paytm">
-      <HintPath>..\..\..\..\paytm.dll</HintPath>
+      <HintPath>..\..\paytm.dll</HintPath>
+    </Reference>
+    <Reference Include="StadhawkLaundry.BAL">
+      <HintPath>..\StadhawkLaundry.DAL\bin\Debug\netcoreapp2.2\StadhawkLaundry.BAL.dll</HintPath>
+    </Reference>
+    <Reference Include="StadhawkLaundry.DataModel">
+      <HintPath>..\StadhawkLaundry.DATAMODEL\bin\Debug\netcoreapp2.2\StadhawkLaundry.DataModel.dll</HintPath>
     </Reference>
   </ItemGroup>
 

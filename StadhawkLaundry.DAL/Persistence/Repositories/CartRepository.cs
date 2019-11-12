@@ -362,5 +362,22 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
             }
             return new ApiResult<CartPriceDetail>(new ApiResultCode(ApiResultType.Success), priceDetail);
         }
+
+        public async Task<ApiResult<bool>> CartServiceRemove(int CartId)
+        {
+            bool removed = true;
+            try
+            {
+                SqlParameter cartId = new SqlParameter("@CartId", System.Data.SqlDbType.Int) { Value = CartId };
+                var result = _context.ExecuteStoreProcedure("dbo.[usp_RemoveServiceCart]", cartId);
+                return new ApiResult<bool>(new ApiResultCode(ApiResultType.Success), removed);
+            }
+            catch (Exception ex)
+            {
+                ErrorTrace.Logger(LogArea.ApplicationTier, ex);
+                removed = false;
+                return new ApiResult<bool>(new ApiResultCode(ApiResultType.ExceptionDuringOpration), removed);
+            }
+        }
     }
 }

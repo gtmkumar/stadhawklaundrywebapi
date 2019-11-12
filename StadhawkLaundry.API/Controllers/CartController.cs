@@ -237,5 +237,42 @@ namespace StadhawkLaundry.API.Controllers
             return response.ToHttpResponse();
         }
 
+        [HttpPost("removeservicecart")]
+        public async Task<IActionResult> DeleteServiceCart([FromForm] AddCartRequestViewModel model)
+        {
+            int? userId = 0;
+            var userStrId = this.User.FindFirstValue(ClaimTypes.Name);
+            if (!string.IsNullOrWhiteSpace(userStrId))
+                userId = Convert.ToInt32(userStrId);
+
+            var response = new SingleResponse<CartServiceCountResponseViewModel>();
+            try
+            {
+                var isDataRemoved = await _unit.ICart.CartServiceRemove(model.CartId.Value);
+                if (isDataRemoved.UserObject)
+                {
+                    var dataResult = (await _unit.ICart.CartServiceCountAndPrice(userId: userId.Value));
+                    response.Data = dataResult.HasSuccess ? dataResult.UserObject : null;
+                    response.Message = "Cart added";
+                    response.Status = true;
+                    return response.ToHttpResponse();
+                }
+                else
+                {
+                    response.Data = null;
+                    response.Message = "no cart added";
+                    response.Status = true;
+                    return response.ToHttpResponse();
+                }
+            }
+            catch (Exception ex)
+            {
+                response.Status = false;
+                response.Message = "There was an internal error, please contact to technical support.";
+                ErrorTrace.Logger(LogArea.ApplicationTier, ex);
+            }
+            return response.ToHttpResponse();
+        }
+
     }
 }

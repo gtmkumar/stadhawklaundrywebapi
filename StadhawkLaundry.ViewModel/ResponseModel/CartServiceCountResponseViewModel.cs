@@ -6,7 +6,7 @@ namespace StadhawkLaundry.ViewModel.ResponseModel
 {
     public class CartServiceCountResponseViewModel
     {
-        public decimal CartCount { get; set; }
+        public int CartCount { get; set; }
         public decimal KgCount { get; set; }
         public decimal CartPrice { get; set; }
         public int? CartId { get; set; }

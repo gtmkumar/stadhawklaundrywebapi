@@ -171,7 +171,7 @@ namespace StadhawkLaundry.API.Controllers
             int userId = 0;
             var userstr = this.User.FindFirstValue(ClaimTypes.Name);
             if (!string.IsNullOrWhiteSpace(userstr))
-                userId = Convert.ToInt32(userId);
+                userId = Convert.ToInt32(userstr);
 
             var ownResponse = new ListResponse<CategoryResponseViewModel>();
             var dataResult = await _unit.ICategory.GetCategoryWithServiceData(filter);
@@ -199,7 +199,7 @@ namespace StadhawkLaundry.API.Controllers
             var userstr = this.User.FindFirstValue(ClaimTypes.Name);
 
             if (!string.IsNullOrWhiteSpace(userstr))
-                userId = Convert.ToInt32(userId);
+                userId = Convert.ToInt32(userstr);
 
             var ownResponse = new ListResponse<CategoryResponseViewModel>();
             var dataResult = await _unit.ICategory.GetCategoryByServiceId(filter);

@@ -156,7 +156,7 @@ namespace StadhawkLaundry.API.Controllers
             string mobileNo = string.Empty;
             var struserId = this.User.FindFirstValue(ClaimTypes.Name);
             if (!string.IsNullOrWhiteSpace(struserId))
-                userId = Convert.ToInt32(userId);
+                userId = Convert.ToInt32(struserId);
 
             var response = new Response();
             var result = await _unit.IUserAddress.DeleteAddress(userId, addressId);

@@ -145,7 +145,7 @@ namespace StadhawkLaundry.API.Controllers
             int userId = 0;
             string userIdStr = User.FindFirstValue(ClaimTypes.Name);
             if (!string.IsNullOrWhiteSpace(userIdStr))
-                userId = Convert.ToInt32(userId);
+                userId = Convert.ToInt32(userIdStr);
 
             var dd = User.Identity.Name;
 
@@ -324,7 +324,7 @@ namespace StadhawkLaundry.API.Controllers
             int userId = 0;
             string userIdStr = User.FindFirstValue(ClaimTypes.Name);
             if (!string.IsNullOrWhiteSpace(userIdStr))
-                userId = Convert.ToInt32(userId);
+                userId = Convert.ToInt32(userIdStr);
 
             var dd = User.Identity.Name;
 

@@ -21,7 +21,7 @@ using StadhawkLaundry.ViewModel.ResponseModel;
 
 namespace StadhawkLaundry.API.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ServiceController : ControllerBase
@@ -33,6 +33,7 @@ namespace StadhawkLaundry.API.Controllers
             _imageHandler = imageHandler;
             _unit = unit;
         }
+        
         [HttpGet("getservicemaster")]
         public async Task<IActionResult> Get([FromQuery]int addressId)
         {
@@ -88,7 +89,7 @@ namespace StadhawkLaundry.API.Controllers
                 customerId = Convert.ToInt32(userId);
 
             var response = new SingleResponse<ServiceByKgResponseViewModel>();
-            var data = await _unit.IService.GetServiceByKg(storeId, ServiceId);
+            var data = await _unit.IService.GetServiceByKg(storeId, ServiceId, customerId);
             if (data.HasSuccess)
             {
                 response.Data = data.UserObject;

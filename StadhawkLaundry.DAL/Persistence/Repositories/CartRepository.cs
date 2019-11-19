@@ -68,7 +68,8 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                              select new CartCountResponseViewModel()
                              {
                                  CartCount = (dr["CartCount"] != DBNull.Value) ? Convert.ToInt32(dr["CartCount"]) : 0,
-                                 CartPrice = (dr["CartPrice"] != DBNull.Value) ? Convert.ToInt32(dr["CartPrice"]) : 0,
+                                 CartPrice = (dr["CartPrice"] != DBNull.Value) ? Convert.ToDecimal(dr["CartPrice"]) : 0,
+                                 KgCount = (dr["KgCount"] != DBNull.Value) ? Convert.ToDecimal(dr["KgCount"]) : 0,
                                  CartId = (dr["CartId"] != DBNull.Value) ? Convert.ToInt32(dr["CartId"]) : 0,
                                  IsKg = (dr["IsKg"] != DBNull.Value) ? Convert.ToBoolean(dr["IsKg"]) : false
                              }).FirstOrDefault();
@@ -101,7 +102,8 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                         {
                             CartCount = (row["CartCount"] != DBNull.Value) ? Convert.ToInt32(row["CartCount"]) : 0,
                             CartPrice = (row["CartPrice"] != DBNull.Value) ? Convert.ToDecimal(row["CartPrice"]) : 0,
-                            IsKg = ((row["CartPrice"] != DBNull.Value) ? Convert.ToInt32(row["CartPrice"]) : 0) > 0 ? false : true,
+                            KgCount = (row["KgCount"] != DBNull.Value) ? Convert.ToDecimal(row["KgCount"]) : 0,
+                            IsKg = (row["IsKg"] != DBNull.Value) ? Convert.ToBoolean(row["IsKg"]) : false,
                             TaxAmount = (row["TaxAmount"] != DBNull.Value) ? Convert.ToDecimal(row["TaxAmount"]) : 0,
                             TotalPrice = (row["TotalAmout"] != DBNull.Value) ? Convert.ToDecimal(row["TotalAmout"]) : 0,
                             IsValidShipment = (row["IsValidShipment"] != DBNull.Value) ? Convert.ToBoolean(row["IsValidShipment"]) : false
@@ -194,7 +196,8 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                         {
                             CartCount = (row["CartCount"] != DBNull.Value) ? Convert.ToInt32(row["CartCount"]) : 0,
                             CartPrice = (row["CartPrice"] != DBNull.Value) ? Convert.ToDecimal(row["CartPrice"]) : 0,
-                            IsKg = ((row["CartPrice"] != DBNull.Value) ? Convert.ToInt32(row["CartPrice"]) : 0) > 0 ? false : true,
+                            KgCount = (row["KgCount"] != DBNull.Value) ? Convert.ToDecimal(row["KgCount"]) : 0,
+                            IsKg = (row["IsKg"] != DBNull.Value) ? Convert.ToBoolean(row["IsKg"]) : false,
                             TaxAmount = (row["TaxAmount"] != DBNull.Value) ? Convert.ToDecimal(row["TaxAmount"]) : 0,
                             TotalPrice = (row["TotalAmout"] != DBNull.Value) ? Convert.ToDecimal(row["TotalAmout"]) : 0,
                             IsValidShipment = (row["IsValidShipment"] != DBNull.Value) ? Convert.ToBoolean(row["IsValidShipment"]) : false

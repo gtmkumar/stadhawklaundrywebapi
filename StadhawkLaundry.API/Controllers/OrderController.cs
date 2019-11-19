@@ -88,14 +88,14 @@ namespace StadhawkLaundry.API.Controllers
                 var sDate = model.FullDate.Split(' ');
                 fullDate = Common.DateTimeConverter.DatetimeConverterfromString(sDate[0], format: DateTimeConverter.DateFormat.YYMMDD);
                 fullDate = fullDate + " " + sDate[1];
-                DateTime dd = Convert.ToDateTime(fullDate);
+                var dd = Convert.ToDateTime(fullDate);
             }
             catch (Exception ex)
             {
                 throw;
             }
 
-            var dataResult = await _unit.IOrder.GetAvailableDropSlots(Convert.ToDateTime(model.FullDate));
+            var dataResult = await _unit.IOrder.GetAvailableDropSlots(Convert.ToDateTime(fullDate));
             if (dataResult.HasSuccess)
             {
                 ownResponse.Message = "Success";

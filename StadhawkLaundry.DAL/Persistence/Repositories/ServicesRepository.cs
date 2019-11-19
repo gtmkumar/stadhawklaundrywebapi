@@ -103,14 +103,15 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
             }
         }
 
-        public async Task<ApiResult<ServiceByKgResponseViewModel>> GetServiceByKg(int storeId,int serviceId)
+        public async Task<ApiResult<ServiceByKgResponseViewModel>> GetServiceByKg(int storeId,int serviceId,int userId)
         {
             ServiceByKgResponseViewModel item = null;
             try
             {
                 SqlParameter StoreId = new SqlParameter("@StoreId", System.Data.SqlDbType.Int) { Value = storeId };
                 SqlParameter ServiceId = new SqlParameter("@ServiceId", System.Data.SqlDbType.Int) { Value = serviceId };
-                var ietms = _context.ExecuteStoreProcedure("[usp_getservicebykg]", StoreId, ServiceId);
+                SqlParameter UserId = new SqlParameter("@UserId", System.Data.SqlDbType.Int) { Value = userId };
+                var ietms = _context.ExecuteStoreProcedure("[usp_getservicebykg]", StoreId, ServiceId, UserId);
 
                 if (ietms.Tables[0].Rows.Count > 0)
                 {

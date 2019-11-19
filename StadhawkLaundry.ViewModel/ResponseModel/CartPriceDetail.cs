@@ -13,6 +13,7 @@ namespace StadhawkLaundry.ViewModel.ResponseModel
         }
         public int CartCount { get; set; }
         public decimal CartPrice { get; set; }
+        public decimal KgCount { get; set; }
         public bool IsKg { get; set; }
         public bool IsValidShipment { get; set; }
         public decimal TaxAmount { get; set; }

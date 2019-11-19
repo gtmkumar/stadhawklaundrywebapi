@@ -29,15 +29,15 @@ namespace StadhawkLaundry.API.Common
                 {
                     case DateFormat.DDMMYY:
                         arr = date.Split(spliter);
-                        date = arr[2] + spliter + arr[1] + spliter + arr[0];
+                        date = arr[1] + spliter + arr[0] + spliter + arr[2];
                         break;
                     case DateFormat.MMDDYY:
                         arr = date.Split(spliter);
-                        date = arr[2] + spliter + arr[0] + spliter + arr[1];
+                        date = arr[0] + spliter + arr[1] + spliter + arr[2];
                         break;
                     case DateFormat.YYMMDD:
                         arr = date.Split(spliter);
-                        date = arr[2] + spliter + arr[1] + spliter + arr[0];
+                        date = arr[2] + spliter + arr[0] + spliter + arr[1];
                         break;
                 }
             }

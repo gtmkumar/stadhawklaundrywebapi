@@ -12,6 +12,6 @@ namespace StadhawkLaundry.BAL.Core.IRepositories
     {
         Task<ApiResult<IEnumerable<ServiceLabelMasterResponseViewModel>>> GetServiceMaster(int addressId);
         Task<ApiResult<IEnumerable<ServiceMasterResponseViewModel>>> GetServiceByStore(int storeId);
-        Task<ApiResult<ServiceByKgResponseViewModel>> GetServiceByKg(int storeId,int ServiceId);
+        Task<ApiResult<ServiceByKgResponseViewModel>> GetServiceByKg(int storeId,int ServiceId,int userId);
     }
 }

@@ -28,12 +28,14 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
             try
             {
                 SqlParameter CartId = new SqlParameter("@CartId", System.Data.SqlDbType.Int) { Value = customerAddToCart.CartId.HasValue ? customerAddToCart.CartId.Value : 0 };
+                SqlParameter StoreId = new SqlParameter("@StoreId", System.Data.SqlDbType.Int) { Value = customerAddToCart.StoreId };
+                SqlParameter ServiceId = new SqlParameter("@ServiceId", System.Data.SqlDbType.Int) { Value = customerAddToCart.ServiceId };
                 SqlParameter StoreItemId = new SqlParameter("@StoreItemId", System.Data.SqlDbType.Int) { Value = customerAddToCart.StoreItemId };
                 SqlParameter IsCartRemoved = new SqlParameter("@IsCartRemoved", System.Data.SqlDbType.Bit) { Value = customerAddToCart.IsCartRemoved };
                 SqlParameter AddressId = new SqlParameter("@AddressId", System.Data.SqlDbType.Int) { Value = customerAddToCart.AddressId };
                 SqlParameter UserId = new SqlParameter("@UserId", System.Data.SqlDbType.Int) { Value = userId };
                 SqlParameter Quantity = new SqlParameter("@Quantity", System.Data.SqlDbType.Int) { Value = customerAddToCart.Quantity ?? (object)DBNull.Value };
-                var result = _context.ExecuteStoreProcedure("dbo.usp_AddCart", CartId, StoreItemId, Quantity, IsCartRemoved, AddressId, UserId);
+                var result = _context.ExecuteStoreProcedure("dbo.usp_AddCart", CartId, StoreId, ServiceId, StoreItemId, Quantity, IsCartRemoved, AddressId, UserId);
                 if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
                 {
                     foreach (System.Data.DataRow row in result.Tables[0].Rows)
@@ -85,6 +87,7 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
             CartPriceDetail priceDetail = null;
             CartDetailResponseViewModel model = null;
             CartCategoryResponceViewModel categoryModel = null;
+            ServiceByKgResponseViewModel ServiceByKg = null;
             try
             {
                 SqlParameter UserId = new SqlParameter("@userId", System.Data.SqlDbType.Int) { Value = userId };
@@ -110,7 +113,8 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                         {
                             StoreId = (row["StoreId"] != DBNull.Value) ? Convert.ToInt32(row["StoreId"]) : 0,
                             ServiceId = (row["ServiceId"] != DBNull.Value) ? Convert.ToInt32(row["ServiceId"]) : 0,
-                            ServiceName = (row["ServiceName"] != DBNull.Value) ? Convert.ToString(row["ServiceName"]) : string.Empty
+                            ServiceName = (row["ServiceName"] != DBNull.Value) ? Convert.ToString(row["ServiceName"]) : string.Empty,
+                            ServiceUrl = (row["ServiceImage"] != DBNull.Value) ? Convert.ToString(row["ServiceImage"]) : string.Empty,
                         };
                         priceDetail.ServiceData.Add(model);
                         if (result.Tables.Count > 0 && result.Tables[2].Rows.Count > 0)
@@ -145,6 +149,23 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                                     }
                                 }
                             }
+                        }
+                    }
+                    if (result.Tables.Count > 0 && result.Tables[4].Rows.Count > 0)
+                    {
+                        foreach (System.Data.DataRow kgdata in result.Tables[4].Rows)
+                        {
+                            ServiceByKg = new ServiceByKgResponseViewModel()
+                            {
+                                StoreId = (kgdata["StoreId"] != DBNull.Value) ? Convert.ToInt32(kgdata["StoreId"]) : 0,
+                                ServiceId = (kgdata["ServiceId"] != DBNull.Value) ? Convert.ToInt32(kgdata["ServiceId"]) : 0,
+                                ServiceName = (kgdata["ServiceName"] != DBNull.Value) ? Convert.ToString(kgdata["ServiceName"]) : string.Empty,
+                                pricePerKG = (kgdata["pricePerKG"] != DBNull.Value) ? Convert.ToDecimal(kgdata["pricePerKG"]) : 0,
+                                QuantityInKG = (kgdata["QuantityInKG"] != DBNull.Value) ? Convert.ToDecimal(kgdata["QuantityInKG"]) : 0,
+                                ServiceImageUrl = (kgdata["ServiceImageUrl"] != DBNull.Value) ? Convert.ToString(kgdata["ServiceImageUrl"]) : string.Empty,
+                                CartId = (kgdata["CartId"] != DBNull.Value) ? Convert.ToInt32(kgdata["CartId"]) : 0
+                            };
+                            priceDetail.ServiceByKg.Add(ServiceByKg);
                         }
                     }
                 }

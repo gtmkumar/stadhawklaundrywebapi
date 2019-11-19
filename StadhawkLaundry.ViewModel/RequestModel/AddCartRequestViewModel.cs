@@ -7,6 +7,8 @@ namespace StadhawkLaundry.ViewModel.RequestModel
     public class AddCartRequestViewModel
     {
         public int? CartId { get; set; }
+        public int StoreId { get; set; }
+        public int ServiceId { get; set; }
         public int StoreItemId { get; set; }
         public bool IsCartRemoved { get; set; }
         public int AddressId { get; set; }

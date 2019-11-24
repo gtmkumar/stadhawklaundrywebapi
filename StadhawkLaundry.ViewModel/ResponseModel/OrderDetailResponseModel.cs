@@ -9,6 +9,7 @@ namespace StadhawkLaundry.ViewModel.ResponseModel
         public OrderDetailResponseModel()
         {
             Services = new List<OrderServiceResponseViewModel>();
+            ServiceByKg = new List<OrderServiceByKgResponseViewModel    >();
         }
         public int OrderId { get; set; }
         public string OrderRef { get; set; }
@@ -25,5 +26,6 @@ namespace StadhawkLaundry.ViewModel.ResponseModel
         public string PickupDateTime { get; set; }
         public string DeliveryDateTime { get; set; }
         public List<OrderServiceResponseViewModel> Services { get; set; }
+        public List<OrderServiceByKgResponseViewModel> ServiceByKg { get; set; }
     }
 }

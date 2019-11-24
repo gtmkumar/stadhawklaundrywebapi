@@ -247,6 +247,7 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
             OrderServiceResponseViewModel service = new OrderServiceResponseViewModel();
             List<OrderCategoryResponceViewModel> categores = new List<OrderCategoryResponceViewModel>();
             OrderCategoryResponceViewModel category = new OrderCategoryResponceViewModel();
+            OrderServiceByKgResponseViewModel ServiceByKg = null;
 
             try
             {
@@ -318,6 +319,23 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                             }
                         }
                     }
+                    if (result.Tables.Count > 0 && result.Tables[4].Rows.Count > 0)
+                    {
+                        foreach (System.Data.DataRow kgdata in result.Tables[4].Rows)
+                        {
+                            ServiceByKg = new OrderServiceByKgResponseViewModel()
+                            {
+                                OrderId = (kgdata["OrderId"] != DBNull.Value) ? Convert.ToInt32(kgdata["OrderId"]) : 0,
+                                StoreId = (kgdata["StoreId"] != DBNull.Value) ? Convert.ToInt32(kgdata["StoreId"]) : 0,
+                                ServiceId = (kgdata["ServiceId"] != DBNull.Value) ? Convert.ToInt32(kgdata["ServiceId"]) : 0,
+                                ServiceName = (kgdata["ServiceName"] != DBNull.Value) ? Convert.ToString(kgdata["ServiceName"]) : string.Empty,
+                                TotalPrice = (kgdata["TotalPrice"] != DBNull.Value) ? Convert.ToDecimal(kgdata["TotalPrice"]) : 0,
+                                Quantity = (kgdata["Quantity"] != DBNull.Value) ? Convert.ToDecimal(kgdata["Quantity"]) : 0,
+                                ServiceImage = (kgdata["ServiceImage"] != DBNull.Value) ? Convert.ToString(kgdata["ServiceImage"]) : string.Empty,
+                            };
+                            model.ServiceByKg.Add(ServiceByKg);
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -334,7 +352,7 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
             var OrderId = new SqlParameter("@Order_Id", System.Data.SqlDbType.Int) { Value = orderId };
             try
             {
-                var Data = _context.ExecuteStoreProcedure("usp_GetTotalOrderPricdeByOrderID", OrderId);
+                var Data = _context.ExecuteStoreProcedure("dbo.usp_GetTotalOrderPricdeByOrderID", OrderId);
                 PaymentOrderResponceViewModel resultModel = null;
                 string orderRef = string.Empty;
                 if (Data != null && Data.Tables.Count > 0 && Data.Tables[0].Rows.Count > 0)
@@ -343,7 +361,7 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                     {
                         resultModel = new PaymentOrderResponceViewModel
                         {
-                            Price = (row["TotalOrderPrice"] != DBNull.Value) ? Convert.ToInt32(row["TotalOrderPrice"]) : 0,
+                            Price = (row["TotalOrderPrice"] != DBNull.Value) ? Convert.ToDecimal(row["TotalOrderPrice"]) : 0,
                             InvoiceNo = (row["InvoiceNo"] != DBNull.Value) ? Convert.ToString(row["InvoiceNo"]) : string.Empty,
                             EmailId = (row["EmailId"] != DBNull.Value) ? Convert.ToString(row["EmailId"]) : string.Empty,
                             CustomerId = (row["CustomerId"] != DBNull.Value) ? Convert.ToString(row["CustomerId"]) : string.Empty,

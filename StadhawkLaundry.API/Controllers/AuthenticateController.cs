@@ -71,8 +71,8 @@ namespace StadhawkLaundry.API.Controllers
                         {
                             MobileNo = strPhone
                         };
-                        var otpresposedata = true;//await _smsHandler.SendOtpAsync(SmsVendorUrl: _appSettings.SmsVendorUrl, strHasKey: _appSettings.SmsHasKey, mobile: strPhone);
-                        if (otpresposedata)//.type == "success")
+                        var otpresposedata = await _smsHandler.SendOtpAsync(SmsVendorUrl: _appSettings.SmsVendorUrl, strHasKey: _appSettings.SmsHasKey, mobile: strPhone);
+                        if (otpresposedata.type == "success")
                         {
                             response.Message = "OTP Send on your registor no.";
                             response.Status = true;
@@ -161,7 +161,7 @@ namespace StadhawkLaundry.API.Controllers
                 }
                 else
                 {
-                    var Id = (await _unit.IUser.GetSelectedAsync(t => t.PhoneNumber.Equals(value.MobileNo) && t.UserType==1, m => m.Id)).UserObject;
+                    var Id = (await _unit.IUser.GetSelectedAsync(t => t.PhoneNumber.Equals(value.MobileNo) && t.UserType == 1, m => m.Id)).UserObject;
                     var resultdata = await _userManager.FindByIdAsync(Convert.ToString(Id));
                     string strPhone = ("91" + value.MobileNo);
                     resultdata.FCMToken = value.FcmToken;
@@ -171,12 +171,8 @@ namespace StadhawkLaundry.API.Controllers
 
                     response.Message = "user registered.";
                     response.Status = true;
-                    var otpresposedata = false;//await _smsHandler.VerifyOtpAsync(mobile: strPhone, OTP: value.OTP);
-                    if (value.OTP == "1234")
-                    {
-                        otpresposedata = true;
-                    }
-                    if (otpresposedata)//.type == "success")
+                    var otpresposedata = await _smsHandler.VerifyOtpAsync(mobile: strPhone, OTP: value.OTP);
+                    if (otpresposedata.type == "success")
                     {
                         try
                         {
@@ -350,12 +346,8 @@ namespace StadhawkLaundry.API.Controllers
 
                     response.Message = "user registered.";
                     response.Status = true;
-                    var otpresposedata = false;//await _smsHandler.VerifyOtpAsync(mobile: strPhone, OTP: value.OTP);
-                    if (value.OTP == "1234")
-                    {
-                        otpresposedata = true;
-                    }
-                    if (otpresposedata)//.type == "success")
+                    var otpresposedata = await _smsHandler.VerifyOtpAsync(mobile: strPhone, OTP: value.OTP);
+                    if (otpresposedata.type == "success")
                     {
                         try
                         {

@@ -51,7 +51,7 @@ namespace StadhawkLaundry.API.Controllers
                 }
                 else
                 {
-                    var dataResult = (await _unit.ICart.CartCountAndPrice(userId: userId.Value, _appSettings.DataBaseCon));
+                    var dataResult = (await _unit.ICart.CartCountAndPrice(userId: userId.Value));
                     response.Data = dataResult.HasSuccess ? dataResult.UserObject : null;
                     response.Message = "Cart added";
                     response.Status = true;
@@ -81,7 +81,7 @@ namespace StadhawkLaundry.API.Controllers
                var isDataRemoved = await _unit.ICart.CartRemove(model.CartId.Value);
                 if (isDataRemoved.UserObject)
                 {
-                    var dataResult = (await _unit.ICart.CartCountAndPrice(userId: userId.Value, _appSettings.DataBaseCon));
+                    var dataResult = (await _unit.ICart.CartCountAndPrice(userId: userId.Value));
                     response.Data = dataResult.HasSuccess ? dataResult.UserObject : null;
                     response.Message = "Cart added";
                     response.Status = true;
@@ -161,7 +161,7 @@ namespace StadhawkLaundry.API.Controllers
             var response = new SingleResponse<CartCountResponseViewModel>();
             try
             {
-                var dataResult = (await _unit.ICart.CartCountAndPrice(userId: userId.Value, _appSettings.DataBaseCon));
+                var dataResult = (await _unit.ICart.CartCountAndPrice(userId: userId.Value));
                 response.Data = dataResult.HasSuccess ? dataResult.UserObject : null;
                 response.Message = "Cart added";
                 response.Status = true;
@@ -184,7 +184,7 @@ namespace StadhawkLaundry.API.Controllers
             if (!string.IsNullOrWhiteSpace(userStrId))
                 userId = Convert.ToInt32(userStrId);
 
-            var response = new SingleResponse<CartServiceCountResponseViewModel>();
+            var response = new SingleResponse<CartCountResponseViewModel>();
             try
             {
                 var result = (await _unit.ICart.AddToServiceCartAsync(model, userId: userId.Value)).UserObject;
@@ -198,7 +198,7 @@ namespace StadhawkLaundry.API.Controllers
                 }
                 else
                 {
-                    var dataResult = (await _unit.ICart.CartServiceCountAndPrice(userId: userId.Value));
+                    var dataResult = (await _unit.ICart.CartCountAndPrice(userId: userId.Value));
                     response.Data = dataResult.HasSuccess ? dataResult.UserObject : null;
                     response.Message = "Cart added";
                     response.Status = true;
@@ -246,13 +246,13 @@ namespace StadhawkLaundry.API.Controllers
                 userId = Convert.ToInt32(userStrId);
 
 
-            var response = new SingleResponse<CartServiceCountResponseViewModel>();
+            var response = new SingleResponse<CartCountResponseViewModel>();
             try
             {
                 var isDataRemoved = await _unit.ICart.CartServiceRemove(model.CartId.Value);
                 if (isDataRemoved.UserObject)
                 {
-                    var dataResult = (await _unit.ICart.CartServiceCountAndPrice(userId: userId.Value));
+                    var dataResult = (await _unit.ICart.CartCountAndPrice(userId: userId.Value));
                     response.Data = dataResult.HasSuccess ? dataResult.UserObject : null;
                     response.Message = "Cart added";
                     response.Status = true;
@@ -283,10 +283,10 @@ namespace StadhawkLaundry.API.Controllers
             if (!string.IsNullOrWhiteSpace(userStrId))
                 userId = Convert.ToInt32(userStrId);
 
-            var response = new SingleResponse<CartServiceCountResponseViewModel>();
+            var response = new SingleResponse<CartCountResponseViewModel>();
             try
             {
-                var dataResult = (await _unit.ICart.CartServiceCountAndPrice(userId: userId.Value));
+                var dataResult = (await _unit.ICart.CartCountAndPrice(userId: userId.Value));
                 response.Data = dataResult.HasSuccess ? dataResult.UserObject : null;
                 response.Message = "Cart added";
                 response.Status = true;

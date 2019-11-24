@@ -55,13 +55,13 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
             return new ApiResult<bool>(new ApiResultCode(ApiResultType.Success), false);
         }
 
-        public async Task<ApiResult<CartCountResponseViewModel>> CartCountAndPrice(int userId, string databseCon)
+        public async Task<ApiResult<CartCountResponseViewModel>> CartCountAndPrice(int userId)
         {
             CartCountResponseViewModel model = new CartCountResponseViewModel();
             try
             {
                 SqlParameter UserId = new SqlParameter("@UserId", System.Data.SqlDbType.Int) { Value = userId };
-                var result = _context.ExecuteStoreProcedure(databseCon, "dbo.usp_GetCartItemCountAndPrice", UserId);
+                var result = _context.ExecuteStoreProcedure("dbo.usp_GetCartItemCountAndPrice", UserId);
                 if (result.Tables[0].Rows.Count > 0)
                 {
                     model = (from DataRow dr in result.Tables[0].Rows
@@ -260,7 +260,7 @@ namespace StadhawkLaundry.BAL.Persistence.Repositories
                 SqlParameter CartId = new SqlParameter("@CartId", System.Data.SqlDbType.Int) { Value = model.CartId.HasValue ? model.CartId.Value : 0 };
                 SqlParameter StoreId = new SqlParameter("@StoreId", System.Data.SqlDbType.Int) { Value = model.StoreId };
                 SqlParameter ServiceId = new SqlParameter("@ServiceId", System.Data.SqlDbType.Int) { Value = model.ServiceId };
-                SqlParameter Quantity = new SqlParameter("@Quantity", System.Data.SqlDbType.Int) { Value = model.Quantity ?? 0 };
+                SqlParameter Quantity = new SqlParameter("@Quantity", System.Data.SqlDbType.Decimal) { Value = model.Quantity ?? 0 };
                 SqlParameter IsCartRemoved = new SqlParameter("@IsCartRemoved", System.Data.SqlDbType.Bit) { Value = model.IsCartRemoved };
                 SqlParameter AddressId = new SqlParameter("@AddressId", System.Data.SqlDbType.Int) { Value = model.AddressId };
                 SqlParameter UserId = new SqlParameter("@UserId", System.Data.SqlDbType.Int) { Value = userId };

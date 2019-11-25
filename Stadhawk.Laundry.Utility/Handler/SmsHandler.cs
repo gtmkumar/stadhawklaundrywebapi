@@ -24,8 +24,8 @@ namespace Stadhawk.Laundry.Utility.Handler
             #endregion
             string authkey = "273001AoCttKR7nJtU5cb8520c";
             string strMsgKey = WebUtility.UrlEncode(strHasKey);
-            string message = WebUtility.UrlEncode("<#> BHEJONA OTP IS: " + OTP + " " + strMsgKey + "");
-            string sender = "BHEJON";
+            string message = WebUtility.UrlEncode("<#> STADHAWK OTP IS: " + OTP + " " + strMsgKey + "");
+            string sender = "STDHWK";
             string Baseurlre = "" + SmsVendorUrl + "" + authkey + "&message=" + message + "&sender=" + sender + "&mobile=" + mobile + "&otp=" + OTP + "";
             using (HttpClient client = new HttpClient())
             {

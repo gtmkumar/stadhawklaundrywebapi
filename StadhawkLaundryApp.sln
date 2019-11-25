@@ -25,7 +25,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Identity", "Identity", "{7F
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityAuth", "Frameworks\IdentityAuth\IdentityAuth.csproj", "{16F1A27D-1585-4472-8007-3EBBB017860E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StadhawkLaundryUnitTest", "StadhawkLaundryUnitTest\StadhawkLaundryUnitTest.csproj", "{AFE3471B-A60A-4F7F-AB9F-6EC5675AFC95}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StadhawkLaundryUnitTest", "StadhawkLaundryUnitTest\StadhawkLaundryUnitTest.csproj", "{AFE3471B-A60A-4F7F-AB9F-6EC5675AFC95}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

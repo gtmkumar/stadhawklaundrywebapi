@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using paytm;
+using Paytm;
 using Razorpay.Api;
 using Stadhawk.Laundry.Utility.Enums;
 using StadhawkCoreApi.Logger;
@@ -161,7 +161,7 @@ namespace StadhawkLaundry.API.Controllers
                         paytmParams.Add("CALLBACK_URL", _appSettings.ReturnUrl);
 
                         /* Generate checksum for parameters we have  */
-                        string checksum = paytm.CheckSum.generateCheckSum(_appSettings.PAYTM_MERCHANT_KEY, paytmParams);
+                        string checksum = Paytm.Checksum.CheckSum.GenerateCheckSum(_appSettings.PAYTM_MERCHANT_KEY, paytmParams);
                         try
                         {
                             model = new PaymetIfoRequestViewModel
@@ -343,7 +343,7 @@ namespace StadhawkLaundry.API.Controllers
                                 paytmChecksum = parameters["CHECKSUMHASH"];
                                 parameters.Remove("CHECKSUMHASH");
                             }
-                            if (CheckSum.verifyCheckSum(_appSettings.PAYTM_MERCHANT_KEY, parameters, paytmChecksum))
+                            if (Paytm.Checksum.CheckSum.VerifyCheckSum(_appSettings.PAYTM_MERCHANT_KEY, parameters, paytmChecksum))
                             {
                                 parameters.Add("IS_CHECKSUM_VALID", "Y");
                             }
@@ -365,7 +365,7 @@ namespace StadhawkLaundry.API.Controllers
                             Dictionary<string, string> reVerifyParameters = new Dictionary<string, string>();
                             reVerifyParameters.Add("MID", responseObject.MID);
                             reVerifyParameters.Add("ORDER_ID", responseObject.ORDERID);
-                            string reVerifyCheckSum = paytm.CheckSum.generateCheckSum(_appSettings.PAYTM_MERCHANT_KEY, reVerifyParameters);
+                            string reVerifyCheckSum = Paytm.Checksum.CheckSum.GenerateCheckSum(_appSettings.PAYTM_MERCHANT_KEY, reVerifyParameters);
                             reVerifyParameters.Add("CHECKSUMHASH", reVerifyCheckSum);
                             //re-verify request json
                             string verifiedRequestJSON = JsonConvert.SerializeObject(reVerifyParameters);

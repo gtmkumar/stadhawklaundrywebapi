@@ -7,6 +7,12 @@ namespace StadhawkLaundry.API.Common
 {
     public static class DateTimeConverter
     {
+        /// <summary>
+        /// Date time formet
+        /// </summary>
+        /// <param name="date"></param>
+        /// <param name="format"></param>
+        /// <returns></returns>
         public static string DatetimeConverterfromString(string date, DateFormat format)
         {
 
